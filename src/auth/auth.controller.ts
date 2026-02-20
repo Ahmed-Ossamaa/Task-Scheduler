@@ -18,7 +18,6 @@ import type { JwtPayload } from './interfaces/jwt-payload.interface';
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
-
   @Post('register')
   async register(
     @Body() registerDto: RegisterUserDto,
@@ -35,14 +34,20 @@ export class AuthController {
     @Body() loginDto: LoginUserDto,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const tokens = await this.authService.login(loginDto);
-    this.setRefreshTokenCookie(res, tokens.refreshToken);
-    return { accessToken: tokens.accessToken };
+    const user = await this.authService.login(loginDto);
+    this.setRefreshTokenCookie(res, user.refreshToken);
+    return {
+      accessToken: user.accessToken,
+      data: user.data,
+    };
   }
 
   @UseGuards(JwtAuthGuard)
   @Post('logout')
-  async logout(@CurrentUser() user: JwtPayload, @Res({ passthrough: true }) res: Response) {
+  async logout(
+    @CurrentUser() user: JwtPayload,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     await this.authService.logout(user.id);
     res.clearCookie('refreshToken');
     return { message: `${user.email} logged out successfully` };

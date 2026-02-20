@@ -59,7 +59,7 @@ export class AuthService {
     // }
   }
 
-  async login(loginDto: LoginUserDto): Promise<Tokens> {
+  async login(loginDto: LoginUserDto): Promise<any> {
     const user = await this.userService.findUserForLogin(loginDto.email);
 
     if (!user) {
@@ -73,7 +73,19 @@ export class AuthService {
     if (!matchedPassword) {
       throw new UnauthorizedException('Invalid credentials');
     }
-    return this.issueTokens(user.id, user.email);
+    const tokens = await this.issueTokens(user.id, user.email);
+    return {
+      ...tokens,
+        data:{
+          id: user.id,
+          email: user.email,
+          role: user.role,
+          gender: user.gender,
+          avatar: user.avatar,
+          isVerified: user.isEmailVerified
+
+        }
+    };
   }
 
   async logout(userId: string): Promise<void> {
