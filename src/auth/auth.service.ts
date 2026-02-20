@@ -13,8 +13,16 @@ import { ConfigService } from '@nestjs/config';
 import { StringValue } from 'ms';
 import { ChangePasswordDto } from 'src/auth/dto/change-password.dto';
 import { UserService } from 'src/users/users.service';
+import { UserMapper } from 'src/users/mappers/user.mapper';
+import { UserResponseDto } from 'src/users/dto/user-response.dto';
 
 type Tokens = { accessToken: string; refreshToken: string };
+
+type AuthResponse = {
+  user: UserResponseDto;
+  accessToken: string;
+  refreshToken: string;
+};
 @Injectable()
 export class AuthService {
   constructor(
@@ -23,7 +31,7 @@ export class AuthService {
     private readonly config: ConfigService,
   ) {}
 
-  async register(registerDto: RegisterUserDto): Promise<Tokens> {
+  async register(registerDto: RegisterUserDto): Promise<AuthResponse> {
     const existingUser = await this.userService.findUserByEmail(
       registerDto.email,
     );
@@ -38,7 +46,11 @@ export class AuthService {
       password: hashedPassword,
     });
 
-    return this.issueTokens(newUser.id, newUser.email);
+    const tokens = await this.issueTokens(newUser.id, newUser.email);
+    return {
+      ...tokens,
+      user: UserMapper.fromEntity(newUser),
+    };
     //or....................... but needs QueryFailedError & global error handler
     // to prevent race condition (2 users with same email at the same time)
     //     try {
@@ -59,7 +71,7 @@ export class AuthService {
     // }
   }
 
-  async login(loginDto: LoginUserDto): Promise<any> {
+  async login(loginDto: LoginUserDto): Promise<AuthResponse> {
     const user = await this.userService.findUserForLogin(loginDto.email);
 
     if (!user) {
@@ -76,15 +88,7 @@ export class AuthService {
     const tokens = await this.issueTokens(user.id, user.email);
     return {
       ...tokens,
-        data:{
-          id: user.id,
-          email: user.email,
-          role: user.role,
-          gender: user.gender,
-          avatar: user.avatar,
-          isVerified: user.isEmailVerified
-
-        }
+      user: UserMapper.fromEntity(user),
     };
   }
 

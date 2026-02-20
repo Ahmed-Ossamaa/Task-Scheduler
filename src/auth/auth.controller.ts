@@ -23,9 +23,12 @@ export class AuthController {
     @Body() registerDto: RegisterUserDto,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const tokens = await this.authService.register(registerDto);
-    this.setRefreshTokenCookie(res, tokens.refreshToken);
-    return { accessToken: tokens.accessToken };
+    const data = await this.authService.register(registerDto);
+    this.setRefreshTokenCookie(res, data.refreshToken);
+    return { 
+      accessToken: data.accessToken,
+      user: data.user,
+    };
   }
 
   @HttpCode(200)
@@ -34,11 +37,11 @@ export class AuthController {
     @Body() loginDto: LoginUserDto,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const user = await this.authService.login(loginDto);
-    this.setRefreshTokenCookie(res, user.refreshToken);
+    const data = await this.authService.login(loginDto);
+    this.setRefreshTokenCookie(res, data.refreshToken);
     return {
-      accessToken: user.accessToken,
-      data: user.data,
+      accessToken: data.accessToken,
+      user: data.user,
     };
   }
 

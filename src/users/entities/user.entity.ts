@@ -10,6 +10,7 @@ import {
 } from 'typeorm';
 import { UserRole } from '../enums/user-roles.enum';
 import { Task } from 'src/tasks/entities/task.entity';
+import { UserGender } from '../enums/user-gender.enum';
 
 @Entity('users')
 export class User {
@@ -25,8 +26,8 @@ export class User {
   @Column({ select: false })
   password: string;
 
-  @Column({ nullable: true })
-  gender?: string;
+  @Column({type: 'enum', enum: UserGender, nullable: true })
+  gender?: UserGender;
 
   @Column({
     type: 'enum',
