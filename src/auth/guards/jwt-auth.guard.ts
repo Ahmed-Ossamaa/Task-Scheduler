@@ -6,4 +6,3 @@ export class JwtAuthGuard extends AuthGuard('jwt') {}
 
 @Injectable()
 export class RefreshJwtGuard extends AuthGuard('jwt-refresh') {}
-

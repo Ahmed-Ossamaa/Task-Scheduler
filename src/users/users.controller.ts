@@ -7,26 +7,27 @@ import { User } from './entities/user.entity';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiBearerAuth } from '@nestjs/swagger';
 
-
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-
-
   @Get('me')
-  async getMyProfile(@CurrentUser() user:JwtPayload):Promise<User> {
+  async getMyProfile(@CurrentUser() user: JwtPayload): Promise<User> {
     return this.userService.findUserById(user.id);
   }
 
   @Patch('me')
   async updateMyProfile(
-    @CurrentUser() user:JwtPayload,
-    @Body() updateUserDto:UpdateUserDto
-): Promise<User> {
+    @CurrentUser() user: JwtPayload,
+    @Body() updateUserDto: UpdateUserDto,
+  ): Promise<User> {
     return this.userService.updateUserProfile(user.id, updateUserDto);
+  }
 
+  @Get('all')
+  async getAllUsers() {
+    return this.userService.findAllUsers();
   }
 }

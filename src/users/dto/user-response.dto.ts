@@ -27,7 +27,7 @@ export class UserResponseDto {
   @ApiPropertyOptional({ example: 'Egypt' })
   address?: string;
 
-  @ApiPropertyOptional({example: 'https://cloudinary.com/avatar.jpg'})
+  @ApiPropertyOptional({ example: 'https://cloudinary.com/avatar.jpg' })
   avatar?: string;
 
   @ApiProperty({ example: '2026-02-01T00:00:00.000Z' })

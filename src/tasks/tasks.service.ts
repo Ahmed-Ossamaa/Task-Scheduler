@@ -8,7 +8,7 @@ import { Repository } from 'typeorm';
 import { CreateTaskDTO } from './dto/create-task.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UpdateTaskDto } from './dto/update-task.dto';
-import { PagintaedTasks } from './types/task.response';
+import { PagintaedTasks } from './interfaces/task.response';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { TaskStatus } from './enums/tasks-status.enums';
@@ -101,7 +101,7 @@ export class TasksService {
       );
     }
 
-    if(task.status === TaskStatus.DONE) {
+    if (task.status === TaskStatus.DONE) {
       throw new BadRequestException('Excuted tasks can not be updated');
     }
 
@@ -110,7 +110,7 @@ export class TasksService {
         throw new BadRequestException('executeAt must be in the future');
       }
 
-      if(task.jobId) {
+      if (task.jobId) {
         const oldJob = await this.tasksQueue.getJob(task.jobId);
         if (oldJob) {
           await oldJob.remove();
@@ -150,9 +150,8 @@ export class TasksService {
       }
     }
 
-      await this.tasksRepo.remove(task);
+    await this.tasksRepo.remove(task);
 
-      return `Task with ID ${taskId} deleted successfuly`;
-    }
-  
+    return `Task with ID ${taskId} deleted successfuly`;
+  }
 }

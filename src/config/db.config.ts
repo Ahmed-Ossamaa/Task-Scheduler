@@ -13,7 +13,6 @@ import { registerAs } from '@nestjs/config';
 //   DB_SYNCHRONIZE: boolean;
 // }
 
-
 // const dbSchema = Joi.object({
 //   DATABASE_URL: Joi.string().optional(),
 //   DB_HOST: Joi.string().when('DATABASE_URL', {
@@ -44,7 +43,6 @@ import { registerAs } from '@nestjs/config';
 // });
 
 export default registerAs('db', () => {
-
   return {
     url: process.env.DATABASE_URL,
     host: process.env.DB_HOST,

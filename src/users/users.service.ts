@@ -4,8 +4,6 @@ import { FindOptionsSelect, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaginatedUsers } from './types/user.responses';
 
-
-
 @Injectable()
 export class UserService {
   constructor(
@@ -104,7 +102,10 @@ export class UserService {
     await this.userRepo.update(userId, { refreshToken });
   }
 
-  async updateUserProfile(userId: string, profile: Partial<User>): Promise<User> {
+  async updateUserProfile(
+    userId: string,
+    profile: Partial<User>,
+  ): Promise<User> {
     const user = await this.findUserById(userId);
     Object.assign(user, profile);
     return this.userRepo.save(user);

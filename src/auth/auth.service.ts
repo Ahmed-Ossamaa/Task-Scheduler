@@ -51,24 +51,6 @@ export class AuthService {
       ...tokens,
       user: UserMapper.fromEntity(newUser),
     };
-    //or....................... but needs QueryFailedError & global error handler
-    // to prevent race condition (2 users with same email at the same time)
-    //     try {
-    //   const hashedPassword = await bcrypt.hash(registerDto.password, 10);
-    //   const newUser = await this.userService.createUser({
-    //     ...registerDto,
-    //     password: hashedPassword,
-    //   });
-
-    //   return this.issueTokens(newUser.id, newUser.email);
-    // } catch (err) {
-
-    // 23505 is just postgres conflict error
-    //   if (err.code === '23505') {
-    //     throw new BadRequestException('Email already exists');
-    //   }
-    //   throw err;
-    // }
   }
 
   async login(loginDto: LoginUserDto): Promise<AuthResponse> {
@@ -93,7 +75,6 @@ export class AuthService {
   }
 
   async logout(userId: string): Promise<void> {
-    // await this.userRepo.update(userId, { refreshToken: null });
     await this.userService.updateRefreshToken(userId, null);
   }
 

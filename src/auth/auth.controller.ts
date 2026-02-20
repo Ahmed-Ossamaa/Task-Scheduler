@@ -25,7 +25,7 @@ export class AuthController {
   ) {
     const data = await this.authService.register(registerDto);
     this.setRefreshTokenCookie(res, data.refreshToken);
-    return { 
+    return {
       accessToken: data.accessToken,
       user: data.user,
     };
@@ -64,7 +64,7 @@ export class AuthController {
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const refreshToken = req.cookies.refreshToken;
+    const refreshToken = req.cookies.refreshToken as string;
     const tokens = await this.authService.refreshTokens(user.id, refreshToken);
     this.setRefreshTokenCookie(res, tokens.refreshToken);
     return { accessToken: tokens.accessToken };

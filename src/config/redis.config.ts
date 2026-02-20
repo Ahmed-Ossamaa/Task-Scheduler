@@ -1,6 +1,5 @@
 import { registerAs } from '@nestjs/config';
 
-
 type BackoffType = 'fixed' | 'exponential';
 
 export default registerAs('redis', () => ({

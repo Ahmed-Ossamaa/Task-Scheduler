@@ -15,7 +15,6 @@ export class TaskProcessor extends WorkerHost {
   }
 
   async process(job: Job<{ taskId: string }>): Promise<void> {
-
     if (job.name === 'excute-task') {
       const task = await this.tasksRepo.findOneBy({
         id: job.data.taskId,
@@ -26,7 +25,5 @@ export class TaskProcessor extends WorkerHost {
       task.status = TaskStatus.DONE;
       await this.tasksRepo.save(task);
     }
-
-
   }
 }

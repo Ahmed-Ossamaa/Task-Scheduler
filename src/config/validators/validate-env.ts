@@ -20,5 +20,5 @@ export function validateEnv<T>(
     );
   }
 
-  return value as T;
+  return value;
 }

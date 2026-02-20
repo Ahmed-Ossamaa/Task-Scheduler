@@ -21,7 +21,11 @@ export class RegisterUserDto {
   @IsEmail()
   email: string;
 
-  @ApiProperty({ example: '123456@Ab',description: 'minimum 8 characters, must contain uppercase, lowercase, number, and special character' })
+  @ApiProperty({
+    example: '123456@Ab',
+    description:
+      'minimum 8 characters, must contain uppercase, lowercase, number, and special character',
+  })
   @IsString()
   @MinLength(8)
   @Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
@@ -35,12 +39,12 @@ export class RegisterUserDto {
   @IsEnum(UserGender)
   gender?: UserGender;
 
-  @ApiPropertyOptional({ example: 25})
+  @ApiPropertyOptional({ example: 25 })
   @IsOptional()
   @IsNumber()
   age?: number;
 
-  @ApiPropertyOptional({ example: '01223456789'})
+  @ApiPropertyOptional({ example: '01223456789' })
   @IsOptional()
   @IsString()
   phone?: string;

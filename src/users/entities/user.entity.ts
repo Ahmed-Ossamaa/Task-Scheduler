@@ -26,7 +26,7 @@ export class User {
   @Column({ select: false })
   password: string;
 
-  @Column({type: 'enum', enum: UserGender, nullable: true })
+  @Column({ type: 'enum', enum: UserGender, nullable: true })
   gender?: UserGender;
 
   @Column({
@@ -49,7 +49,7 @@ export class User {
   avatar?: string;
 
   @Index('IDX_USERS_REFRESH_TOKEN')
-  @Column({type: 'text', nullable: true, select: false })
+  @Column({ type: 'text', nullable: true, select: false })
   refreshToken?: string | null;
 
   @Column({ default: true })

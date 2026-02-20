@@ -1,7 +1,5 @@
-
-
-export enum TaskStatus{
-    PENDING= 'pending',
-    DONE= 'done',
-    CANCELED= 'canceled'
+export enum TaskStatus {
+  PENDING = 'pending',
+  DONE = 'done',
+  CANCELED = 'canceled',
 }

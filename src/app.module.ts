@@ -10,8 +10,7 @@ import dbConfig from './config/db.config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BullModule } from '@nestjs/bullmq';
 import redisConfig from './config/redis.config';
-import {validationSchema} from './config/validation.schema'
-
+import { validationSchema } from './config/validation.schema';
 
 @Module({
   imports: [
@@ -20,7 +19,6 @@ import {validationSchema} from './config/validation.schema'
       validationSchema,
       load: [jwtConfig, dbConfig, redisConfig],
     }),
-
 
     TypeOrmModule.forRootAsync({
       inject: [dbConfig.KEY],
@@ -51,8 +49,6 @@ import {validationSchema} from './config/validation.schema'
       useFactory: (redis: ReturnType<typeof redisConfig>) => ({
         connection: redis.connection,
         defaultJobOptions: redis.defaultJobOptions,
-
-
       }),
     }),
     UserModule,
