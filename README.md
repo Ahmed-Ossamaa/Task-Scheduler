@@ -1,98 +1,144 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+# Task-Scheduler API
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+ Task Scheduler API built with NestJS, designed to handle user authentication, task management, and background job processing efficiently using Bullmq.
 
-## Description
+![NestJS](https://img.shields.io/badge/nestjs-%23E0234E.svg?style=for-the-badge&logo=nestjs&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/postgresql-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white)
+![Redis](https://img.shields.io/badge/redis-%23DD0031.svg?style=for-the-badge&logo=redis&logoColor=white)
+![BullMQ](https://img.shields.io/badge/bullmq-blue?style=for-the-badge)
+![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)
+![JWT](https://img.shields.io/badge/JWT-black?style=for-the-badge&logo=JSON%20web%20tokens)
+![Docker](https://img.shields.io/badge/docker-%232496ED.svg?style=for-the-badge&logo=docker&logoColor=white)
+![Swagger](https://img.shields.io/badge/swagger-%2385EA2D.svg?style=for-the-badge&logo=swagger&logoColor=black)
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## API Documentation
 
-## Project setup
+This project uses Swagger for API documentation. Once the application is running, you can access the Swagger UI at [http://localhost:5000/api](http://localhost:5000/api).
 
-```bash
-$ npm install
+## Features
+
+- **User Authentication:** Secure user registration and login with JWT-based authentication.
+- **Password Management:** Securely change passwords with hashing.
+- **Role-Based Access Control (RBAC):** Differentiated access levels for users and administrators.
+- **Task Management:** Create, retrieve, update, and delete tasks.
+- **Task Prioritization and Status:** Assign priority and status to tasks.
+- **Background Job Processing:** Excutes tasks automatically on excution time (execution time provided upon task creation)
+- **Refresh Token Rotation:** Securely refresh access tokens using httpOnly cookies.
+
+## Technologies
+
+- **Framework:** [NestJS](https://nestjs.com/)
+- **Database:** [PostgreSQL](https://www.postgresql.org/)
+- **Background Jobs:** [BullMQ](https://bullmq.io/)
+- **Authentication:** [JSON Web Tokens (JWT)](https://jwt.io/)
+- **ORM:** [TypeORM](https://typeorm.io/)
+- **Validation:** [class-validator](https://github.com/typestack/class-validator), [class-transformer](https://github.com/typestack/class-transformer) and [Joi](https://joi.dev/)
+- **Language:** [TypeScript](https://www.typescriptlang.org/)
+
+## Authentication Flow
+
+1.  **User Registration:** New users can register by providing their details.
+2.  **User Login:** Upon successful login, the API returns an `access_token` and a `refresh_token`.
+    -   The `access_token` is sent in the response body to be stored in memory.
+    -   The `refresh_token` is sent as an `httpOnly` cookie, which is automatically handled by the browser and is not accessible to JavaScript.
+3.  **Authenticated Requests:** The `access_token` must be included in the `Authorization` header for all protected endpoints.
+4.  **Token Refresh:** When the `access_token` expires, the client can request a new one by calling the `/auth/refresh` endpoint. The `refresh_token` (stored in the httpOnly cookie) is automatically sent with the request. This endpoint returns a new `access_token`.
+5.  **Logout:** When a user logs out, the `refresh_token` is cleared from the database.
+
+## Getting Started
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/en/)
+- [PostgreSQL](https://www.postgresql.org/download/)
+- [Redis](https://redis.io/topics/quickstart)
+
+### Installation
+
+1.  Clone the repository:
+    ```
+    git clone https://github.com/Ahmed-Ossamaa/Task-Scheduler.git
+    ```
+2.  Navigate to the project directory:
+    ```
+    cd task-manager
+    ```
+3.  Install the dependencies:
+    ```
+    npm install
+    ```
+4.  Set up the environment variables by creating a `.env` file in the root directory. See the `.env.example` section for the required variables.
+
+### Running the Application
+
+-   **Development:**
+    ```
+    npm run start:dev
+    ```
+-   **Production:**
+    ```
+    npm run start:prod
+    ```
+
+## API Endpoints
+
+### Authentication
+
+-   `POST /auth/register`: Register a new user.
+-   `POST /auth/login`: Log in a user.
+-   `POST /auth/refresh`: Refresh the access token.
+-   `POST /auth/logout`: Log out a user.
+-   `POST /auth/change-password`: Change the user's password.
+
+### Users
+
+-   `GET /users`: Get all users (Admin only).
+-   `GET /users/me`: Get the current user's profile.
+-   `PATCH /users/me`: Update the current user's profile.
+-   `DELETE /users/:id`: Delete a user (Admin only).
+
+### Tasks
+
+-   `POST /tasks`: Create a new task.
+-   `GET /tasks`: Get all tasks for the current user.
+-   `GET /tasks/:id`: Get a specific task.
+-   `PATCH /tasks/:id`: Update a task.
+-   `DELETE /tasks/:id`: Delete a task.
+
+## Environment Variables
+
+Create a `.env` file in the root of the project with the following variables:
+
+```
+# Application
+PORT=5000
+
+# Database
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=your-db-username
+DB_PASS=your-db-password
+DB_NAME=your-db-name
+DB_AUTO_LOAD_ENTITIES=true
+......OR....
+DATABASE_URL=your-db-url
+
+# JWT
+JWT_ACCESS_SECRET=your-JWT_ACCESS_SECRET
+JWT_REFRESH_SECRET=your-JWT_REFRESH_SECRET
+JWT_ACCESS_EXPIRES=15m
+JWT_REFRESH_EXPIRES=7d
+
+# Redis
+REDIS_HOST=localhost
+REDIS_PORT=6379
+REDIS_PASSWORD=your-password
+
+REDIS_ATTEMPTS=3
+REDIS_BACKOFF_TYPE=exponential
+REDIS_BACKOFF_DELAY=3000
+REDIS_REMOVE_ON_COMPLETE=true
+REDIS_REMOVE_ON_FAIL=false
 ```
 
-## Compile and run the project
-
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
-```
-
-## Run tests
-
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
-```
-
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
