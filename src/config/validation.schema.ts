@@ -7,6 +7,7 @@ export const validationSchema = Joi.object({
     .default('development'),
 
   PORT: Joi.number().default(5000),
+  CLIENT_URL: Joi.string().uri().default('http://localhost:3000'),
 
   // JWT
   JWT_ACCESS_SECRET: Joi.string().required(),
