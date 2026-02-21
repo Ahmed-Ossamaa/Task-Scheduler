@@ -7,6 +7,8 @@ import {
 import { Reflector } from '@nestjs/core';
 import { ROLES_KEY } from 'src/common/decorators/roles.decorator';
 import { UserRole } from 'src/users/enums/user-roles.enum';
+import { JwtPayload } from '../interfaces/jwt-payload.interface';
+import { Request } from 'express';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -21,14 +23,16 @@ export class RolesGuard implements CanActivate {
     if (!requiredRoles) {
       return true;
     }
-    const request = ctx.switchToHttp().getRequest();
+    const request: Request & { user: JwtPayload } = ctx
+      .switchToHttp()
+      .getRequest();
     const user = request.user;
 
     if (!user) {
       return false;
     }
 
-    const hasRole = requiredRoles.includes(user.role);
+    const hasRole = requiredRoles.includes(user.role as UserRole);
     if (!hasRole) {
       throw new ForbiddenException(
         `You don't have access to this route: ${request.path}`,

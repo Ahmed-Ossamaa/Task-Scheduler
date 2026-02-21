@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Patch, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Patch, Query, UseGuards } from '@nestjs/common';
 import { UserService } from './users.service';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
@@ -6,6 +6,8 @@ import type { JwtPayload } from 'src/auth/interfaces/jwt-payload.interface';
 import { User } from './entities/user.entity';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiBearerAuth } from '@nestjs/swagger';
+import { UserRole } from './enums/user-roles.enum';
+import { Roles } from 'src/common/decorators/roles.decorator';
 
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
@@ -26,8 +28,12 @@ export class UserController {
     return this.userService.updateUserProfile(user.id, updateUserDto);
   }
 
+  @Roles(UserRole.ADMIN)
   @Get('all')
-  async getAllUsers() {
-    return this.userService.findAllUsers();
+  async getAllUsers(
+    @Query('page') page: number,
+    @Query('limit') limit: number,
+  ) {
+    return this.userService.findAllUsers(page, limit);
   }
 }
