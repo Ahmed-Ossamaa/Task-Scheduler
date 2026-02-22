@@ -43,6 +43,20 @@ export class TasksService {
     return task;
   }
 
+  /**
+   * Execute a task by its ID (mark the status as done).
+   * @param {string} taskId - Task ID.
+   * @returns {Promise<void>} - Promise resolving when the task is executed.
+   */
+  async executeTask(taskId: string): Promise<void> {
+    const task = await this.tasksRepo.findOneBy({ id: taskId });
+
+    if (!task) return;
+
+    task.status = TaskStatus.DONE;
+    await this.tasksRepo.save(task);
+  }
+
   async getMyTasks(userId: string): Promise<Task[]> {
     return this.tasksRepo.find({
       where: {
