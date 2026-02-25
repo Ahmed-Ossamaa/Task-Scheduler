@@ -7,6 +7,7 @@ import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import jwtConfig from './config/jwt.config';
 import dbConfig from './config/db.config';
+import googleAuthConfig from './config/oAuth.config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BullModule } from '@nestjs/bullmq';
 import redisConfig from './config/redis.config';
@@ -17,7 +18,7 @@ import { validationSchema } from './config/validation.schema';
     ConfigModule.forRoot({
       isGlobal: true,
       validationSchema,
-      load: [jwtConfig, dbConfig, redisConfig],
+      load: [jwtConfig, dbConfig, redisConfig, googleAuthConfig],
     }),
 
     TypeOrmModule.forRootAsync({

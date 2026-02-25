@@ -23,8 +23,14 @@ export class User {
   @Column({ unique: true })
   email: string;
 
-  @Column({ select: false })
-  password: string;
+  @Column({ nullable: true, select: false })
+  password?: string;
+
+  @Column({ nullable: true })
+  oAuthProvider?: string;
+
+  @Column({ nullable: true })
+  oauthId?: string;
 
   @Column({ type: 'enum', enum: UserGender, nullable: true })
   gender?: UserGender;
