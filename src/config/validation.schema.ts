@@ -8,6 +8,7 @@ export const validationSchema = Joi.object({
 
   PORT: Joi.number().default(5000),
   CLIENT_URL: Joi.string().uri().default('http://localhost:3000'),
+  BASE_URL: Joi.string().uri().default('http://localhost:5000'),
 
   // JWT
   JWT_ACCESS_SECRET: Joi.string().required(),
@@ -40,4 +41,8 @@ export const validationSchema = Joi.object({
   REDIS_BACKOFF_DELAY: Joi.number().default(3000),
   REDIS_REMOVE_ON_COMPLETE: Joi.boolean().default(true),
   REDIS_REMOVE_ON_FAIL: Joi.boolean().default(false),
+
+  // GOOGLE
+  GOOGLE_CLIENT_ID: Joi.string().required(),
+  GOOGLE_CLIENT_SECRET: Joi.string().required(),
 });

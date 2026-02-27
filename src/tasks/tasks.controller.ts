@@ -31,7 +31,7 @@ export class TasksController {
     @CurrentUser() user: JwtPayload,
     @Body() taskDto: CreateTaskDTO,
   ) {
-    return this.tasksService.scheduleTask(taskDto, user.id);
+    return this.tasksService.scheduleTask(taskDto, user.sub);
   }
 
   @Get('all')
@@ -45,7 +45,7 @@ export class TasksController {
 
   @Get('/my-tasks')
   async getMyTasks(@CurrentUser() user: JwtPayload) {
-    return this.tasksService.getMyTasks(user.id);
+    return this.tasksService.getMyTasks(user.sub);
   }
 
   @Get(':taskId')
@@ -53,7 +53,7 @@ export class TasksController {
     @CurrentUser() user: JwtPayload,
     @Param('taskId') taskId: string,
   ) {
-    return this.tasksService.getTaskById(taskId, user.id);
+    return this.tasksService.getTaskById(taskId, user.sub);
   }
 
   @Patch(':taskId')
@@ -62,7 +62,7 @@ export class TasksController {
     @Param('taskId') taskId: string,
     @Body() taskDto: UpdateTaskDto,
   ) {
-    return this.tasksService.updateTask(taskId, taskDto, user.id);
+    return this.tasksService.updateTask(taskId, taskDto, user.sub);
   }
 
   @Delete(':taskId')
@@ -70,6 +70,6 @@ export class TasksController {
     @CurrentUser() user: JwtPayload,
     @Param('taskId') taskId: string,
   ) {
-    return this.tasksService.deleteTask(taskId, user.id);
+    return this.tasksService.deleteTask(taskId, user.sub);
   }
 }

@@ -1,7 +1,9 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
+  Inject,
   Post,
   Req,
   Res,
@@ -14,10 +16,18 @@ import { JwtAuthGuard, RefreshJwtGuard } from './guards/jwt-auth.guard';
 import type { Request, Response } from 'express';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 import type { JwtPayload } from './interfaces/jwt-payload.interface';
+import { GoogleAuthGuard } from './guards/google-auth.guard';
+import { AuthResponse } from './interfaces/auth-response.interface';
+import appConfiguration from 'src/config/app.config';
+import type { ConfigType } from '@nestjs/config';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    @Inject(appConfiguration.KEY)
+    private readonly appConfig: ConfigType<typeof appConfiguration>,
+  ) {}
   @Post('register')
   async register(
     @Body() registerDto: RegisterUserDto,
@@ -51,8 +61,13 @@ export class AuthController {
     @CurrentUser() user: JwtPayload,
     @Res({ passthrough: true }) res: Response,
   ) {
-    await this.authService.logout(user.id);
-    res.clearCookie('refreshToken');
+    await this.authService.logout(user.sub);
+    res.clearCookie('refreshToken', {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'lax',
+      path: '/auth/refresh',
+    });
     return { message: `${user.email} logged out successfully` };
   }
 
@@ -64,17 +79,36 @@ export class AuthController {
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
+    // console.log('userId', user.sub);
     const refreshToken = req.cookies.refreshToken as string;
-    const tokens = await this.authService.refreshTokens(user.id, refreshToken);
-    this.setRefreshTokenCookie(res, tokens.refreshToken);
-    return { accessToken: tokens.accessToken };
+    const data = await this.authService.refreshTokens(user.sub, refreshToken);
+    this.setRefreshTokenCookie(res, data.refreshToken);
+    return {
+      accessToken: data.accessToken,
+      user: data.user,
+    };
+  }
+
+  @Get('google')
+  @UseGuards(GoogleAuthGuard)
+  async googleLogin() {}
+
+  @Get('google/callback')
+  @UseGuards(GoogleAuthGuard)
+  googleAuthCallback(@Req() req: Request, @Res() res: Response) {
+    if (req.user) {
+      const { refreshToken } = req.user as AuthResponse;
+      this.setRefreshTokenCookie(res, refreshToken);
+      const clientUrl = this.appConfig.clientURL;
+      return res.redirect(clientUrl);
+    }
   }
 
   // Helper method =>  set the refresh token cookie to the response
   private setRefreshTokenCookie(res: Response, refreshToken: string) {
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      secure: true,
+      secure: this.appConfig.nodeEnv === 'production',
       sameSite: 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000,
       path: '/auth/refresh',

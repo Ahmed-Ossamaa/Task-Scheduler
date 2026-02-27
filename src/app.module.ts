@@ -5,6 +5,7 @@ import { UserModule } from './users/users.module';
 import { TasksModule } from './tasks/tasks.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
+import appConfig from './config/app.config';
 import jwtConfig from './config/jwt.config';
 import dbConfig from './config/db.config';
 import googleAuthConfig from './config/oAuth.config';
@@ -18,7 +19,7 @@ import { validationSchema } from './config/validation.schema';
     ConfigModule.forRoot({
       isGlobal: true,
       validationSchema,
-      load: [jwtConfig, dbConfig, redisConfig, googleAuthConfig],
+      load: [appConfig, jwtConfig, dbConfig, redisConfig, googleAuthConfig],
     }),
 
     TypeOrmModule.forRootAsync({

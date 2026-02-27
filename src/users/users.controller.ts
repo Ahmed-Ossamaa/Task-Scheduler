@@ -17,7 +17,7 @@ export class UserController {
 
   @Get('me')
   async getMyProfile(@CurrentUser() user: JwtPayload): Promise<User> {
-    return this.userService.findUserById(user.id);
+    return this.userService.findUserById(user.sub);
   }
 
   @Patch('me')
@@ -25,7 +25,7 @@ export class UserController {
     @CurrentUser() user: JwtPayload,
     @Body() updateUserDto: UpdateUserDto,
   ): Promise<User> {
-    return this.userService.updateUserProfile(user.id, updateUserDto);
+    return this.userService.updateUserProfile(user.sub, updateUserDto);
   }
 
   @Roles(UserRole.ADMIN)
