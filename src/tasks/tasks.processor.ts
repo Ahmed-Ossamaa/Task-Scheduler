@@ -9,9 +9,10 @@ export class TaskProcessor extends WorkerHost {
   }
 
   async process(job: Job<{ taskId: string }>): Promise<void> {
-    if (job.name === 'excute-task') {
+    if (job.name === 'EXPIRE_TASK_JOB') {
+      console.log(`Processing \t [EXPIRE_TASK_JOB] => ${job.data.taskId}\n`);
       const taskId = job.data.taskId;
-      await this.taskService.executeTask(taskId);
+      await this.taskService.handleTaskExpiration(taskId);
     }
   }
 }

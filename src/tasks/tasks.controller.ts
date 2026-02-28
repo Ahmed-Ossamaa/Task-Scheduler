@@ -43,9 +43,15 @@ export class TasksController {
     return this.tasksService.getAllTasks(+page, +limit);
   }
 
+  @Get('user/:userId')
+  @Roles(UserRole.ADMIN, UserRole.MANAGER)
+  async getUserTasks(@Param('userId') userId: string) {
+    return this.tasksService.getUserTasks(userId);
+  }
+
   @Get('/my-tasks')
   async getMyTasks(@CurrentUser() user: JwtPayload) {
-    return this.tasksService.getMyTasks(user.sub);
+    return this.tasksService.getUserTasks(user.sub);
   }
 
   @Get(':taskId')

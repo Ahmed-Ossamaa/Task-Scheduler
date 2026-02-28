@@ -22,19 +22,19 @@ export class TasksService {
   ) {}
 
   async scheduleTask(taskDto: CreateTaskDTO, userId: string): Promise<Task> {
-    if (new Date(taskDto.excuteAt) <= new Date()) {
-      throw new BadRequestException('executeAt must be in the future');
+    if (new Date(taskDto.deadLine) <= new Date()) {
+      throw new BadRequestException('DeadLine must be in the future');
     }
     const task = this.tasksRepo.create({
       ...taskDto,
-      author: { id: userId },
+      assignedById: userId,
     });
     await this.tasksRepo.save(task);
 
-    const delay = new Date(taskDto.excuteAt).getTime() - Date.now();
+    const delay = new Date(taskDto.deadLine).getTime() - Date.now();
 
     const job = await this.tasksQueue.add(
-      'excute-task',
+      'EXPIRE_TASK_JOB',
       { taskId: task.id },
       { delay },
     );
@@ -43,24 +43,56 @@ export class TasksService {
     return task;
   }
 
+  async completeTask(taskId: string, userId: string): Promise<Task> {
+    const task = await this.tasksRepo.findOne({
+      where: { id: taskId, assignedToId: userId },
+    });
+
+    if (!task) throw new NotFoundException('Task not found');
+
+    if (task.status === TaskStatus.OVERDUE) {
+      throw new BadRequestException(
+        'Task is already overdue. Contact manager.',
+      );
+    }
+
+    if (task.status === TaskStatus.DONE) {
+      return task;
+    }
+
+    // Remove the pending "Expire" job from the queue
+    if (task.jobId) {
+      const job = await this.tasksQueue.getJob(task.jobId);
+      if (job) await job.remove();
+    }
+
+    // Mark the task as done
+    task.status = TaskStatus.DONE;
+    task.completedAt = new Date();
+    task.jobId = null;
+
+    return this.tasksRepo.save(task);
+  }
+
   /**
    * Execute a task by its ID (mark the status as done).
    * @param {string} taskId - Task ID.
    * @returns {Promise<void>} - Promise resolving when the task is executed.
    */
-  async executeTask(taskId: string): Promise<void> {
+  async handleTaskExpiration(taskId: string): Promise<void> {
     const task = await this.tasksRepo.findOneBy({ id: taskId });
 
-    if (!task) return;
+    if (!task || task.status === TaskStatus.DONE) return;
 
-    task.status = TaskStatus.DONE;
+    task.status = TaskStatus.OVERDUE;
+    task.jobId = null;
     await this.tasksRepo.save(task);
   }
 
-  async getMyTasks(userId: string): Promise<Task[]> {
+  async getUserTasks(userId: string): Promise<Task[]> {
     return this.tasksRepo.find({
       where: {
-        author: { id: userId },
+        assignedToId: userId,
       },
     });
   }
@@ -69,7 +101,7 @@ export class TasksService {
     const task = await this.tasksRepo.findOne({
       where: {
         id: taskId,
-        author: { id: userId },
+        assignedToId: userId,
       },
     });
     if (!task) {
@@ -103,10 +135,11 @@ export class TasksService {
     taskDto: UpdateTaskDto,
     userId: string,
   ): Promise<Task> {
+    //get the task (only the owner(manager) can update it)
     const task = await this.tasksRepo.findOne({
       where: {
         id: taskId,
-        author: { id: userId },
+        assignedById: userId,
       },
     });
     if (!task) {
@@ -115,15 +148,18 @@ export class TasksService {
       );
     }
 
-    if (task.status === TaskStatus.DONE) {
-      throw new BadRequestException('Excuted tasks can not be updated');
+    if (task.status === TaskStatus.DONE || task.status === TaskStatus.OVERDUE) {
+      throw new BadRequestException('Cannot update a finished or overdue task');
     }
 
-    if (taskDto.excuteAt) {
-      if (new Date(taskDto.excuteAt) <= new Date()) {
-        throw new BadRequestException('executeAt must be in the future');
+    // If the deadLine is to be updated, remove the old job and create a new one
+    if (taskDto.deadLine) {
+      const newDeadline = new Date(taskDto.deadLine);
+      if (newDeadline <= new Date()) {
+        throw new BadRequestException('deadLine must be in the future');
       }
 
+      // Remove old job
       if (task.jobId) {
         const oldJob = await this.tasksQueue.getJob(task.jobId);
         if (oldJob) {
@@ -131,9 +167,10 @@ export class TasksService {
         }
       }
 
-      const delay = new Date(taskDto.excuteAt).getTime() - Date.now();
+      // Create the new job
+      const delay = newDeadline.getTime() - Date.now();
       const newJob = await this.tasksQueue.add(
-        'excute-task',
+        'EXPIRE_TASK_JOB',
         { taskId: task.id },
         { delay },
       );
@@ -148,7 +185,7 @@ export class TasksService {
     const task = await this.tasksRepo.findOne({
       where: {
         id: taskId,
-        author: { id: userId },
+        assignedById: userId,
       },
     });
 

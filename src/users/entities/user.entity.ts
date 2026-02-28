@@ -74,6 +74,6 @@ export class User {
   @DeleteDateColumn()
   deletedAt: Date; //partial index on deletedAt (idx is only on the deleted rows)
 
-  @OneToMany(() => Task, (task) => task.author)
-  tasks: Task[];
+  @OneToMany(() => Task, (task) => task.assignedTo)
+  tasksToDo: Task[];
 }
