@@ -10,5 +10,6 @@ export default registerAs('db', () => {
     name: process.env.DB_NAME,
     autoLoadEntities: process.env.DB_AUTO_LOAD_ENTITIES === 'true',
     synchronize: process.env.NODE_ENV === 'development',
+    timezone: 'Z',
   };
 });

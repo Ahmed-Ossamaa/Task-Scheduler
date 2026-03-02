@@ -64,14 +64,14 @@ export class User {
   @Column({ default: false })
   isEmailVerified: boolean;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt: Date;
 
   @Index('IDX_USERS_DELETED_AT', { where: '("deletedAt" IS NOT NULL)' })
-  @DeleteDateColumn()
+  @DeleteDateColumn({ type: 'timestamptz' })
   deletedAt: Date; //partial index on deletedAt (idx is only on the deleted rows)
 
   @OneToMany(() => Task, (task) => task.assignedTo)
