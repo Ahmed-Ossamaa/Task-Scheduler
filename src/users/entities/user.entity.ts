@@ -4,6 +4,8 @@ import {
   DeleteDateColumn,
   Entity,
   Index,
+  JoinColumn,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -11,6 +13,7 @@ import {
 import { UserRole } from '../enums/user-roles.enum';
 import { Task } from 'src/tasks/entities/task.entity';
 import { UserGender } from '../enums/user-gender.enum';
+import { Orgnization } from 'src/orgnizations/entities/orgnization.entity';
 
 @Entity('users')
 export class User {
@@ -76,4 +79,13 @@ export class User {
 
   @OneToMany(() => Task, (task) => task.assignedTo)
   tasksToDo: Task[];
+
+  @Column({ nullable: true })
+  organizationId: string;
+
+  @ManyToOne(() => Orgnization, (org) => org.users, {
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn({ name: 'organizationId' })
+  orgnization: Orgnization;
 }
