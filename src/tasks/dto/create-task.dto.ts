@@ -39,7 +39,11 @@ export class CreateTaskDTO {
   @IsEnum(TaskPriority)
   priority?: TaskPriority;
 
-  @ApiProperty({ example: '2026-03-01T16:00:00.000Z' })
+  @ApiProperty({
+    example: '2026-03-02T16:00:00.000+02:00',
+    description:
+      'Deadline of the task "in UTC for ex: +02:00 for egypt", after which the task will be marked as overdue',
+  })
   @Type(() => Date)
   @IsDate()
   deadLine: Date; // timestamptz
