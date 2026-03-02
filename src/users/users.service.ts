@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { User } from './entities/user.entity';
 import { FindOptionsSelect, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -137,5 +141,25 @@ export class UserService {
         avatar: profile?.photos?.[0].value,
       });
     }
+  }
+
+  async validateEmployeeInOrg(
+    managerId: string,
+    employeeId: string,
+  ): Promise<User> {
+    const manager = await this.findUserById(managerId);
+    const employee = await this.findUserById(employeeId);
+
+    if (!manager.organizationId || !employee.organizationId) {
+      throw new ForbiddenException('You are not a member of any organization');
+    }
+
+    if (manager.organizationId !== employee.organizationId) {
+      throw new ForbiddenException(
+        'You cannot assign tasks to users outside your organization',
+      );
+    }
+
+    return employee;
   }
 }

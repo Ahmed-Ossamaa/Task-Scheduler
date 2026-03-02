@@ -7,6 +7,7 @@ import { Task } from './entities/task.entity';
 import { Repository } from 'typeorm';
 import { CreateTaskDTO } from './dto/create-task.dto';
 import { InjectRepository } from '@nestjs/typeorm';
+import { UserService } from 'src/users/users.service';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { PagintaedTasks } from './interfaces/task.response';
 import { InjectQueue } from '@nestjs/bullmq';
@@ -19,15 +20,21 @@ export class TasksService {
     private readonly tasksRepo: Repository<Task>,
     @InjectQueue('tasks')
     private readonly tasksQueue: Queue,
+    private readonly userService: UserService,
   ) {}
 
-  async scheduleTask(taskDto: CreateTaskDTO, userId: string): Promise<Task> {
+  async scheduleTask(taskDto: CreateTaskDTO, managerId: string): Promise<Task> {
     if (new Date(taskDto.deadLine) <= new Date()) {
       throw new BadRequestException('DeadLine must be in the future');
     }
+    const employee = await this.userService.validateEmployeeInOrg(
+      managerId,
+      taskDto.assignedToId,
+    );
     const task = this.tasksRepo.create({
       ...taskDto,
-      assignedById: userId,
+      assignedById: managerId,
+      assignedToId: employee.id,
     });
     await this.tasksRepo.save(task);
 
