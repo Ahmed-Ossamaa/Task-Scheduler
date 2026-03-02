@@ -19,7 +19,7 @@ export class Task {
   id: string;
 
   @Column({ nullable: true })
-  jobId?: string | null;
+  jobId?: string;
 
   @Column()
   title: string;

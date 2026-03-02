@@ -69,7 +69,7 @@ export class TasksService {
     // Mark the task as done
     task.status = TaskStatus.DONE;
     task.completedAt = new Date();
-    task.jobId = null;
+    task.jobId = undefined;
 
     return this.tasksRepo.save(task);
   }
@@ -85,7 +85,7 @@ export class TasksService {
     if (!task || task.status === TaskStatus.DONE) return;
 
     task.status = TaskStatus.OVERDUE;
-    task.jobId = null;
+    task.jobId = undefined;
     await this.tasksRepo.save(task);
   }
 

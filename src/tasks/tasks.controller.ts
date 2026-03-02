@@ -81,7 +81,8 @@ export class TasksController {
 
   @Get(':taskId')
   @ApiOperation({
-    summary: 'Get details of a specific task (tasks of current logged-in user)',
+    summary:
+      'Get details of a specific task (from tasks assigned to current logged-in user)',
   })
   async getTaskById(
     @CurrentUser() user: JwtPayload,

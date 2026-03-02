@@ -10,6 +10,7 @@ import {
 } from 'class-validator';
 import { TaskPriority } from '../enums/tasks-priority.enums';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 
 export class CreateTaskDTO {
   @ApiProperty({ example: 'Finish project' })
@@ -39,6 +40,7 @@ export class CreateTaskDTO {
   priority?: TaskPriority;
 
   @ApiProperty({ example: '2026-03-01T16:00:00.000Z' })
+  @Type(() => Date)
   @IsDate()
   deadLine: Date; // timestamptz
 }
