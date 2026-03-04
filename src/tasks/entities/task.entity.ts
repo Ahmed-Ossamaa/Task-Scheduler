@@ -66,4 +66,7 @@ export class Task {
   })
   @JoinColumn({ name: 'assignedToId' })
   assignedTo: User;
+
+  @Column()
+  organizationId: string;
 }

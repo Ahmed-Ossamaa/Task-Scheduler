@@ -39,6 +39,7 @@ export class TasksService {
       ...taskDto,
       assignedById: managerId,
       assignedToId: employee.id,
+      organizationId: OrganzationId,
     });
     await this.tasksRepo.save(task);
 
@@ -130,6 +131,7 @@ export class TasksService {
     const skip = (page - 1) * take;
     const [tasks, total] = await this.tasksRepo.findAndCount({
       where: {},
+      order: { createdAt: 'DESC' },
       skip,
       take,
     });
@@ -147,24 +149,26 @@ export class TasksService {
     const take = Math.min(limit, 100);
     const skip = (page - 1) * take;
 
-    const query = this.tasksRepo
-      .createQueryBuilder('task')
-      .leftJoinAndSelect('task.assignedBy', 'manager')
-      .leftJoin('task.assignedTo', 'employee')
-      .addSelect(['employee.id', 'employee.name', 'employee.avatar'])
-      .where('manager.organizationId = :orgId', { orgId })
-      // Pagination
-      .skip(skip)
-      .take(take)
-      .orderBy('task.createdAt', 'DESC');
-
-    const [tasks, total] = await query.getManyAndCount();
+    const [tasks, total] = await this.tasksRepo.findAndCount({
+      where: { organizationId: orgId },
+      order: { createdAt: 'DESC' },
+      skip,
+      take,
+      relations: ['assignedTo'],
+      select: {
+        assignedTo: {
+          id: true,
+          name: true,
+          avatar: true,
+        },
+      },
+    });
 
     return {
       data: tasks,
       total,
       page,
-      lastPage: Math.ceil(total / limit),
+      lastPage: Math.ceil(total / take),
     };
   }
 

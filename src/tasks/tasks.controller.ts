@@ -5,6 +5,7 @@ import {
   ForbiddenException,
   Get,
   Param,
+  ParseIntPipe,
   ParseUUIDPipe,
   Patch,
   Post,
@@ -50,23 +51,27 @@ export class TasksController {
     return scheduledTask;
   }
 
-  @Get('all')
-  @Roles(UserRole.ADMIN)
   @ApiOperation({
     summary: 'Get all tasks in the system (Admin Only)',
   })
+  @Get('all')
+  @Roles(UserRole.ADMIN)
   async getAllTasks(
-    @Query('page') page: number = 1,
-    @Query('limit') limit: number = 20,
+    @Query('page', new ParseIntPipe({ optional: true })) page: number = 1,
+    @Query('limit', new ParseIntPipe({ optional: true })) limit: number = 20,
   ) {
-    return this.tasksService.getAllTasks(+page, +limit);
+    return this.tasksService.getAllTasks(page, limit);
   }
 
   @Roles(UserRole.MANAGER)
   @Get('org')
+  @ApiOperation({
+    summary:
+      'Get all tasks assigned to employees in the organization (Manager Only)',
+  })
   async getAllTasksInOrg(
-    @Query('page') page: number = 1,
-    @Query('limit') limit: number = 20,
+    @Query('page', new ParseIntPipe({ optional: true })) page: number = 1,
+    @Query('limit', new ParseIntPipe({ optional: true })) limit: number = 20,
     @CurrentUser() manager: JwtPayload,
   ) {
     if (!manager.organizationId) {
