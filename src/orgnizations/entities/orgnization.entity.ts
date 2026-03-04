@@ -8,8 +8,8 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-@Entity('orgnizations')
-export class Orgnization {
+@Entity('organizations')
+export class Organization {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -22,6 +22,6 @@ export class Orgnization {
   @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt: Date;
 
-  @OneToMany(() => User, (user) => user.orgnization)
+  @OneToMany(() => User, (user) => user.organization)
   users: User[];
 }

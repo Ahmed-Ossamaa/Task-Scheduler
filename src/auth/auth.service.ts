@@ -18,6 +18,7 @@ import { Profile } from 'passport-google-oauth20';
 import { UserRole } from 'src/users/enums/user-roles.enum';
 import jwtConfig from 'src/config/jwt.config';
 import { AuthResponse } from './interfaces/auth-response.interface';
+import { CreateEmployeeDto } from 'src/users/dto/create-employee.dto';
 
 type Tokens = { accessToken: string; refreshToken: string };
 
@@ -30,25 +31,30 @@ export class AuthService {
     private readonly config: ConfigType<typeof jwtConfig>,
   ) {}
 
-  async register(registerDto: RegisterUserDto): Promise<AuthResponse> {
+  async registerManager(
+    registerManagerDto: RegisterUserDto,
+  ): Promise<AuthResponse> {
     const existingUser = await this.userService.findUserByEmail(
-      registerDto.email,
+      registerManagerDto.email,
     );
 
     if (existingUser) {
       throw new BadRequestException('Email already exists');
     }
 
-    const hashedPassword = await bcrypt.hash(registerDto.password, 10);
+    const hashedPassword = await bcrypt.hash(registerManagerDto.password, 10);
     const newUser = await this.userService.createUser({
-      ...registerDto,
+      ...registerManagerDto,
       password: hashedPassword,
+      role: UserRole.MANAGER,
+      organizationId: null,
     });
 
     const tokens = await this.issueTokens(
       newUser.id,
       newUser.email,
-      newUser.role,
+      UserRole.MANAGER,
+      null,
     );
     return {
       ...tokens,
@@ -70,11 +76,26 @@ export class AuthService {
     if (!matchedPassword) {
       throw new UnauthorizedException('Invalid credentials');
     }
-    const tokens = await this.issueTokens(user.id, user.email, user.role);
+    const tokens = await this.issueTokens(
+      user.id,
+      user.email,
+      user.role,
+      user.organizationId,
+    );
     return {
       ...tokens,
       user: UserMapper.fromEntity(user),
     };
+  }
+
+  async registerEmployee(managerId: string, registerEmpDto: CreateEmployeeDto) {
+    const hashedPassword = await bcrypt.hash(registerEmpDto.password, 10);
+    const employee = this.userService.createEmployee(
+      managerId,
+      registerEmpDto,
+      hashedPassword,
+    );
+    return employee;
   }
 
   async logout(userId: string): Promise<void> {
@@ -96,7 +117,12 @@ export class AuthService {
     if (!matchedTokens) {
       throw new ForbiddenException('Access Denied');
     }
-    const tokens = await this.issueTokens(user.id, user.email, user.role);
+    const tokens = await this.issueTokens(
+      user.id,
+      user.email,
+      user.role,
+      user.organizationId,
+    );
     return {
       ...tokens,
       user: UserMapper.fromEntity(user),
@@ -130,8 +156,9 @@ export class AuthService {
     userId: string,
     email: string,
     role: UserRole,
+    organizationId: string | null,
   ): Promise<Tokens> {
-    const payload = { sub: userId, email, role };
+    const payload = { sub: userId, email, role, organizationId };
 
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(payload, {
@@ -161,7 +188,13 @@ export class AuthService {
   async googleLogin(profile: Profile) {
     const user = await this.userService.findOrCreateUserFromGoogle(profile);
     if (user) {
-      const tokens = await this.issueTokens(user.id, user.email, user.role);
+      const organizationId = user.organizationId || null;
+      const tokens = await this.issueTokens(
+        user.id,
+        user.email,
+        user.role,
+        organizationId,
+      );
       return {
         ...tokens,
         user: UserMapper.fromEntity(user),

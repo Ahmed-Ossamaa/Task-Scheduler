@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   Param,
   ParseUUIDPipe,
@@ -33,10 +34,20 @@ export class TasksController {
     summary: 'Create and Schedule a new task (Manager Only)',
   })
   async scheduleTask(
-    @CurrentUser() user: JwtPayload,
+    @CurrentUser() manager: JwtPayload,
     @Body() taskDto: CreateTaskDTO,
   ) {
-    return this.tasksService.scheduleTask(taskDto, user.sub);
+    if (!manager.organizationId) {
+      throw new ForbiddenException(
+        'You must create an organization before assigning tasks.',
+      );
+    }
+    const scheduledTask = await this.tasksService.scheduleTask(
+      taskDto,
+      manager.sub,
+      manager.organizationId,
+    );
+    return scheduledTask;
   }
 
   @Get('all')
@@ -97,11 +108,11 @@ export class TasksController {
     summary: 'Update task details Deadline, Title, etc. (Manager Only)',
   })
   async updateTask(
-    @CurrentUser() user: JwtPayload,
+    @CurrentUser() manager: JwtPayload,
     @Param('taskId', ParseUUIDPipe) taskId: string,
     @Body() taskDto: UpdateTaskDto,
   ) {
-    return this.tasksService.updateTask(taskId, taskDto, user.sub);
+    return this.tasksService.updateTask(taskId, taskDto, manager.sub);
   }
 
   @Delete(':taskId')

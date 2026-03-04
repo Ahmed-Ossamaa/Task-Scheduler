@@ -50,7 +50,7 @@ export class Task {
   @Column({ nullable: true })
   assignedById: string;
 
-  @ManyToOne(() => User, {
+  @ManyToOne(() => User, (user) => user.tasksAssigned, {
     onDelete: 'SET NULL',
     nullable: true,
   })
@@ -66,9 +66,4 @@ export class Task {
   })
   @JoinColumn({ name: 'assignedToId' })
   assignedTo: User;
-
-  // @ManyToOne(() => User, (author) => author.tasks, {
-  //   onDelete: 'CASCADE',
-  // })
-  // author: User;
 }

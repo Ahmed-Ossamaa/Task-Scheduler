@@ -1,4 +1,6 @@
 import {
+  BadRequestException,
+  ConflictException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -8,6 +10,8 @@ import { FindOptionsSelect, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaginatedUsers } from './types/user.responses';
 import { Profile } from 'passport-google-oauth20';
+import { UserRole } from './enums/user-roles.enum';
+import { CreateEmployeeDto } from './dto/create-employee.dto';
 
 @Injectable()
 export class UserService {
@@ -19,6 +23,47 @@ export class UserService {
   async createUser(userData: Partial<User>): Promise<User> {
     const user = this.userRepo.create(userData);
     return this.userRepo.save(user);
+  }
+
+  async createEmployee(
+    managerId: string,
+    employeeDto: CreateEmployeeDto,
+    hashedPassword: string,
+  ): Promise<User> {
+    const manager = await this.findUserById(managerId);
+
+    if (!manager.organizationId) {
+      throw new BadRequestException(
+        'Manager must have an organization in order to create an employee',
+      );
+    }
+
+    const existing = await this.userRepo.findOneBy({
+      email: employeeDto.email,
+    });
+    if (existing)
+      throw new ConflictException('A user with this Email already exists');
+
+    const newEmployee = this.userRepo.create({
+      name: employeeDto.name,
+      email: employeeDto.email,
+      password: hashedPassword,
+      role: UserRole.EMP,
+      organizationId: manager.organizationId,
+      isEmailVerified: true,
+    });
+
+    return this.userRepo.save(newEmployee);
+  }
+
+  async findMyEmployees(organizationId: string): Promise<User[]> {
+    const employees = await this.userRepo.find({
+      where: {
+        organizationId,
+      },
+    });
+
+    return employees;
   }
 
   async findUserById(userId: string): Promise<User> {
@@ -38,7 +83,12 @@ export class UserService {
   async findUserForLogin(email: string): Promise<User | null> {
     const user = await this.userRepo
       .createQueryBuilder('user')
-      .addSelect(['user.password', 'user.refreshToken'])
+      .addSelect([
+        'user.password',
+        'user.refreshToken',
+        'user.role',
+        'user.organizationId',
+      ])
       .where('user.email = :email', { email })
       .getOne();
 
@@ -124,6 +174,24 @@ export class UserService {
     }
   }
 
+  async deleteEmployee(
+    managerOrgId: string,
+    employeeId: string,
+  ): Promise<void> {
+    const employee = await this.findUserById(employeeId);
+    if (employee.organizationId !== managerOrgId) {
+      throw new ForbiddenException(
+        'You can only manage users in your own organization',
+      );
+    }
+
+    const result = await this.userRepo.softDelete(employeeId);
+
+    if (result.affected === 0) {
+      throw new NotFoundException(`User with ID ${employeeId} not found`);
+    }
+  }
+
   async findOrCreateUserFromGoogle(profile: Profile) {
     if (profile.emails) {
       const email = profile.emails[0].value;
@@ -139,22 +207,22 @@ export class UserService {
         oauthId: profile.id,
         isEmailVerified: true,
         avatar: profile?.photos?.[0].value,
+        role: UserRole.MANAGER,
       });
     }
   }
 
   async validateEmployeeInOrg(
-    managerId: string,
+    organizationId: string,
     employeeId: string,
   ): Promise<User> {
-    const manager = await this.findUserById(managerId);
     const employee = await this.findUserById(employeeId);
 
-    if (!manager.organizationId || !employee.organizationId) {
-      throw new ForbiddenException('You are not a member of any organization');
+    if (!organizationId) {
+      throw new ForbiddenException('Manager must belong to an organization');
     }
 
-    if (manager.organizationId !== employee.organizationId) {
+    if (organizationId !== employee.organizationId) {
       throw new ForbiddenException(
         'You cannot assign tasks to users outside your organization',
       );

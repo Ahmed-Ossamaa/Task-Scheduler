@@ -13,7 +13,7 @@ import {
 import { UserRole } from '../enums/user-roles.enum';
 import { Task } from 'src/tasks/entities/task.entity';
 import { UserGender } from '../enums/user-gender.enum';
-import { Orgnization } from 'src/orgnizations/entities/orgnization.entity';
+import { Organization } from 'src/orgnizations/entities/orgnization.entity';
 
 @Entity('users')
 export class User {
@@ -41,7 +41,7 @@ export class User {
   @Column({
     type: 'enum',
     enum: UserRole,
-    default: UserRole.USER,
+    default: UserRole.EMP,
   })
   role: UserRole;
 
@@ -80,12 +80,15 @@ export class User {
   @OneToMany(() => Task, (task) => task.assignedTo)
   tasksToDo: Task[];
 
-  @Column({ nullable: true })
-  organizationId: string;
+  @OneToMany(() => Task, (task) => task.assignedBy)
+  tasksAssigned: Task[];
 
-  @ManyToOne(() => Orgnization, (org) => org.users, {
+  @Column({ nullable: true })
+  organizationId: string | null;
+
+  @ManyToOne(() => Organization, (org) => org.users, {
     onDelete: 'SET NULL',
   })
   @JoinColumn({ name: 'organizationId' })
-  orgnization: Orgnization;
+  organization: Organization;
 }

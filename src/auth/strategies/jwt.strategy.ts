@@ -4,6 +4,7 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import type { ConfigType } from '@nestjs/config';
 import { JwtPayload } from '../interfaces/jwt-payload.interface';
 import jwtConfig from 'src/config/jwt.config';
+import { UserRole } from 'src/users/enums/user-roles.enum';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -17,11 +18,12 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  validate(payload: Record<string, string>): JwtPayload {
+  validate(payload: Record<string, unknown>): JwtPayload {
     return {
-      sub: payload.sub,
-      email: payload.email,
-      role: payload.role,
+      sub: payload.sub as string,
+      email: payload.email as string,
+      role: payload.role as UserRole,
+      organizationId: payload.organizationId as string | undefined,
     };
   }
 }

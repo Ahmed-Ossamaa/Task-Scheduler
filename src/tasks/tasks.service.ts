@@ -23,12 +23,16 @@ export class TasksService {
     private readonly userService: UserService,
   ) {}
 
-  async scheduleTask(taskDto: CreateTaskDTO, managerId: string): Promise<Task> {
+  async scheduleTask(
+    taskDto: CreateTaskDTO,
+    managerId: string,
+    OrganzationId: string,
+  ): Promise<Task> {
     if (new Date(taskDto.deadLine) <= new Date()) {
       throw new BadRequestException('DeadLine must be in the future');
     }
     const employee = await this.userService.validateEmployeeInOrg(
-      managerId,
+      OrganzationId,
       taskDto.assignedToId,
     );
     const task = this.tasksRepo.create({
@@ -117,6 +121,7 @@ export class TasksService {
     return task;
   }
 
+  //Get All tasks "system wide"
   async getAllTasks(
     page: number = 1,
     limit: number = 20,
@@ -140,13 +145,13 @@ export class TasksService {
   async updateTask(
     taskId: string,
     taskDto: UpdateTaskDto,
-    userId: string,
+    managerId: string,
   ): Promise<Task> {
     //get the task (only the owner(manager) can update it)
     const task = await this.tasksRepo.findOne({
       where: {
         id: taskId,
-        assignedById: userId,
+        assignedById: managerId,
       },
     });
     if (!task) {
