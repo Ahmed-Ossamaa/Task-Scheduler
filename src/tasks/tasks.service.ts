@@ -142,6 +142,32 @@ export class TasksService {
     };
   }
 
+  //Get All tasks by Organization Id
+  async findAllTasksInOrg(orgId: string, page: number = 1, limit: number = 20) {
+    const take = Math.min(limit, 100);
+    const skip = (page - 1) * take;
+
+    const query = this.tasksRepo
+      .createQueryBuilder('task')
+      .leftJoinAndSelect('task.assignedBy', 'manager')
+      .leftJoin('task.assignedTo', 'employee')
+      .addSelect(['employee.id', 'employee.name', 'employee.avatar'])
+      .where('manager.organizationId = :orgId', { orgId })
+      // Pagination
+      .skip(skip)
+      .take(take)
+      .orderBy('task.createdAt', 'DESC');
+
+    const [tasks, total] = await query.getManyAndCount();
+
+    return {
+      data: tasks,
+      total,
+      page,
+      lastPage: Math.ceil(total / limit),
+    };
+  }
+
   async updateTask(
     taskId: string,
     taskDto: UpdateTaskDto,

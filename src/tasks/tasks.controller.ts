@@ -62,6 +62,26 @@ export class TasksController {
     return this.tasksService.getAllTasks(+page, +limit);
   }
 
+  @Roles(UserRole.MANAGER)
+  @Get('org')
+  async getAllTasksInOrg(
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 20,
+    @CurrentUser() manager: JwtPayload,
+  ) {
+    if (!manager.organizationId) {
+      throw new ForbiddenException(
+        'You must create an organization before assigning tasks.',
+      );
+    }
+    const tasks = await this.tasksService.findAllTasksInOrg(
+      manager.organizationId,
+      page,
+      limit,
+    );
+    return tasks;
+  }
+
   @Get('user/:userId')
   @Roles(UserRole.ADMIN, UserRole.MANAGER)
   @ApiOperation({
