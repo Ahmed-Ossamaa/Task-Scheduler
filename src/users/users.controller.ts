@@ -24,14 +24,14 @@ import { Roles } from 'src/common/decorators/roles.decorator';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Get('me')
   @ApiOperation({ summary: 'Get my profile' })
+  @Get('me')
   async getMyProfile(@CurrentUser() user: JwtPayload): Promise<User> {
     return this.userService.findUserById(user.sub);
   }
 
-  @Patch('me')
   @ApiOperation({ summary: 'Update my profile' })
+  @Patch('me')
   async updateMyProfile(
     @CurrentUser() user: JwtPayload,
     @Body() updateUserDto: UpdateUserDto,
@@ -49,9 +49,9 @@ export class UserController {
     return this.userService.findAllUsers(page, limit);
   }
 
-  @Roles(UserRole.ADMIN)
-  @Delete(':userId')
   @ApiOperation({ summary: 'Delete user "soft delete" (admin only)' })
+  @Delete(':userId')
+  @Roles(UserRole.ADMIN)
   async deleteUser(@Param('userId') userId: string) {
     return this.userService.deleteUser(userId);
   }

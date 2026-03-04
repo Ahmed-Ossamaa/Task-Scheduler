@@ -29,11 +29,11 @@ import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
 
-  @Post('/schedule')
-  @Roles(UserRole.MANAGER)
   @ApiOperation({
     summary: 'Create and Schedule a new task (Manager Only)',
   })
+  @Post('/schedule')
+  @Roles(UserRole.MANAGER)
   async scheduleTask(
     @CurrentUser() manager: JwtPayload,
     @Body() taskDto: CreateTaskDTO,
@@ -63,12 +63,12 @@ export class TasksController {
     return this.tasksService.getAllTasks(page, limit);
   }
 
-  @Roles(UserRole.MANAGER)
-  @Get('org')
   @ApiOperation({
     summary:
       'Get all tasks assigned to employees in the organization (Manager Only)',
   })
+  @Roles(UserRole.MANAGER)
+  @Get('org')
   async getAllTasksInOrg(
     @Query('page', new ParseIntPipe({ optional: true })) page: number = 1,
     @Query('limit', new ParseIntPipe({ optional: true })) limit: number = 20,
@@ -87,27 +87,27 @@ export class TasksController {
     return tasks;
   }
 
-  @Get('user/:userId')
-  @Roles(UserRole.ADMIN, UserRole.MANAGER)
   @ApiOperation({
     summary: 'See all tasks assigned to a specific user (Manager & Admin Only)',
   })
+  @Get('user/:userId')
+  @Roles(UserRole.ADMIN, UserRole.MANAGER)
   async getUserTasks(@Param('userId', ParseUUIDPipe) userId: string) {
     return this.tasksService.getUserTasks(userId);
   }
 
-  @Get('/my-tasks')
   @ApiOperation({
-    summary: 'Get tasks assigned to the current logged-in user',
+    summary: 'Get tasks assigned to the current logged-in user (the employee)',
   })
+  @Get('/my-tasks')
   async getMyTasks(@CurrentUser() user: JwtPayload) {
     return this.tasksService.getUserTasks(user.sub);
   }
 
-  @Patch(':taskId/complete')
   @ApiOperation({
-    summary: 'Mark a task as DONE (Stops the Overdue Timer)',
+    summary: 'Employee mark a task as DONE (Stops the Overdue Timer)',
   })
+  @Patch(':taskId/complete')
   async completeTask(
     @CurrentUser() user: JwtPayload,
     @Param('taskId', ParseUUIDPipe) taskId: string,
@@ -115,11 +115,11 @@ export class TasksController {
     return this.tasksService.completeTask(taskId, user.sub);
   }
 
-  @Get(':taskId')
   @ApiOperation({
     summary:
       'Get details of a specific task (from tasks assigned to current logged-in user)',
   })
+  @Get(':taskId')
   async getTaskById(
     @CurrentUser() user: JwtPayload,
     @Param('taskId', ParseUUIDPipe) taskId: string,
@@ -127,11 +127,11 @@ export class TasksController {
     return this.tasksService.getTaskById(taskId, user.sub);
   }
 
-  @Patch(':taskId')
-  @Roles(UserRole.MANAGER)
   @ApiOperation({
     summary: 'Update task details Deadline, Title, etc. (Manager Only)',
   })
+  @Patch(':taskId')
+  @Roles(UserRole.MANAGER)
   async updateTask(
     @CurrentUser() manager: JwtPayload,
     @Param('taskId', ParseUUIDPipe) taskId: string,
@@ -140,9 +140,9 @@ export class TasksController {
     return this.tasksService.updateTask(taskId, taskDto, manager.sub);
   }
 
+  @ApiOperation({ summary: 'Delete a task (Manager & Admin Only)' })
   @Delete(':taskId')
   @Roles(UserRole.MANAGER, UserRole.ADMIN)
-  @ApiOperation({ summary: 'Delete a task (Manager & Admin Only)' })
   async deleteTask(
     @CurrentUser() user: JwtPayload,
     @Param('taskId') taskId: string,
