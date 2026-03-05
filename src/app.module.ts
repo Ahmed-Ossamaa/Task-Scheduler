@@ -13,7 +13,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { BullModule } from '@nestjs/bullmq';
 import redisConfig from './config/redis.config';
 import { validationSchema } from './config/validation.schema';
-import { OrgnizationsModule } from './orgnizations/orgnizations.module';
+import { OrganizationsModule } from './organizations/organizations.module';
 
 @Module({
   imports: [
@@ -57,7 +57,7 @@ import { OrgnizationsModule } from './orgnizations/orgnizations.module';
     UserModule,
     TasksModule,
     AuthModule,
-    OrgnizationsModule,
+    OrganizationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

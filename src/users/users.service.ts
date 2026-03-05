@@ -166,6 +166,10 @@ export class UserService {
     return this.userRepo.save(user);
   }
 
+  async saveUser(user: User): Promise<User> {
+    return this.userRepo.save(user);
+  }
+
   async deleteUser(userId: string): Promise<void> {
     const result = await this.userRepo.softDelete(userId);
 

@@ -13,7 +13,7 @@ import {
 import { UserRole } from '../enums/user-roles.enum';
 import { Task } from 'src/tasks/entities/task.entity';
 import { UserGender } from '../enums/user-gender.enum';
-import { Organization } from 'src/orgnizations/entities/orgnization.entity';
+import { Organization } from 'src/organizations/entities/organization.entity';
 
 @Entity('users')
 export class User {
