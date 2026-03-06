@@ -1,6 +1,8 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString, MaxLength } from 'class-validator';
 
 export class CreateOrgDto {
+  @ApiProperty({ example: 'ISFP' })
   @IsString()
   @IsNotEmpty()
   @MaxLength(50)

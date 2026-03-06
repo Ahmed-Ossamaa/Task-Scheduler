@@ -32,7 +32,7 @@ export class RolesGuard implements CanActivate {
       return false;
     }
 
-    const hasRole = requiredRoles.includes(user.role as UserRole);
+    const hasRole = requiredRoles.includes(user.role);
     if (!hasRole) {
       throw new ForbiddenException(
         `You don't have access to this route: ${request.path}`,
