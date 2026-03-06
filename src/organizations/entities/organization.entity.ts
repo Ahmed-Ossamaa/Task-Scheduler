@@ -16,6 +16,9 @@ export class Organization {
   @Column()
   name: string;
 
+  @Column({ nullable: true })
+  logo?: string;
+
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 
