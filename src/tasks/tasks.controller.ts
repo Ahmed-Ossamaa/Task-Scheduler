@@ -91,7 +91,7 @@ export class TasksController {
   }
 
   @ApiOperation({
-    summary: 'See all tasks assigned to a specific user (Manager)',
+    summary: 'See all tasks assigned to a specific user (Admin/Manager)',
   })
   @Get('user/:userId')
   @Roles(UserRole.ADMIN, UserRole.MANAGER)
@@ -99,17 +99,23 @@ export class TasksController {
     @CurrentUser() user: JwtPayload,
     @Param('userId', ParseUUIDPipe) userId: string,
   ) {
-    if (!user.organizationId) {
-      throw new BadRequestException('You dont belong to any organization');
+    // Manager
+    if (user.role === UserRole.MANAGER) {
+      if (!user.organizationId) {
+        throw new BadRequestException('You dont belong to any organization');
+      }
+
+      return this.tasksService.getUserTasks(userId, user.organizationId);
     }
-    return this.tasksService.getUserTasks(userId, user.organizationId);
+    // Admin
+    return this.tasksService.getUserTasks(userId);
   }
 
   @ApiOperation({
-    summary: 'Get tasks assigned to the current logged-in user (the employee)',
+    summary: 'Get tasks assigned to the current user (employee/manager)',
   })
   @Get('/my-tasks')
-  @Roles(UserRole.EMP)
+  @Roles(UserRole.EMP, UserRole.MANAGER)
   async getMyTasks(@CurrentUser() user: JwtPayload) {
     if (!user.organizationId) {
       return [];
@@ -153,7 +159,7 @@ export class TasksController {
     return this.tasksService.updateTask(taskId, taskDto, manager.sub);
   }
 
-  @ApiOperation({ summary: 'Delete a task (Manager & Admin Only)' })
+  @ApiOperation({ summary: 'Delete a task (Admin/Manager)' })
   @Delete(':taskId')
   @Roles(UserRole.MANAGER, UserRole.ADMIN)
   async deleteTask(

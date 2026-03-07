@@ -102,11 +102,13 @@ export class TasksService {
     await this.tasksRepo.save(task);
   }
 
-  async getUserTasks(userId: string, orgId: string): Promise<Task[]> {
-    const criteria = {
+  async getUserTasks(userId: string, orgId?: string): Promise<Task[]> {
+    const criteria: Record<string, string> = {
       assignedToId: userId,
-      organizationId: orgId,
     };
+    if (orgId) {
+      criteria.organizationId = orgId;
+    }
     return this.tasksRepo.find({
       where: criteria,
       order: { createdAt: 'DESC' },
