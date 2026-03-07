@@ -38,6 +38,8 @@ export class AuthController {
     @Inject(jwtConfiguration.KEY)
     private readonly jwtConfig: ConfigType<typeof jwtConfiguration>,
   ) {}
+
+  @ApiOperation({ summary: 'Register new user as a manager' })
   @Post('register')
   async register(
     @Body() registerDto: RegisterUserDto,
@@ -50,6 +52,8 @@ export class AuthController {
       user: data.user,
     };
   }
+
+  @ApiOperation({ summary: 'Login user' })
   @Throttle({ default: { limit: 5, ttl: 300000 } })
   @HttpCode(200)
   @Post('login')
@@ -65,6 +69,9 @@ export class AuthController {
     };
   }
 
+  @ApiOperation({
+    summary: 'Register and add new employee to org (Manager only)',
+  })
   @Throttle({ default: { limit: 5, ttl: 60000 } })
   @UseGuards(JwtAuthGuard)
   @Roles(UserRole.MANAGER)
@@ -82,6 +89,7 @@ export class AuthController {
     };
   }
 
+  @ApiOperation({ summary: 'Logout current user' })
   @UseGuards(JwtAuthGuard)
   @Post('logout')
   async logout(
@@ -109,6 +117,7 @@ export class AuthController {
     return { message: 'Password changed successfully' };
   }
 
+  @ApiOperation({ summary: 'Refresh the access token (passive)' })
   @HttpCode(200)
   @UseGuards(RefreshJwtGuard)
   @Post('refresh')
