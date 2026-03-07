@@ -106,7 +106,9 @@ export class AuthController {
     return { message: `${user.email} logged out successfully` };
   }
 
-  @ApiOperation({ summary: 'Change my password (must be logged in)' })
+  @ApiOperation({
+    summary: 'Change my password (must be logged in) then logout the user',
+  })
   @UseGuards(JwtAuthGuard)
   @Patch('change-password')
   async changePassword(
@@ -114,7 +116,7 @@ export class AuthController {
     @Body() changePasswordDto: ChangePasswordDto,
   ): Promise<{ message: string }> {
     await this.authService.changePassword(user.sub, changePasswordDto);
-    return { message: 'Password changed successfully' };
+    return { message: 'Password changed successfully, please login again' };
   }
 
   @ApiOperation({ summary: 'Refresh the access token (passive)' })

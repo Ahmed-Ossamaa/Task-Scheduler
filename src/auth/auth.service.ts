@@ -150,6 +150,24 @@ export class AuthService {
 
     const hashedPassword = await bcrypt.hash(changePasswordDto.newPassword, 10);
     await this.userService.updateUserPassword(user, hashedPassword);
+    await this.logout(user.id);
+  }
+
+  async googleLogin(profile: Profile) {
+    const user = await this.userService.findOrCreateUserFromGoogle(profile);
+    if (user) {
+      const organizationId = user.organizationId || null;
+      const tokens = await this.issueTokens(
+        user.id,
+        user.email,
+        user.role,
+        organizationId,
+      );
+      return {
+        ...tokens,
+        user: UserMapper.fromEntity(user),
+      };
+    }
   }
 
   private async issueTokens(
@@ -183,22 +201,5 @@ export class AuthService {
   ): Promise<void> {
     const hashedRT = await bcrypt.hash(refreshToken, 10);
     await this.userService.updateRefreshToken(userId, hashedRT);
-  }
-
-  async googleLogin(profile: Profile) {
-    const user = await this.userService.findOrCreateUserFromGoogle(profile);
-    if (user) {
-      const organizationId = user.organizationId || null;
-      const tokens = await this.issueTokens(
-        user.id,
-        user.email,
-        user.role,
-        organizationId,
-      );
-      return {
-        ...tokens,
-        user: UserMapper.fromEntity(user),
-      };
-    }
   }
 }
