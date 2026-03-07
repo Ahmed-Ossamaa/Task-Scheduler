@@ -4,6 +4,7 @@ import {
   Get,
   HttpCode,
   Inject,
+  Patch,
   Post,
   Req,
   Res,
@@ -25,6 +26,8 @@ import { Roles } from 'src/common/decorators/roles.decorator';
 import { UserRole } from 'src/users/enums/user-roles.enum';
 import jwtConfiguration from 'src/config/jwt.config';
 import { Throttle } from '@nestjs/throttler';
+import { ChangePasswordDto } from './dto/change-password.dto';
+import { ApiOperation } from '@nestjs/swagger';
 
 @Controller('auth')
 export class AuthController {
@@ -93,6 +96,17 @@ export class AuthController {
       path: '/auth/refresh',
     });
     return { message: `${user.email} logged out successfully` };
+  }
+
+  @ApiOperation({ summary: 'Change my password (must be logged in)' })
+  @UseGuards(JwtAuthGuard)
+  @Patch('change-password')
+  async changePassword(
+    @CurrentUser() user: JwtPayload,
+    @Body() changePasswordDto: ChangePasswordDto,
+  ): Promise<{ message: string }> {
+    await this.authService.changePassword(user.sub, changePasswordDto);
+    return { message: 'Password changed successfully' };
   }
 
   @HttpCode(200)
