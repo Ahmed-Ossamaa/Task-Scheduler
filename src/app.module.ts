@@ -14,6 +14,8 @@ import { BullModule } from '@nestjs/bullmq';
 import redisConfig from './config/redis.config';
 import { validationSchema } from './config/validation.schema';
 import { OrganizationsModule } from './organizations/organizations.module';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -54,12 +56,25 @@ import { OrganizationsModule } from './organizations/organizations.module';
         defaultJobOptions: redis.defaultJobOptions,
       }),
     }),
+
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000,
+        limit: 20,
+      },
+    ]),
     UserModule,
     TasksModule,
     AuthModule,
     OrganizationsModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
 export class AppModule {}

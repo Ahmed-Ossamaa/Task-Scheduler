@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Patch,
   Query,
   UseGuards,
@@ -17,6 +18,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { UserRole } from './enums/user-roles.enum';
 import { Roles } from 'src/common/decorators/roles.decorator';
+import { Throttle } from '@nestjs/throttler';
 
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
@@ -39,12 +41,13 @@ export class UserController {
     return this.userService.updateUserProfile(user.sub, updateUserDto);
   }
 
+  @ApiOperation({ summary: 'Get all users with pagination (admin only)' })
+  @Throttle({ default: { limit: 50, ttl: 60000 } })
   @Roles(UserRole.ADMIN)
   @Get('all')
-  @ApiOperation({ summary: 'Get all users with pagination (admin only)' })
   async getAllUsers(
-    @Query('page') page: number,
-    @Query('limit') limit: number,
+    @Query('page', new ParseIntPipe({ optional: true })) page: number,
+    @Query('limit', new ParseIntPipe({ optional: true })) limit: number,
   ) {
     return this.userService.findAllUsers(page, limit);
   }

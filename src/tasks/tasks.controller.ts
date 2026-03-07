@@ -22,6 +22,7 @@ import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { UserRole } from 'src/users/enums/user-roles.enum';
 import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -54,6 +55,7 @@ export class TasksController {
   @ApiOperation({
     summary: 'Get all tasks in the system (Admin Only)',
   })
+  @Throttle({ default: { limit: 50, ttl: 60000 } })
   @Get('all')
   @Roles(UserRole.ADMIN)
   async getAllTasks(

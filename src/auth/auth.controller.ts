@@ -24,6 +24,7 @@ import { CreateEmployeeDto } from 'src/users/dto/create-employee.dto';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { UserRole } from 'src/users/enums/user-roles.enum';
 import jwtConfiguration from 'src/config/jwt.config';
+import { Throttle } from '@nestjs/throttler';
 
 @Controller('auth')
 export class AuthController {
@@ -46,7 +47,7 @@ export class AuthController {
       user: data.user,
     };
   }
-
+  @Throttle({ default: { limit: 5, ttl: 300000 } })
   @HttpCode(200)
   @Post('login')
   async login(
@@ -61,6 +62,7 @@ export class AuthController {
     };
   }
 
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   @UseGuards(JwtAuthGuard)
   @Roles(UserRole.MANAGER)
   @Post('register/employee')
@@ -86,7 +88,7 @@ export class AuthController {
     await this.authService.logout(user.sub);
     res.clearCookie('refreshToken', {
       httpOnly: true,
-      secure: true,
+      secure: this.appConfig.nodeEnv === 'production',
       sameSite: 'lax',
       path: '/auth/refresh',
     });
