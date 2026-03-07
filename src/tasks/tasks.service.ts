@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -101,23 +102,34 @@ export class TasksService {
     await this.tasksRepo.save(task);
   }
 
-  async getUserTasks(userId: string): Promise<Task[]> {
+  async getUserTasks(userId: string, orgId: string): Promise<Task[]> {
+    const criteria = {
+      assignedToId: userId,
+      organizationId: orgId,
+    };
     return this.tasksRepo.find({
-      where: {
-        assignedToId: userId,
-      },
+      where: criteria,
+      order: { createdAt: 'DESC' },
     });
   }
 
-  async getTaskById(taskId: string, userId: string): Promise<Task> {
+  async getTaskById(taskId: string, userOrgId: string): Promise<Task> {
     const task = await this.tasksRepo.findOne({
-      where: {
-        id: taskId,
-        assignedToId: userId,
+      where: { id: taskId },
+      relations: ['assignedBy', 'assignedTo'],
+      select: {
+        assignedBy: { id: true, name: true, email: true, avatar: true },
+        assignedTo: { id: true, name: true, email: true, avatar: true },
       },
     });
     if (!task) {
       throw new NotFoundException('Task not found');
+    }
+
+    if (task.organizationId !== userOrgId) {
+      throw new ForbiddenException(
+        'You do not have permission to view this task',
+      );
     }
     return task;
   }

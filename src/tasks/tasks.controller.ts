@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -90,20 +91,30 @@ export class TasksController {
   }
 
   @ApiOperation({
-    summary: 'See all tasks assigned to a specific user (Manager & Admin Only)',
+    summary: 'See all tasks assigned to a specific user (Manager)',
   })
   @Get('user/:userId')
   @Roles(UserRole.ADMIN, UserRole.MANAGER)
-  async getUserTasks(@Param('userId', ParseUUIDPipe) userId: string) {
-    return this.tasksService.getUserTasks(userId);
+  async getUserTasks(
+    @CurrentUser() user: JwtPayload,
+    @Param('userId', ParseUUIDPipe) userId: string,
+  ) {
+    if (!user.organizationId) {
+      throw new BadRequestException('You dont belong to any organization');
+    }
+    return this.tasksService.getUserTasks(userId, user.organizationId);
   }
 
   @ApiOperation({
     summary: 'Get tasks assigned to the current logged-in user (the employee)',
   })
   @Get('/my-tasks')
+  @Roles(UserRole.EMP)
   async getMyTasks(@CurrentUser() user: JwtPayload) {
-    return this.tasksService.getUserTasks(user.sub);
+    if (!user.organizationId) {
+      return [];
+    }
+    return this.tasksService.getUserTasks(user.sub, user.organizationId);
   }
 
   @ApiOperation({
@@ -117,16 +128,16 @@ export class TasksController {
     return this.tasksService.completeTask(taskId, user.sub);
   }
 
-  @ApiOperation({
-    summary:
-      'Get details of a specific task (from tasks assigned to current logged-in user)',
-  })
+  @ApiOperation({ summary: 'Get details of a specific task (within your org)' })
   @Get(':taskId')
   async getTaskById(
     @CurrentUser() user: JwtPayload,
     @Param('taskId', ParseUUIDPipe) taskId: string,
   ) {
-    return this.tasksService.getTaskById(taskId, user.sub);
+    if (!user.organizationId) {
+      throw new ForbiddenException('You are not part of any organization');
+    }
+    return this.tasksService.getTaskById(taskId, user.organizationId);
   }
 
   @ApiOperation({
