@@ -1,0 +1,32 @@
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+
+export function middleware(request: NextRequest) {
+  const refreshToken = request.cookies.get('refreshToken');
+  const { pathname } = request.nextUrl;
+  const isAuthPage = pathname.startsWith('/login') || pathname.startsWith('/register');
+
+  // User is Logged In 
+  if (refreshToken) {
+    // If user tried to go to Login/Register
+    if (isAuthPage) {
+      return NextResponse.redirect(new URL('/dashboard', request.url));
+    }
+    // Otherwise go wherever 
+    return NextResponse.next();
+  }
+
+  // User is Guest (No Cookie)
+  // Allow them to go to Login/Register
+  if (isAuthPage) {
+    return NextResponse.next();
+  }
+
+  // Guest tries to visit Protected Route (Dashboard)
+  // Redirect to Login
+  return NextResponse.redirect(new URL('/login', request.url));
+}
+
+export const config = {
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
+};
