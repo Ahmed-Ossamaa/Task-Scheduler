@@ -54,7 +54,7 @@ export class AuthController {
   }
 
   @ApiOperation({ summary: 'Login user' })
-  @Throttle({ default: { limit: 5, ttl: 300000 } })
+  @Throttle({ default: { limit: 20, ttl: 300000 } })
   @HttpCode(200)
   @Post('login')
   async login(
@@ -101,7 +101,7 @@ export class AuthController {
       httpOnly: true,
       secure: this.appConfig.nodeEnv === 'production',
       sameSite: 'lax',
-      path: '/auth/refresh',
+      path: '/',
     });
     return { message: `${user.email} logged out successfully` };
   }
@@ -161,7 +161,7 @@ export class AuthController {
       secure: this.appConfig.nodeEnv === 'production',
       sameSite: 'lax',
       maxAge: days * 24 * 60 * 60 * 1000,
-      path: '/auth/refresh',
+      path: '/',
     });
   }
 }
