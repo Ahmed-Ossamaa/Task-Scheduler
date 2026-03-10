@@ -12,7 +12,7 @@ export const authApi = {
   },
 
   getProfile: async () => {
-    const response = await api.get<User>('/users/me');
+    const response = await api.get<User>('/user/me');
     return response.data;
   },
 
