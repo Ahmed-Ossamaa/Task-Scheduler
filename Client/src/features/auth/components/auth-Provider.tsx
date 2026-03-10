@@ -5,22 +5,23 @@ import { useAuthStore } from '@/features/auth/store/auth.store';
 import api from '@/lib/api/axios';
 
 export default function AuthProvider({ children }: { children: React.ReactNode }) {
-  const setAccessToken = useAuthStore((state) => state.setAccessToken);
+  // const setAccessToken = useAuthStore((state) => state.setAccessToken);
   const setUser = useAuthStore((state) => state.setUser);
 
   useEffect(() => {
     const initAuth = async () => {
       try {
-        const { data } = await api.get('/auth/refresh'); 
+        const { data } = await api.get('/user/me'); 
         setUser(data); 
-
-      } catch (error) {
-        console.log("Auth:", error || "No active session found");
+        
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } catch (error: any) {
+        console.log("Auth: Guest session", error.message);
       }
     };
 
     initAuth();
-  }, [setAccessToken, setUser]);
+  }, [setUser]);
 
   return <>{children}</>;
 }
