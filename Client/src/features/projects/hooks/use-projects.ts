@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { projectsApi, CreateProjectDto } from '../api/projects-api';
+import { projectsApi } from '../api/projects-api';
 import { useAuthStore } from '@/features/auth/store/auth.store';
+import { CreateProjectDto } from '../types';
 
 export const useOrgProjects = () => {
   const user = useAuthStore((state) => state.user);
