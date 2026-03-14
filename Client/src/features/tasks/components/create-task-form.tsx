@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { TaskPriority } from '../types';
 import { useCreateTask } from '../hooks/use-tasks';
-
+import { useOrgProjects } from '@/features/projects/hooks/use-projects';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -34,6 +34,7 @@ const formSchema = z.object({
   deadline: z.string().min(1, 'Deadline is required'),
   priority: z.enum(TaskPriority),
   assignedToId: z.uuid('Must be a valid user ID'),
+  projectId: z.string().uuid('Please select a project'),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -41,6 +42,7 @@ type FormValues = z.infer<typeof formSchema>;
 export function CreateTaskForm({ onSuccess }: { onSuccess?: () => void }) {
   const { mutate: createTask, isPending } = useCreateTask();
   const { data: employees, isLoading: isLoadingEmployees } = useOrgEmployees();
+  const { data: projects, isLoading: isLoadingProjects } = useOrgProjects();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -50,6 +52,7 @@ export function CreateTaskForm({ onSuccess }: { onSuccess?: () => void }) {
       deadline: '',
       priority: TaskPriority.MED,
       assignedToId: '',
+      projectId: '',
     },
   });
 
@@ -57,6 +60,7 @@ export function CreateTaskForm({ onSuccess }: { onSuccess?: () => void }) {
   function onSubmit(values: FormValues) {
     const payload = {
       ...values,
+      projectId: values.projectId,
       deadLine: new Date(values.deadline).toISOString(),
     };
 
@@ -137,6 +141,49 @@ export function CreateTaskForm({ onSuccess }: { onSuccess?: () => void }) {
                     <SelectItem value={TaskPriority.LOW}>Low</SelectItem>
                     <SelectItem value={TaskPriority.MED}>Medium</SelectItem>
                     <SelectItem value={TaskPriority.HIGH}>High</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          {/* 6. ADD THE PROJECT DROPDOWN HERE */}
+          <FormField
+            control={form.control}
+            name="projectId"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Project</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger disabled={isLoadingProjects}>
+                      {isLoadingProjects ? (
+                        <span className="flex items-center gap-2 text-muted-foreground">
+                          <Loader2 className="h-4 w-4 animate-spin" />{' '}
+                          Loading...
+                        </span>
+                      ) : (
+                        <SelectValue placeholder="Select project" />
+                      )}
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {projects?.length === 0 ? (
+                      <SelectItem value="empty" disabled>
+                        No projects found.
+                      </SelectItem>
+                    ) : (
+                      projects?.map((project) => (
+                        <SelectItem key={project.id} value={project.id}>
+                          {project.name}
+                        </SelectItem>
+                      ))
+                    )}
                   </SelectContent>
                 </Select>
                 <FormMessage />
