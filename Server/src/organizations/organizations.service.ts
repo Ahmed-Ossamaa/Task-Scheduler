@@ -11,6 +11,7 @@ import { CreateOrgDto } from './dto/create-org.dto';
 import { PaginatedOrg } from './interfaces/paginated-org.interface';
 import { User } from 'src/users/entities/user.entity';
 import { Task } from 'src/tasks/entities/task.entity';
+import { Project } from 'src/projects/entities/project.entity';
 
 @Injectable()
 export class OrganizationsService {
@@ -89,6 +90,9 @@ export class OrganizationsService {
 
       // Soft Delete all Users in that Org
       await queryRunner.manager.softDelete(User, { organizationId: orgId });
+
+      //soft Delete the projects in org
+      await queryRunner.manager.softDelete(Project, { organizationId: orgId });
 
       // Soft Delete the Organization
       const result = await queryRunner.manager.softDelete(Organization, orgId);
