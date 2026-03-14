@@ -21,7 +21,7 @@ export class Project {
   name: string;
 
   @Column({ type: 'text', nullable: true })
-  description: string;
+  description?: string;
 
   // --- Relations ---
 
@@ -44,5 +44,5 @@ export class Project {
   updatedAt: Date;
 
   @DeleteDateColumn()
-  deletedAt: Date;
+  deletedAt?: Date;
 }

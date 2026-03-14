@@ -48,7 +48,7 @@ export class Task {
   updatedAt: Date;
 
   @DeleteDateColumn({ type: 'timestamptz' })
-  deletedAt: Date;
+  deletedAt?: Date;
 
   //.....Relations.....
 

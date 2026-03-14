@@ -28,7 +28,7 @@ export class Organization {
   updatedAt: Date;
 
   @DeleteDateColumn({ type: 'timestamptz' })
-  deletedAt: Date;
+  deletedAt?: Date;
 
   @OneToMany(() => User, (user) => user.organization)
   users: User[];
