@@ -19,7 +19,7 @@ export const tasksApi = {
    * @param {number} [limit=20] - Number of tasks per page
    * @returns {Promise<Tasks>} - A promise resolving with an object containing tasks data and pagination metadata.
    */
-  getOrgTasks: async (page = 1, limit = 20): Promise<Tasks> => {
+  getOrgTasks: async (page: number = 1, limit: number = 20): Promise<Tasks> => {
     const { data } = await api.get<Tasks>(`/tasks/org`, {
       params: { page, limit },
     });
@@ -33,7 +33,7 @@ export const tasksApi = {
    * @param {number} [limit=20] - Number of tasks per page
    * @returns {Promise<Tasks>} - A promise resolving with an object containing tasks data and pagination metadata.
    */
-  getAllTasks: async (page = 1, limit = 20): Promise<Tasks> => {
+  getAllTasks: async (page: number = 1, limit: number = 20): Promise<Tasks> => {
     const { data } = await api.get<Tasks>(`/tasks/all`, {
       params: { page, limit },
     });
