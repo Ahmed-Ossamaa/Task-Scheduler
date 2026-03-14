@@ -16,12 +16,14 @@ import { CreateProjectDto } from './dto/create-project.dto';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { UserRole } from 'src/users/enums/user-roles.enum';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
+import { ApiOperation } from '@nestjs/swagger';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('projects')
 export class ProjectsController {
   constructor(private readonly projectsService: ProjectsService) {}
 
+  @ApiOperation({ summary: 'Create a project' })
   @Post()
   @Roles(UserRole.MANAGER)
   async createProject(
@@ -30,12 +32,15 @@ export class ProjectsController {
   ) {
     if (!manager.organizationId) {
       throw new ForbiddenException(
-        'You must have an organization to create a project.',
+        'You must have an organization to create a project (Manager)',
       );
     }
     return this.projectsService.createProject(manager.organizationId, dto);
   }
 
+  @ApiOperation({
+    summary: 'Get all projects for an organization (Manager / Employee)',
+  })
   @Get('org')
   @Roles(UserRole.MANAGER, UserRole.EMP)
   async getOrgProjects(@CurrentUser() user: JwtPayload) {
@@ -43,6 +48,7 @@ export class ProjectsController {
     return this.projectsService.getProjectsByOrg(user.organizationId);
   }
 
+  @ApiOperation({ summary: 'Get all projects for all organizations (Admin)' })
   @Get()
   @Roles(UserRole.ADMIN)
   async getAllProjects(
