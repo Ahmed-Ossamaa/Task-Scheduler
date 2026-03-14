@@ -6,11 +6,13 @@ import { Task } from './entities/task.entity';
 import { UserModule } from 'src/users/users.module';
 import { BullModule } from '@nestjs/bullmq';
 import { TaskProcessor } from './tasks.processor';
+import { ProjectsModule } from 'src/projects/projects.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Task]),
     UserModule,
+    ProjectsModule,
     BullModule.registerQueue({ name: 'tasks' }),
   ],
   controllers: [TasksController],

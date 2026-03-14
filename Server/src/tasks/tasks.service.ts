@@ -14,6 +14,7 @@ import { PagintaedTasks } from './interfaces/task.response';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { TaskStatus } from './enums/tasks-status.enums';
+import { ProjectsService } from 'src/projects/projects.service';
 @Injectable()
 export class TasksService {
   constructor(
@@ -22,6 +23,7 @@ export class TasksService {
     @InjectQueue('tasks')
     private readonly tasksQueue: Queue,
     private readonly userService: UserService,
+    private readonly projectsService: ProjectsService,
   ) {}
 
   async scheduleTask(
@@ -36,11 +38,16 @@ export class TasksService {
       OrganzationId,
       taskDto.assignedToId,
     );
+    const project = await this.projectsService.validateProjectExistsForOrg(
+      taskDto.projectId,
+      OrganzationId,
+    );
     const task = this.tasksRepo.create({
       ...taskDto,
       assignedById: managerId,
       assignedToId: employee.id,
       organizationId: OrganzationId,
+      projectId: project.id,
     });
     await this.tasksRepo.save(task);
 
