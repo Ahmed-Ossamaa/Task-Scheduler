@@ -12,6 +12,13 @@ export const useOrgProjects = () => {
   });
 };
 
+export const useAllProjects = () => {
+  return useQuery({
+    queryKey: ['projects', 'all'],
+    queryFn: projectsApi.getAllProjects,
+  });
+};
+
 export const useCreateProject = () => {
   const queryClient = useQueryClient();
 
