@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   Param,
   ParseIntPipe,
@@ -50,6 +51,16 @@ export class UserController {
     @Query('limit', new ParseIntPipe({ optional: true })) limit: number,
   ) {
     return this.userService.findAllUsers(page, limit);
+  }
+
+  @ApiOperation({ summary: 'Get all users in my organization (manager only)' })
+  @Get('org-employees')
+  @Roles(UserRole.MANAGER)
+  async getAllUsersInOrg(@CurrentUser() manager: JwtPayload) {
+    if (!manager.organizationId) {
+      throw new ForbiddenException('You are not assigned to an organization.');
+    }
+    return this.userService.findMyEmployees(manager.organizationId);
   }
 
   @ApiOperation({ summary: 'Delete user "soft delete" (admin only)' })
