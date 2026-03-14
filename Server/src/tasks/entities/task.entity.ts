@@ -12,6 +12,7 @@ import {
 } from 'typeorm';
 import { TaskStatus } from '../enums/tasks-status.enums';
 import { TaskPriority } from '../enums/tasks-priority.enums';
+import { Project } from '../../projects/entities/project.entity';
 
 @Entity('tasks')
 @Index(['status', 'deadLine'])
@@ -73,4 +74,11 @@ export class Task {
 
   @Column()
   organizationId: string;
+
+  @ManyToOne(() => Project, (project) => project.tasks, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'projectId' })
+  project: Project;
+
+  @Column()
+  projectId: string;
 }

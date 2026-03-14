@@ -26,6 +26,10 @@ export class CreateTaskDTO {
   @MaxLength(300)
   description?: string;
 
+  @IsUUID()
+  @IsNotEmpty()
+  projectId: string;
+
   @ApiProperty({
     example: '123e4567-e89b-12d3-a456-426614174000',
     description: 'UUID of the user assigned to this task',

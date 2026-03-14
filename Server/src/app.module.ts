@@ -16,6 +16,7 @@ import { validationSchema } from './config/validation.schema';
 import { OrganizationsModule } from './organizations/organizations.module';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
+import { ProjectsModule } from './projects/projects.module';
 
 @Module({
   imports: [
@@ -67,6 +68,7 @@ import { APP_GUARD } from '@nestjs/core';
     TasksModule,
     AuthModule,
     OrganizationsModule,
+    ProjectsModule,
   ],
   controllers: [AppController],
   providers: [

@@ -1,4 +1,5 @@
 import { User } from 'src/users/entities/user.entity';
+import { Project } from '../../projects/entities/project.entity';
 import {
   Column,
   CreateDateColumn,
@@ -31,4 +32,7 @@ export class Organization {
 
   @OneToMany(() => User, (user) => user.organization)
   users: User[];
+
+  @OneToMany(() => Project, (project) => project.organization)
+  projects: Project[];
 }
