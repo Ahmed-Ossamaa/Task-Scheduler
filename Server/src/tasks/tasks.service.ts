@@ -198,46 +198,24 @@ export class TasksService {
     taskDto: UpdateTaskDto,
     managerId: string,
   ): Promise<Task> {
-    //get the task (only the owner(manager) can update it)
     const task = await this.tasksRepo.findOne({
-      where: {
-        id: taskId,
-        assignedById: managerId,
-      },
+      where: { id: taskId, assignedById: managerId },
     });
+
     if (!task) {
       throw new NotFoundException(
         'Task not found or you are not allowed to update it',
       );
     }
 
-    if (task.status === TaskStatus.DONE || task.status === TaskStatus.OVERDUE) {
-      throw new BadRequestException('Cannot update a finished or overdue task');
+    this.validateUpdateIsAllowed(task, taskDto);
+
+    if (taskDto.status) {
+      this.updateCompletedAt(task, taskDto.status);
     }
 
-    // If the deadLine is to be updated, remove the old job and create a new one
-    if (taskDto.deadLine) {
-      const newDeadline = new Date(taskDto.deadLine);
-      if (newDeadline <= new Date()) {
-        throw new BadRequestException('deadLine must be in the future');
-      }
-
-      // Remove old job
-      if (task.jobId) {
-        const oldJob = await this.tasksQueue.getJob(task.jobId);
-        if (oldJob) {
-          await oldJob.remove();
-        }
-      }
-
-      // Create the new job
-      const delay = newDeadline.getTime() - Date.now();
-      const newJob = await this.tasksQueue.add(
-        'EXPIRE_TASK_JOB',
-        { taskId: task.id },
-        { delay },
-      );
-      task.jobId = newJob.id;
+    if (taskDto.deadLine || taskDto.status) {
+      await this.updateTaskJob(task, taskDto.deadLine, taskDto.status);
     }
 
     Object.assign(task, taskDto);
@@ -267,5 +245,58 @@ export class TasksService {
     await this.tasksRepo.remove(task);
 
     return `Task with ID ${taskId} deleted successfuly`;
+  }
+
+  // Helper methods
+  private validateUpdateIsAllowed(task: Task, dto: UpdateTaskDto): void {
+    if (task.status === TaskStatus.OVERDUE && !dto.status) {
+      throw new BadRequestException(
+        'Cannot update details of an overdue task without changing its status first.',
+      );
+    }
+
+    if (dto.deadLine && new Date(dto.deadLine) <= new Date()) {
+      throw new BadRequestException('deadline must be in the future');
+    }
+  }
+
+  private updateCompletedAt(task: Task, newStatus: TaskStatus): void {
+    // If it is completed
+    if (newStatus === TaskStatus.DONE && task.status !== TaskStatus.DONE) {
+      task.completedAt = new Date();
+      // If it is reopened (changed from DONE or CANCELED ==> to PENDING)
+    } else if (newStatus !== TaskStatus.DONE) {
+      task.completedAt = null;
+    }
+  }
+
+  private async updateTaskJob(
+    task: Task,
+    newDeadline?: Date,
+    newStatus?: TaskStatus,
+  ): Promise<void> {
+    const targetStatus = newStatus || task.status;
+    const targetDeadline = newDeadline || task.deadLine;
+
+    //  remove old job
+    if (task.jobId) {
+      const oldJob = await this.tasksQueue.getJob(task.jobId);
+      if (oldJob) await oldJob.remove();
+      task.jobId = null;
+    }
+
+    // create a new job if the task new status is pending
+    if (targetStatus === TaskStatus.PENDING) {
+      const delay = new Date(targetDeadline).getTime() - Date.now();
+
+      if (delay > 0) {
+        const newJob = await this.tasksQueue.add(
+          'EXPIRE_TASK_JOB',
+          { taskId: task.id },
+          { delay },
+        );
+        task.jobId = newJob.id;
+      }
+    }
   }
 }

@@ -21,7 +21,7 @@ export class Task {
   id: string;
 
   @Column({ nullable: true })
-  jobId?: string;
+  jobId?: string | null;
 
   @Column()
   title: string;
@@ -39,7 +39,7 @@ export class Task {
   deadLine: Date;
 
   @Column({ type: 'timestamptz', nullable: true })
-  completedAt?: Date;
+  completedAt?: Date | null;
 
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
