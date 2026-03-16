@@ -143,6 +143,17 @@ export class TasksService {
     return task;
   }
 
+  async getTasksByProject(projectId: string, orgId: string): Promise<Task[]> {
+    return this.tasksRepo.find({
+      where: {
+        projectId: projectId,
+        organizationId: orgId,
+      },
+      relations: ['assignedTo', 'assignedBy'],
+      order: { createdAt: 'DESC' },
+    });
+  }
+
   //Get All tasks "system wide"
   async getAllTasks(
     page: number = 1,
@@ -268,10 +279,6 @@ export class TasksService {
         'Cannot set task to PENDING with a past deadline. Please provide a new future deadline first.',
       );
     }
-
-    // if (dto.deadLine && new Date(dto.deadLine) <= new Date()) {
-    //   throw new BadRequestException('deadline must be in the future');
-    // }
   }
 
   private updateCompletedAt(task: Task, newStatus: TaskStatus): void {

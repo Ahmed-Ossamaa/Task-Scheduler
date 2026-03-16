@@ -147,6 +147,19 @@ export class TasksController {
   }
 
   @ApiOperation({
+    summary: 'Get all tasks for a specific project (within your org)',
+  })
+  @Get('project/:projectId')
+  async getProjectTasks(
+    @CurrentUser() user: JwtPayload,
+    @Param('projectId', ParseUUIDPipe) projectId: string,
+  ) {
+    if (!user.organizationId)
+      throw new ForbiddenException('You are not part of any organization');
+    return this.tasksService.getTasksByProject(projectId, user.organizationId);
+  }
+
+  @ApiOperation({
     summary: 'Update task details Deadline, Title, etc. (Manager Only)',
   })
   @Patch(':taskId')
