@@ -255,9 +255,23 @@ export class TasksService {
       );
     }
 
-    if (dto.deadLine && new Date(dto.deadLine) <= new Date()) {
-      throw new BadRequestException('deadline must be in the future');
+    const effectiveDeadline = dto.deadLine
+      ? new Date(dto.deadLine)
+      : new Date(task.deadLine);
+    const effectiveStatus = dto.status || task.status;
+
+    if (
+      effectiveStatus === TaskStatus.PENDING &&
+      effectiveDeadline <= new Date()
+    ) {
+      throw new BadRequestException(
+        'Cannot set task to PENDING with a past deadline. Please provide a new future deadline first.',
+      );
     }
+
+    // if (dto.deadLine && new Date(dto.deadLine) <= new Date()) {
+    //   throw new BadRequestException('deadline must be in the future');
+    // }
   }
 
   private updateCompletedAt(task: Task, newStatus: TaskStatus): void {
