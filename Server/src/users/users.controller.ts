@@ -60,7 +60,6 @@ export class UserController {
       throw new ForbiddenException('You are not assigned to an organization.');
     }
     const users = await this.userService.findMyEmployees(user.organizationId);
-    console.log(users);
     return users;
   }
 
