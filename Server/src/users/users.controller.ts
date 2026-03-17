@@ -53,14 +53,15 @@ export class UserController {
     return this.userService.findAllUsers(page, limit);
   }
 
-  @ApiOperation({ summary: 'Get all users in my organization (manager only)' })
+  @ApiOperation({ summary: 'Get all users in my organization' })
   @Get('org-employees')
-  @Roles(UserRole.MANAGER)
-  async getAllUsersInOrg(@CurrentUser() manager: JwtPayload) {
-    if (!manager.organizationId) {
+  async getAllUsersInOrg(@CurrentUser() user: JwtPayload) {
+    if (!user.organizationId) {
       throw new ForbiddenException('You are not assigned to an organization.');
     }
-    return this.userService.findMyEmployees(manager.organizationId);
+    const users = await this.userService.findMyEmployees(user.organizationId);
+    console.log(users);
+    return users;
   }
 
   @ApiOperation({ summary: 'Delete user "soft delete" (admin only)' })
