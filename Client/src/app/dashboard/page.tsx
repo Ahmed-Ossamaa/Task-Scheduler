@@ -9,9 +9,9 @@ import {
 import { useAuthStore } from '@/features/auth/store/auth.store';
 import { UserRoles } from '@/features/auth/types/user-interface';
 import { CreateOrgForm } from '@/features/organizations/components/create-org-form';
-import { CreateProjectDialog } from '@/features/projects/components/create-project-dialog';
-import { CreateTaskDialog } from '@/features/tasks/components/create-task-dialog';
-import { CreateEmployeeDialog } from '@/features/users/components/create-employee-dialog';
+// import { CreateProjectDialog } from '@/features/projects/components/create-project-dialog';
+// import { CreateTaskDialog } from '@/features/tasks/components/create-task-dialog';
+// import { CreateEmployeeDialog } from '@/features/users/components/create-employee-dialog';
 
 export default function DashboardPage() {
   const user = useAuthStore((state) => state.user);
@@ -38,15 +38,6 @@ export default function DashboardPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-
-        {/* if user is a manager with org */}
-        {user.role === UserRoles.MANAGER && user.organizationId && (
-          <>
-            <CreateTaskDialog />
-            <CreateProjectDialog />
-            <CreateEmployeeDialog />
-          </>
-        )}
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

@@ -49,6 +49,12 @@ const MENU_ITEMS: MenuItem[] = [
     icon: Inbox,
     roles: [UserRoles.MANAGER, UserRoles.EMP],
   },
+  {
+    title: 'Projects',
+    url: '/dashboard/projects',
+    icon: Inbox,
+    roles: [UserRoles.MANAGER, UserRoles.EMP],
+  },
 
 
   //Manager Only Items
@@ -64,15 +70,6 @@ const MENU_ITEMS: MenuItem[] = [
     icon: CalendarPlus,
     roles: [UserRoles.MANAGER],
   },
-  //later: will add projects here and in Backend
-  // {
-  //   title: 'Projects',
-  //   url: '/dashboard/projects',
-  //   icon: Briefcase,
-  //   roles: [UserRoles.MANAGER, UserRoles.EMP],
-  // },
-
-  //Admin Only Items
 
   {
     title: 'Users',

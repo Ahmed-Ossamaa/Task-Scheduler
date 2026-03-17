@@ -11,7 +11,7 @@ export default function DashboardLayout({
     <SidebarProvider>
       <AppSidebar />
       <main className="w-full">
-        {/* Header Trigger */}
+        {/* Header */}
         <div className="flex h-16 items-center gap-4 border-b bg-background px-6">
             <SidebarTrigger />
             <Separator orientation="vertical" className="h-6" />
