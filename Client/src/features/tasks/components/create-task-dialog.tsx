@@ -25,7 +25,7 @@ export function CreateTaskDialog() {
         </Button>
       </DialogTrigger>
       
-      <DialogContent className="sm:max-w-106.25">
+      <DialogContent className="sm:max-w-125">
         <DialogHeader>
           <DialogTitle>Create New Task</DialogTitle>
           <DialogDescription>

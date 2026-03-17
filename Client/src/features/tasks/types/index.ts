@@ -12,20 +12,18 @@ export enum TaskPriority {
   HIGH = 'high',
 }
 
-// Matches your CreateTaskDTO
 export interface CreateTaskDto {
   title: string;
   description?: string;
-  deadline: string;
+  deadLine: string;
   priority: TaskPriority;
   assignedToId: string;
 }
 
-// Matches your UpdateTaskDto
 export interface UpdateTaskDto {
   title?: string;
   description?: string;
-  deadline?: string;
+  deadLine?: string;
   status?: TaskStatus;
   priority?: TaskPriority;
 }
@@ -36,7 +34,7 @@ export type Task = {
     description: string;
     status: TaskStatus;
     priority: TaskPriority;
-    deadline: string;
+    deadLine: string;
     completedAt?: string;
     createdAt: string;
     updatedAt?: string;

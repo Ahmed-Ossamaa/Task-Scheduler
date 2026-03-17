@@ -125,7 +125,7 @@ export const useCompleteTask = (): UseMutationResult<
     mutationFn: tasksApi.completeTask,
     onSuccess: () => {
       // Refresh the list
-      queryClient.invalidateQueries({ queryKey: ['my-tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
     },
   });
 };
@@ -149,5 +149,19 @@ export const useDeleteTask = (): UseMutationResult<
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
     },
+  });
+};
+
+/**
+ * Hook to retrieve all tasks for a project.
+ * @returns {UseQueryResult<Task[]>} - The result of the query.
+ * It contains the tasks for the given project and methods to handle the query state.
+ * Will only fetch the data when a projectId is provided.
+ */
+export const useProjectTasks = (projectId: string): UseQueryResult<Task[]> => {
+  return useQuery({
+    queryKey: ['tasks', 'project', projectId],
+    queryFn: () => tasksApi.getTasksByProject(projectId),
+    enabled: !!projectId,
   });
 };

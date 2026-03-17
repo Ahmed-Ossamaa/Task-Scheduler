@@ -14,6 +14,17 @@ export const tasksApi = {
 
   
   /**
+   * Manager & Emp: Get Tasks By Project Id
+   * @param {string} projectId - Project ID
+   * @returns {Promise<Task[]>} - A promise resolving with an array of tasks for the given project
+   */
+  getTasksByProject: async (projectId: string): Promise<Task[]> => {
+    const { data } = await api.get<Task[]>(`/tasks/project/${projectId}`);
+    return data;
+  },
+
+  
+  /**
    * Manager: Get Organization Tasks (Paginated)
    * @param {number} [page=1] - Page number
    * @param {number} [limit=20] - Number of tasks per page

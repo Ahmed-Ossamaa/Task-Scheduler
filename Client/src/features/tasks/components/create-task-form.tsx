@@ -34,7 +34,7 @@ const formSchema = z.object({
   deadline: z.string().min(1, 'Deadline is required'),
   priority: z.enum(TaskPriority),
   assignedToId: z.uuid('Must be a valid user ID'),
-  projectId: z.string().uuid('Please select a project'),
+  projectId: z.uuid('Please select a project'),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -83,7 +83,7 @@ export function CreateTaskForm({ onSuccess }: { onSuccess?: () => void }) {
             <FormItem>
               <FormLabel>Task Title</FormLabel>
               <FormControl>
-                <Input placeholder="E.g., Study Physics" {...field} />
+                <Input placeholder="E.g., Add XYZ feature" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -140,7 +140,7 @@ export function CreateTaskForm({ onSuccess }: { onSuccess?: () => void }) {
                   <SelectContent>
                     <SelectItem value={TaskPriority.LOW}>Low</SelectItem>
                     <SelectItem value={TaskPriority.MED}>Medium</SelectItem>
-                    <SelectItem value={TaskPriority.HIGH}>High</SelectItem>
+                    <SelectItem value={TaskPriority.HIGH} className='text-red-500'>High</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
@@ -149,7 +149,7 @@ export function CreateTaskForm({ onSuccess }: { onSuccess?: () => void }) {
           />
         </div>
         <div className="grid grid-cols-2 gap-4">
-          {/* 6. ADD THE PROJECT DROPDOWN HERE */}
+          {/* project */}
           <FormField
             control={form.control}
             name="projectId"
@@ -179,7 +179,7 @@ export function CreateTaskForm({ onSuccess }: { onSuccess?: () => void }) {
                       </SelectItem>
                     ) : (
                       projects?.map((project) => (
-                        <SelectItem key={project.id} value={project.id}>
+                        <SelectItem key={project.id} value={project.id} className='focus:bg-red-100'>
                           {project.name}
                         </SelectItem>
                       ))
@@ -221,8 +221,15 @@ export function CreateTaskForm({ onSuccess }: { onSuccess?: () => void }) {
                       </SelectItem>
                     ) : (
                       employees?.map((employee) => (
-                        <SelectItem key={employee.id} value={employee.id}>
-                          {employee.name} ({employee.email})
+                        <SelectItem key={employee.id} value={employee.id} className='focus:bg-red-100'>
+                          <div className="flex flex-col items-start truncate text-left w-full">
+                            <span className="truncate font-medium">
+                              {employee.name}
+                            </span>
+                            <span className="truncate text-xs text-muted-foreground">
+                              {employee.email}
+                            </span>
+                          </div>
                         </SelectItem>
                       ))
                     )}
