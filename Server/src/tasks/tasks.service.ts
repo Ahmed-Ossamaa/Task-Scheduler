@@ -118,6 +118,7 @@ export class TasksService {
     }
     return this.tasksRepo.find({
       where: criteria,
+      relations: ['project', 'assignedTo', 'assignedBy'],
       order: { createdAt: 'DESC' },
     });
   }
@@ -125,7 +126,7 @@ export class TasksService {
   async getTaskById(taskId: string, userOrgId: string): Promise<Task> {
     const task = await this.tasksRepo.findOne({
       where: { id: taskId },
-      relations: ['assignedBy', 'assignedTo'],
+      relations: ['assignedBy', 'assignedTo', 'project'],
       select: {
         assignedBy: { id: true, name: true, email: true, avatar: true },
         assignedTo: { id: true, name: true, email: true, avatar: true },
@@ -149,7 +150,7 @@ export class TasksService {
         projectId: projectId,
         organizationId: orgId,
       },
-      relations: ['assignedTo', 'assignedBy'],
+      relations: ['assignedTo', 'assignedBy', 'project'],
       order: { createdAt: 'DESC' },
     });
   }
@@ -164,6 +165,7 @@ export class TasksService {
     const [tasks, total] = await this.tasksRepo.findAndCount({
       where: {},
       order: { createdAt: 'DESC' },
+      // relations: ['project', 'assignedTo', 'assignedBy'],
       skip,
       take,
     });
@@ -186,7 +188,7 @@ export class TasksService {
       order: { createdAt: 'DESC' },
       skip,
       take,
-      relations: ['assignedTo'],
+      relations: ['assignedTo', 'assignedBy', 'project'],
       select: {
         assignedTo: {
           id: true,
