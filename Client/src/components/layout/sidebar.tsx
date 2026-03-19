@@ -1,16 +1,10 @@
 'use client';
 
 import {
- CalendarPlus,
-  Home,
-  Inbox,
+  CheckCircle,
   Settings,
-  Users,
-  ChartNoAxesCombined,
-  // Briefcase,
   User,
   LogOut,
-  type LucideIcon,
 } from 'lucide-react';
 import {
   Sidebar,
@@ -22,94 +16,24 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarFooter,
+  SidebarHeader,
 } from '@/components/ui/sidebar';
 import { useAuthStore } from '@/features/auth/store/auth.store';
-import { useRouter } from 'next/navigation';
-import { UserRoles } from '@/features/auth/types/user-interface';
+import { usePathname, useRouter } from 'next/navigation';
 import { authApi } from '@/features/auth/api/auth-api';
+import Link from 'next/link';
+import Image from 'next/image';
+import { MENU_ITEMS } from '@/constants/sidebar-menu-items-constant';
 
-// Menu items.
-type MenuItem = {
-  title: string;
-  url: string;
-  icon: LucideIcon;
-  roles: UserRoles[];
-};
-const MENU_ITEMS: MenuItem[] = [
-  //Shared Items
-  {
-    title: 'Dashboard',
-    url: '/dashboard',
-    icon: Home,
-    roles: [UserRoles.ADMIN, UserRoles.MANAGER, UserRoles.EMP],
-  },
-  {
-    title: 'My Tasks',
-    url: '/dashboard/tasks',
-    icon: Inbox,
-    roles: [UserRoles.MANAGER, UserRoles.EMP],
-  },
-  {
-    title: 'Projects',
-    url: '/dashboard/projects',
-    icon: Inbox,
-    roles: [UserRoles.MANAGER, UserRoles.EMP],
-  },
-
-
-  //Manager Only Items
-  {
-    title: 'Team Overview',
-    url: '/dashboard/team',
-    icon: Users,
-    roles: [ UserRoles.MANAGER], 
-  },
-    {
-    title: 'Create Task',
-    url: '/dashboard/tasks/create',
-    icon: CalendarPlus,
-    roles: [UserRoles.MANAGER],
-  },
-
-  {
-    title: 'Users',
-    url: '/dashboard/admin/users',
-    icon: User,
-    roles: [UserRoles.ADMIN],
-  },
-  {
-    title: 'Organizations',
-    url: '/dashboard/admin/organizations',
-    icon: Users,
-    roles: [UserRoles.ADMIN],
-  },
-  {
-    title: 'Tasks',
-    url: '/dashboard/admin/tasks',
-    icon: Inbox,
-    roles: [UserRoles.ADMIN],
-  },
-  {
-    title: 'Analytics',
-    url: '/dashboard/admin/analytics',
-    icon: ChartNoAxesCombined,  
-    roles: [UserRoles.ADMIN],
-  },
-
-  //Common Footer Items
-  {
-    title: 'Settings',
-    url: '/dashboard/settings',
-    icon: Settings,
-    roles: [UserRoles.ADMIN, UserRoles.MANAGER, UserRoles.EMP],
-  },
-];
 
 export function AppSidebar() {
   const user = useAuthStore((state) => state.user);
   const clearAuth = useAuthStore((state) => state.clearAuth);
   const router = useRouter();
+  const pathname = usePathname();
+
   if (!user) return null;
+
   const filteredItems = MENU_ITEMS.filter((item) =>
     item.roles.includes(user.role),
   );
@@ -125,49 +49,141 @@ export function AppSidebar() {
     }
   };
 
-return (
-    <Sidebar>
+  return (
+    <Sidebar collapsible="icon">
+      {/*Header with Logo */}
+      <SidebarHeader className="h-16 flex items-center justify-center border-b border-sidebar-border px-4">
+        <Link
+          href="/"
+          className="flex items-center gap-2 w-full overflow-hidden"
+        >
+          {/* Logo (icon for now)*/}
+          <CheckCircle className="h-4 w-4 text-red-800 shrink-0" />
+          <span className="text-sm font-bold tracking-widest uppercase truncate group-data-[collapsible=icon]:hidden">
+            Task<span className="text-primary">Flow</span>
+          </span>
+        </Link>
+      </SidebarHeader>
+
+      {/*Tabs (Menu)*/}
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Task Manager</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-xs tracking-widest uppercase">
+            Menu
+          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {filteredItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <a href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </a>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {filteredItems.map((item) => {
+                const isActive =
+                  item.url === '/dashboard'
+                    ? pathname === '/dashboard'
+                    : pathname === item.url ||
+                      pathname.startsWith(`${item.url}/`);
+
+                return (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={isActive}
+                      tooltip={item.title}
+                    >
+                      <Link href={item.url}>
+                        <item.icon
+                          className={
+                            isActive ? 'text-primary' : 'text-muted-foreground'
+                          }
+                        />
+                        <span
+                          className={
+                            isActive
+                              ? 'font-semibold text-foreground'
+                              : 'text-muted-foreground'
+                          }
+                        >
+                          {item.title}
+                        </span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Settings (at bottom) */}
+        <SidebarGroup className="mt-auto">
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  isActive={pathname === '/dashboard/settings'}
+                  tooltip="Settings"
+                >
+                  <Link href="/dashboard/settings">
+                    <Settings
+                      className={
+                        pathname === '/dashboard/settings'
+                          ? 'text-primary'
+                          : 'text-muted-foreground'
+                      }
+                    />
+                    <span
+                      className={
+                        pathname === '/dashboard/settings'
+                          ? 'font-semibold text-foreground'
+                          : 'text-muted-foreground'
+                      }
+                    >
+                      Settings
+                    </span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
 
-      {/* Footer with User Profile */}
-      <SidebarFooter>
+      {/* Footer (Profile & Logout ) */}
+      <SidebarFooter className="border-t border-sidebar-border py-4">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild>
-              <div className="flex items-center gap-2">
-                <User className="h-4 w-4" />
-                <div className="flex flex-col text-xs">
-                  <span className="font-semibold">{user?.name || 'User'}</span>
-                  <span className="text-muted-foreground">{user?.email}</span>
-                </div>
+            <div className="flex items-center gap-3 px-2 py-1.5 mb-2 group-data-[collapsible=icon]:p-0 group-data-[collapsible=icon]:justify-center">
+              <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                {user.avatar ? (
+                  <Image
+                    src={user.avatar}
+                    alt={user.name || 'User'}
+                    width={32}
+                    height={32}
+                    className="rounded-full"
+                  />
+                ) : (
+                  <User className="h-4 w-4" />
+                )}
               </div>
-            </SidebarMenuButton>
+              <div className="flex flex-col overflow-hidden group-data-[collapsible=icon]:hidden">
+                <span className="text-sm font-medium truncate">
+                  {user?.name || 'User'}
+                </span>
+                <span className="text-xs text-muted-foreground truncate">
+                  {user?.email}
+                </span>
+              </div>
+            </div>
           </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton
               onClick={handleLogout}
-              className="text-red-500 hover:text-red-600"
+              tooltip="Log out"
+              className="text-destructive! hover:text-destructive! hover:bg-destructive/10!"
             >
-              <LogOut />
-              <span>Logout</span>
+              <LogOut className="h-4 w-4 shrink-0" />
+              <span className="group-data-[collapsible=icon]:hidden">
+                Log out
+              </span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
