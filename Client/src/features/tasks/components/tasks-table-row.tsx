@@ -9,7 +9,7 @@ import {
   useDeleteTask,
   useCompleteTask,
 } from '../hooks/use-tasks';
-
+import { TaskDetailsDialog } from './task-details-dialog';
 import { TableRow, TableCell } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -32,6 +32,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { formatDateTime } from '@/lib/utils';
 
 const getTaskStatusBadge = (status: TaskStatus) => {
   switch (status) {
@@ -52,6 +53,7 @@ interface RowProps {
   task: Task;
   canEdit: boolean;
   showAssignee: boolean;
+  showProject: boolean;
   employees: any[];
 }
 
@@ -59,6 +61,7 @@ export function TaskTableRow({
   task,
   canEdit,
   showAssignee,
+  showProject,
   employees,
 }: RowProps) {
   // Dialog States
@@ -109,20 +112,22 @@ export function TaskTableRow({
     completeTask(task.id, {
       onSuccess: () => toast.success('Great job! Task marked as done.'),
       onError: (err: any) =>
-        toast.error(err.response?.data?.message || 'Failed to complete task, please try again'),
+        toast.error(
+          err.response?.data?.message ||
+            'Failed to complete task, please try again',
+        ),
     });
   };
 
   // Date Formatting
-  const formattedDate = new Date(task.deadLine).toLocaleDateString();
+  const deadlineDate = formatDateTime(task.deadLine);
+  const completedAtDate = formatDateTime(task.completedAt) || '-';
   const inputDateTime = new Date(task.deadLine).toISOString().slice(0, 16);
   const now = new Date().toISOString().slice(0, 16);
   return (
     <>
       <TableRow className={isBusy ? 'opacity-50 pointer-events-none' : ''}>
         <TableCell className="font-medium">{task.title}</TableCell>
-
-        {/* Priority */}
         <TableCell>
           {canEdit ? (
             <Select
@@ -166,6 +171,11 @@ export function TaskTableRow({
             getTaskStatusBadge(task.status)
           )}
         </TableCell>
+        {showProject && (
+          <TableCell className="text-muted-foreground">
+            {task?.project?.name || '-'}
+          </TableCell>
+        )}
 
         {/* AssignedTo */}
         {showAssignee && (
@@ -205,7 +215,16 @@ export function TaskTableRow({
               }
             />
           ) : (
-            formattedDate
+            deadlineDate
+          )}
+        </TableCell>
+        <TableCell className="text-muted-foreground whitespace-nowrap">
+          {task.status === TaskStatus.DONE ? (
+            <span className="text-green-600">
+              {completedAtDate}
+            </span>
+          ) : (
+            '-'
           )}
         </TableCell>
 
@@ -234,6 +253,11 @@ export function TaskTableRow({
             )
           )}
         </TableCell>
+        <TableCell className="text-right">
+        <div className="flex items-center justify-end gap-2">
+          <TaskDetailsDialog task={task} />
+        </div>
+      </TableCell>
       </TableRow>
 
       {/* dialogs*/}
@@ -268,8 +292,8 @@ export function TaskTableRow({
           <AlertDialogHeader>
             <AlertDialogTitle>Confirm Status Change</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to change the status of &quot;{task.title}&quot; to{' '}
-              <strong>{statusConfirm.newStatus}</strong>?
+              Are you sure you want to change the status of &quot;{task.title}
+              &quot; to <strong>{statusConfirm.newStatus}</strong>?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

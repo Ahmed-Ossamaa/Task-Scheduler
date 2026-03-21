@@ -44,7 +44,15 @@ export type Task = {
     assignedById?: string;
     assignedBy?: User;
     organizationId: string;
+    projectId: string;
+    project:Project
     
+}
+export type Project = {
+    id: string;
+    name: string;
+    description?: string;
+    createdAt: string;
 }
 export interface Tasks {
   data: Task[];

@@ -24,6 +24,7 @@ export default function MyTasksPage() {
         isLoading={isLoading}
         canEdit={false}
         showAssignee={false}
+        showProject={true}
       />
     </div>
   );

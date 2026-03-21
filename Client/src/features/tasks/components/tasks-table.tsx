@@ -14,6 +14,7 @@ interface TaskTableProps {
   tasks: Task[] | undefined;
   isLoading: boolean;
   showAssignee?: boolean;
+  showProject?: boolean;
   canEdit: boolean;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   employees?: any[];
@@ -23,9 +24,11 @@ export function TaskTable({
   tasks,
   isLoading,
   showAssignee = false,
+  showProject = false,
   canEdit,
   employees = [],
 }: TaskTableProps) {
+  const colSpan = 5 + (showAssignee ? 1 : 0) + (showProject ? 1 : 0) + 1; 
   return (
     <div className="rounded-md border bg-card w-full">
       <Table>
@@ -34,8 +37,10 @@ export function TaskTable({
             <TableHead>Title</TableHead>
             <TableHead>Priority</TableHead>
             <TableHead>Status</TableHead>
+            {showProject && <TableHead>Project</TableHead>}
             {showAssignee && <TableHead>Assigned To</TableHead>}
             <TableHead>Deadline</TableHead>
+            <TableHead>Completed</TableHead>
             <TableHead className="w-25"></TableHead> {/* Actions Column */}
           </TableRow>
         </TableHeader>
@@ -43,7 +48,7 @@ export function TaskTable({
           {isLoading ? (
             <TableRow>
               <TableCell
-                colSpan={showAssignee ? 6 : 5}
+                colSpan={colSpan}
                 className="h-24 text-center"
               >
                 <Loader2 className="h-4 w-4 animate-spin mx-auto" />
@@ -52,7 +57,7 @@ export function TaskTable({
           ) : !tasks || tasks.length === 0 ? (
             <TableRow>
               <TableCell
-                colSpan={showAssignee ? 6 : 5}
+                colSpan={colSpan}
                 className="h-24 text-center text-muted-foreground"
               >
                 No tasks found.
@@ -65,6 +70,7 @@ export function TaskTable({
                 task={task}
                 canEdit={canEdit}
                 showAssignee={showAssignee}
+                showProject= {showProject}
                 employees={employees}
               />
             ))
