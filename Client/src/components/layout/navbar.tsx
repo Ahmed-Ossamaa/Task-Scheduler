@@ -127,7 +127,7 @@ export function Navbar() {
               <Button
                 variant="ghost"
                 asChild
-                className="text-[11px] font-bold tracking-[0.12em] uppercase rounded-sm text-nav-foreground hover:bg-nav-foreground/10 hover:text-nav-foreground"
+                className="text-[11px] font-bold tracking-[0.12em] uppercase rounded-sm text-primary hover:bg-primary/5 hover:text-foreground"
               >
                 <Link href="/login">Log in</Link>
               </Button>

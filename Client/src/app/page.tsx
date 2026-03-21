@@ -46,6 +46,7 @@ export default function LandingPage() {
               Built for teams who want to get things done — not manage their
               tools.
             </p>
+            {/* later : to be replaced with image or video */}
             <div className="flex flex-wrap gap-3 md:justify-end items-center">
               <BtnGhost href="/login">Log in</BtnGhost>
               <BtnPrimary href="/register">Get Started Free →</BtnPrimary>
