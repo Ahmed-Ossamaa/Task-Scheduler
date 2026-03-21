@@ -90,7 +90,7 @@ export default function LandingPage() {
         {/* FEATURES  */}
         <div className=" mx-auto px-6 md:px-12">
           {/* header */}
-          <div className="flex flex-col md:flex-row items-start md:items-baseline justify-between py-14 pb-10 border-b border-border gap-4">
+          <div id="features" className="flex flex-col md:flex-row items-start md:items-baseline justify-between py-14 pb-10 border-b border-border gap-4 scroll-mt-24">
             <h2 className="text-3xl md:text-4xl text-foreground tracking-tight">
               Everything your team needs.
             </h2>
@@ -122,9 +122,9 @@ export default function LandingPage() {
             ))}
           </div>
         </div>
-        {/* TASK PREVIEW (its just mock , maybe i'll change it later) */}
-        <div className="border-b border-border bg-muted/20 py-16">
-          <div className="max-w-300 mx-auto px-6 md:px-12 grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-16 items-start">
+        {/* TASK PREVIEW */}
+        <div id="how-it-works" className="border-b border-border bg-muted/20 py-16 scroll-mt-24">
+          <div className=" mx-auto px-6 md:px-12 grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-16 items-start">
             {/* left copy */}
             <div className="md:col-span-1">
               <div className="text-[10px] font-bold tracking-[0.2em] uppercase text-primary mb-5">
