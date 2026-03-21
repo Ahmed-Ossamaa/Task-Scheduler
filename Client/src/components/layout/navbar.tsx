@@ -22,6 +22,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { getInitials } from '@/lib/utils';
 
 export function Navbar() {
   const user = useAuthStore((state) => state.user);
@@ -38,10 +39,6 @@ export function Navbar() {
     }
   };
 
-  const getInitials = (name?: string) => {
-    if (!name) return 'U';
-    return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
-  };
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/40 bg-background/50 backdrop-blur-md">
@@ -51,7 +48,7 @@ export function Navbar() {
           href="/"
           className="flex items-center gap-2 transition-opacity hover:opacity-80"
         >
-          <CheckCircle2 className="h-6 w-6 text-footer" />
+          <CheckCircle2 className="h-6 w-6 text-red-500" />
           <span className="text-xl font-bold tracking-tight">Task</span>
           <span className="text-xl font-bold tracking-tight">Flow</span>
         </Link>
