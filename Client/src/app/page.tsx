@@ -9,6 +9,7 @@ import {
   DONE_TASKS,
 } from '@/constants/landing-constatnts';
 import { AccentDot, BtnGhost, BtnPrimary } from '@/components/ui/landing-ui';
+import { Footer } from '@/components/layout/footer';
 
 
 export default function LandingPage() {
@@ -212,6 +213,8 @@ export default function LandingPage() {
           </div>
         </div>
       </main>
+
+      <Footer />
     </div>
   );
 }
