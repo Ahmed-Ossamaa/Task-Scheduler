@@ -1,8 +1,16 @@
 import api from '@/lib/api/axios';
 import { User } from '../types/user-interface';
-import { LoginDto } from '../types/auth-dto';
+import { LoginDto, RegisterDto } from '../types/auth-dto';
 
 export const authApi = {
+  register: async (data: RegisterDto) => {
+    const response = await api.post<{ user: User; accessToken: string }>(
+      '/auth/register',
+      data,
+    );
+    return response.data;
+  },
+
   login: async (data: LoginDto) => {
     const response = await api.post<{ user: User; accessToken: string }>(
       '/auth/login',
