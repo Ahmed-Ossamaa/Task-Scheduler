@@ -4,7 +4,11 @@ import type { NextRequest } from 'next/server';
 export function middleware(request: NextRequest) {
   const refreshToken = request.cookies.get('refreshToken');
   const { pathname } = request.nextUrl;
-  const isAuthPage = pathname.startsWith('/login') || pathname.startsWith('/register') ;
+  
+  //public routes
+  const isAuthPage = pathname.startsWith('/login') || pathname.startsWith('/register');
+  const isLandingPage = pathname === '/';
+  const isPublicRoute = isAuthPage || isLandingPage;
 
   // User is Logged In 
   if (refreshToken) {
@@ -15,10 +19,11 @@ export function middleware(request: NextRequest) {
     // Otherwise go wherever 
     return NextResponse.next();
   }
+  
 
   // User is Guest (No Cookie)
   // Allow them to go to Login/Register
-  if (isAuthPage) {
+  if (isPublicRoute) {
     return NextResponse.next();
   }
 

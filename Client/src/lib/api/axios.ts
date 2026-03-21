@@ -31,7 +31,15 @@ api.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
     const originalRequest = error.config as CustomAxiosRequestConfig;
+
     if (error.response?.status === 401 && !originalRequest._retry) {
+      const isAuthEndpoint =
+        originalRequest.url?.includes('/auth/login') ||
+        originalRequest.url?.includes('/auth/register');
+
+      if (isAuthEndpoint) {
+        return Promise.reject(error);
+      }
       originalRequest._retry = true;
       try {
         const refreshResponse = await axios.post(
@@ -39,6 +47,7 @@ api.interceptors.response.use(
           {},
           { withCredentials: true },
         );
+
         const newAccessToken = refreshResponse.data.accessToken;
         setAccessToken(newAccessToken);
 
@@ -46,8 +55,16 @@ api.interceptors.response.use(
         return api(originalRequest);
       } catch (refreshError) {
         clearAuth();
-        if (typeof window !== 'undefined') {
-          window.location.href = '/login';
+        if (
+          typeof window !== 'undefined' 
+        ) {
+          const publicPaths = ['/', '/login', '/register'];
+          const currentPath = window.location.pathname;
+          
+          // If the current path is not in the public paths, redirect to the login page
+          if (!publicPaths.includes(currentPath)) {
+            window.location.href = '/login';
+          }
         }
         return Promise.reject(refreshError);
       }
