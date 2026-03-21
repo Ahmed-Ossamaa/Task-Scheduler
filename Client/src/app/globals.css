@@ -38,6 +38,8 @@
   --color-card-foreground: var(--card-foreground);
   --color-footer: var(--footer);
   --color-footer-foreground: var(--footer-foreground);
+  --color-nav: var(--nav);
+  --color-nav-foreground: var(--nav-foreground);
   --color-card: var(--card);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
@@ -93,6 +95,8 @@
   --sidebar-ring: oklch(0.708 0 0);
   --footer: oklch(35% 0.12 20);
   --footer-foreground: oklch(0.985 0 0);
+  --nav: oklch(90 0.00849 84.495);
+  --nav-foreground: oklch(0.985 0 0);
 }
 
 .dark {
@@ -129,6 +133,8 @@
   --sidebar-ring: oklch(0.556 0 0);
   --footer: oklch(0.2 0 0); 
   --footer-foreground: oklch(0.985 0 0);
+  --nav: oklch(0.145 0 0);
+  --nav-foreground: oklch(0.985 0 0);
 }
 
 @layer base {
