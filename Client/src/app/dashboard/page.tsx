@@ -9,9 +9,6 @@ import {
 import { useAuthStore } from '@/features/auth/store/auth.store';
 import { UserRoles } from '@/features/auth/types/user-interface';
 import { CreateOrgForm } from '@/features/organizations/components/create-org-form';
-// import { CreateProjectDialog } from '@/features/projects/components/create-project-dialog';
-// import { CreateTaskDialog } from '@/features/tasks/components/create-task-dialog';
-// import { CreateEmployeeDialog } from '@/features/users/components/create-employee-dialog';
 
 export default function DashboardPage() {
   const user = useAuthStore((state) => state.user);
