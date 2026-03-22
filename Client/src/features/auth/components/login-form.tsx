@@ -9,6 +9,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { authApi } from '@/features/auth/api/auth-api';
 import { useAuthStore } from '@/features/auth/store/auth.store';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { loginSchema, type LoginFormValues } from '../schemas/auth.schema';
+
 
 export function LoginForm() {
   const router = useRouter();
@@ -16,18 +20,21 @@ export function LoginForm() {
   const setUser = useAuthStore((state) => state.setUser);
 
   const [isLoading, setIsLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginFormValues>({
+    resolver: zodResolver(loginSchema),
+    mode: 'onTouched',
+    defaultValues: { email: '', password: '' },
   });
 
-  const handleSubmit = async (e: React.SubmitEvent) => {
-    e.preventDefault();
+  const onSubmit = async (data: LoginFormValues) => {
     setIsLoading(true);
-
     try {
-      const response = await authApi.login(formData);
-
+      const response = await authApi.login(data);
       setAccessToken(response.accessToken);
       setUser(response.user);
 
@@ -43,8 +50,6 @@ export function LoginForm() {
 
   return (
     <div className="w-full max-w-110 flex flex-col relative bg-card/60 backdrop-blur-xl border border-border/50 p-8 rounded-3xl shadow-2xl shadow-black/5 dark:shadow-black/40">
-
-
       {/* Header */}
       <div className="flex flex-col items-center text-center mb-10">
         <div className="w-12 h-12 flex items-center justify-center  mb-6">
@@ -54,9 +59,10 @@ export function LoginForm() {
           >
             <CheckCircle2 className="h-6 w-6 text-red-500" />
             <span className="text-xl font-bold tracking-tight">Task</span>
-            <span className="text-xl font-bold tracking-tight text-primary">Flow</span>
+            <span className="text-xl font-bold tracking-tight text-primary">
+              Flow
+            </span>
           </Link>
-
         </div>
         <h1 className="text-2xl font-medium tracking-tight text-foreground mb-2">
           Welcome back
@@ -67,21 +73,28 @@ export function LoginForm() {
       </div>
 
       {/* Form */}
-      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
         <div className="space-y-2">
           <label className="text-[11px] font-bold tracking-[0.15em] uppercase text-muted-foreground">
             Email Address
           </label>
           <Input
             type="email"
-            required
-            value={formData.email}
-            onChange={(e) =>
-              setFormData({ ...formData, email: e.target.value })
-            }
-            className="h-11 rounded-sm bg-transparent border-border focus-visible:ring-1 focus-visible:ring-primary/20 focus-visible:border-primary transition-colors"
+            {...register('email')}
+            className={`
+              h-11 rounded-sm bg-transparent border-border focus-visible:ring-1 focus-visible:ring-primary/20 
+              focus-visible:border-primary transition-colors ${
+                errors.email
+                  ? 'border-destructive focus-visible:ring-destructive'
+                  : 'border-border/60 focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary'
+              }`}
             placeholder="you@example.com"
           />
+          {errors.email && (
+            <p className="text-[10px] text-destructive font-medium">
+              {errors.email.message}
+            </p>
+          )}
         </div>
 
         <div className="space-y-2">
@@ -98,14 +111,21 @@ export function LoginForm() {
           </div>
           <Input
             type="password"
-            required
-            value={formData.password}
-            onChange={(e) =>
-              setFormData({ ...formData, password: e.target.value })
-            }
-            className="h-11 rounded-sm bg-transparent border-border focus-visible:ring-1 focus-visible:ring-primary/20 focus-visible:border-primary transition-colors"
+            {...register('password')}
+            className={`
+              h-11 rounded-sm bg-transparent border-border focus-visible:ring-1 focus-visible:ring-primary/20 
+              focus-visible:border-primary transition-colors ${
+                errors.password
+                  ? 'border-destructive focus-visible:ring-destructive'
+                  : 'border-border/60 focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary'
+              }`}
             placeholder="••••••••"
           />
+          {errors.password && (
+            <p className="text-[10px] text-destructive font-medium">
+              {errors.password.message}
+            </p>
+          )}
         </div>
 
         <Button

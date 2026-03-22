@@ -2,44 +2,47 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+// import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { CheckCircle2, Loader2 } from 'lucide-react';
-
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { authApi } from '@/features/auth/api/auth-api';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { registerSchema, type RegisterFormValues } from '../schemas/auth.schema';
+
+
 
 export function RegisterForm() {
-  const router = useRouter();
+  // const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<RegisterFormValues>({
+    resolver: zodResolver(registerSchema),
+    mode: 'onTouched',
+    defaultValues: {
+      name: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+    },
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (formData.password !== formData.confirmPassword) {
-      toast.error('Passwords do not match');
-      return;
-    }
-
+  const onSubmit = async (data: RegisterFormValues) => {
     setIsLoading(true);
-
     try {
-      // Make sure authApi.register is defined in your axios methods!
       await authApi.register({
-        name: formData.name,
-        email: formData.email,
-        password: formData.password,
+        name: data.name,
+        email: data.email,
+        password: data.password,
       });
-
-      toast.success('Account created! Please log in.');
-      router.push('/login');
+      toast.success('Account created successfully');
+      // router.push('/login');
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Failed to create account');
@@ -51,7 +54,6 @@ export function RegisterForm() {
   return (
     <div className="w-full max-w-120 flex flex-col relative bg-card/60 backdrop-blur-xl border border-border/50 p-8 rounded-3xl shadow-2xl shadow-black/5 dark:shadow-black/40">
       {' '}
-
       <div className="flex flex-col items-center text-center mb-10">
         <div className="w-12 h-12 flex items-center justify-center mb-6">
           <Link
@@ -72,19 +74,28 @@ export function RegisterForm() {
           Set up your workspace in seconds.
         </p>
       </div>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
         <div className="space-y-2">
           <label className="text-[10px] font-bold tracking-[0.15em] uppercase text-muted-foreground">
             Full Name *
           </label>
           <Input
             type="text"
-            required
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            className="h-11 rounded-sm bg-transparent border-border focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary transition-colors"
+            {...register('name')}
+            className={`
+              h-11 rounded-sm bg-transparent border-border focus-visible:ring-1 
+              focus-visible:ring-primary focus-visible:border-primary transition-colors ${
+                errors.name
+                  ? 'border-destructive focus-visible:ring-destructive'
+                  : 'border-border/60 focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary'
+              }`}
             placeholder="Your Name"
           />
+          {errors.name && (
+            <p className="text-[10px] text-destructive font-medium">
+              {errors.name.message}
+            </p>
+          )}
         </div>
 
         <div className="space-y-2">
@@ -93,14 +104,21 @@ export function RegisterForm() {
           </label>
           <Input
             type="email"
-            required
-            value={formData.email}
-            onChange={(e) =>
-              setFormData({ ...formData, email: e.target.value })
-            }
-            className="h-11 rounded-sm bg-transparent border-border focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary transition-colors"
+            {...register('email')}
+            className={`
+              h-11 rounded-sm bg-transparent border-border focus-visible:ring-1 focus-visible:ring-primary 
+              focus-visible:border-primary transition-colors ${
+                errors.email
+                  ? 'border-destructive focus-visible:ring-destructive'
+                  : 'border-border/60 focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary'
+              }`}
             placeholder="you@example.com"
           />
+          {errors.email && (
+            <p className="text-[10px] text-destructive font-medium">
+              {errors.email.message}
+            </p>
+          )}
         </div>
 
         <div className="space-y-2">
@@ -109,15 +127,22 @@ export function RegisterForm() {
           </label>
           <Input
             type="password"
-            required
-            value={formData.password}
-            onChange={(e) =>
-              setFormData({ ...formData, password: e.target.value })
-            }
-            className="h-11 rounded-sm bg-transparent border-border focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary transition-colors"
+            {...register('password')}
+            className={`
+              h-11 rounded-sm bg-transparent border-border focus-visible:ring-1 focus-visible:ring-primary 
+              focus-visible:border-primary transition-colors
+              ${
+                errors.password
+                  ? 'border-destructive focus-visible:ring-destructive'
+                  : 'border-border/60 focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary'
+              }`}
             placeholder="••••••••"
-            minLength={8}
           />
+          {errors.password && (
+            <p className="text-[10px] text-destructive font-medium leading-tight">
+              {errors.password.message}
+            </p>
+          )}
         </div>
 
         <div className="space-y-2">
@@ -126,15 +151,22 @@ export function RegisterForm() {
           </label>
           <Input
             type="password"
-            required
-            value={formData.confirmPassword}
-            onChange={(e) =>
-              setFormData({ ...formData, confirmPassword: e.target.value })
-            }
-            className="h-11 rounded-sm bg-transparent border-border focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary transition-colors"
+            {...register('confirmPassword')}
+            className={`
+              h-11 rounded-sm bg-transparent border-border focus-visible:ring-1 focus-visible:ring-primary 
+              focus-visible:border-primary transition-colors
+              ${
+                errors.confirmPassword
+                  ? 'border-destructive focus-visible:ring-destructive'
+                  : 'border-border/60 focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary'
+              }`}
             placeholder="••••••••"
-            minLength={8}
           />
+          {errors.confirmPassword && (
+            <p className="text-[10px] text-destructive font-medium">
+              {errors.confirmPassword.message}
+            </p>
+          )}
         </div>
 
         <Button
