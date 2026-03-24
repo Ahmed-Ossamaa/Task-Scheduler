@@ -14,7 +14,7 @@ import {
 export const MENU_ITEMS: MenuItem[] = [
   // Shared
   {
-    title: 'Dashboard',
+    title: 'Overview',
     url: '/dashboard',
     icon: Home,
     roles: [UserRoles.ADMIN, UserRoles.MANAGER, UserRoles.EMP],

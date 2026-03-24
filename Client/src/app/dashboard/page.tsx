@@ -9,9 +9,15 @@ import {
 import { useAuthStore } from '@/features/auth/store/auth.store';
 import { UserRoles } from '@/features/auth/types/user-interface';
 import { CreateOrgForm } from '@/features/organizations/components/create-org-form';
+import { TaskCard } from '@/features/tasks/components/task-card';
+import { useMyTasks } from '@/features/tasks/hooks/use-tasks';
+import { TaskStatus } from '@/features/tasks/types';
+import { Loader2 } from 'lucide-react';
 
 export default function DashboardPage() {
   const user = useAuthStore((state) => state.user);
+  const { data: tasks, isLoading } = useMyTasks();
+
   if (!user) return null;
   if (user.role === UserRoles.MANAGER && !user.organizationId) {
     return (
@@ -31,22 +37,62 @@ export default function DashboardPage() {
       </div>
     );
   }
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-[60vh]">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+  const inProgressTasks =
+    tasks?.filter((t) => t.status !== TaskStatus.DONE && t.status !== TaskStatus.CANCELED) || [];
+  const completedAndCanceledTasks =
+    tasks?.filter((t) => t.status === TaskStatus.DONE || t.status === TaskStatus.CANCELED) || [];
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Overview</h1>
       </div>
+      <div className="max-w-200 mx-10 py-12 px-6">
+        {/*IN PROGRESS SECTION */}
+        <div className="mb-16">
+          <h2 className="text-[11px] font-bold tracking-[0.2em] uppercase text-muted-foreground border-b border-border/60 pb-4 mb-6">
+            In Progress — {inProgressTasks.length} Task
+            {inProgressTasks.length !== 1 && 's'}
+          </h2>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Tasks</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">12</div>
-            <p className="text-xs text-muted-foreground">+2 from last week</p>
-          </CardContent>
-        </Card>
+          <div className="flex flex-col gap-3">
+            {inProgressTasks.length === 0 ? (
+              <p className="text-sm text-muted-foreground italic">
+                You are all caught up!
+              </p>
+            ) : (
+              inProgressTasks.map((task) => (
+                <TaskCard key={task.id} task={task} />
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* COMPLETED SECTION  */}
+        <div>
+          <h2 className="text-[11px] font-bold tracking-[0.2em] uppercase text-muted-foreground border-b border-border/60 pb-4 mb-6">
+            Completed This Week — {completedAndCanceledTasks.length} Task
+            {completedAndCanceledTasks.length !== 1 && 's'}
+          </h2>
+
+          <div className="flex flex-col gap-3 opacity-70">
+            {completedAndCanceledTasks.length === 0 ? (
+              <p className="text-sm text-muted-foreground italic">
+                No tasks completed yet.
+              </p>
+            ) : (
+              completedAndCanceledTasks.map((task) => (
+                <TaskCard key={task.id} task={task} />
+              ))
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
