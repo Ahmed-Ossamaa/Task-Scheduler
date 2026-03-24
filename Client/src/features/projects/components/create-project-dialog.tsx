@@ -19,7 +19,7 @@ export function CreateProjectDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" className="gap-2">
+        <Button  className="gap-2">
           <FolderPlus className="h-4 w-4" />
           New Project
         </Button>
