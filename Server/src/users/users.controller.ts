@@ -6,6 +6,7 @@ import {
   Get,
   Param,
   ParseIntPipe,
+  ParseUUIDPipe,
   Patch,
   Query,
   UseGuards,
@@ -61,6 +62,19 @@ export class UserController {
     }
     const users = await this.userService.findMyEmployees(user.organizationId);
     return users;
+  }
+
+  @ApiOperation({ summary: 'Remove employee from my org (Manager only)' })
+  @Delete('employee/:userId')
+  @Roles(UserRole.MANAGER)
+  async removeEmployee(
+    @CurrentUser() manager: JwtPayload,
+    @Param('userId', ParseUUIDPipe) empId: string,
+  ) {
+    if (!manager.organizationId) {
+      throw new ForbiddenException('You are not assigned to an organization.');
+    }
+    return this.userService.deleteEmployee(manager.organizationId, empId);
   }
 
   @ApiOperation({ summary: 'Delete user "soft delete" (admin only)' })
