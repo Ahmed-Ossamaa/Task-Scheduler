@@ -5,6 +5,7 @@ import { DataSource, Repository } from 'typeorm';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { PaginatedProject } from './interfaces/paginated-project.interface';
 import { Task } from 'src/tasks/entities/task.entity';
+import { UpdateProjectDto } from './dto/update-project.dto';
 
 @Injectable()
 export class ProjectsService {
@@ -75,6 +76,11 @@ export class ProjectsService {
     };
   }
 
+  async updateProject(projectId: string, orgId: string, dto: UpdateProjectDto) {
+    const project = await this.validateProjectExistsForOrg(projectId, orgId);
+    Object.assign(project, dto);
+    return this.projectRepo.save(project);
+  }
   async deleteProject(
     projectId: string,
     orgId: string,

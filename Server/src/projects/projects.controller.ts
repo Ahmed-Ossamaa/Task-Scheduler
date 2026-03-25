@@ -10,6 +10,7 @@ import {
   Delete,
   Param,
   ParseUUIDPipe,
+  Patch,
 } from '@nestjs/common';
 import { ProjectsService } from './projects.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -20,6 +21,7 @@ import { Roles } from 'src/common/decorators/roles.decorator';
 import { UserRole } from 'src/users/enums/user-roles.enum';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 import { ApiOperation } from '@nestjs/swagger';
+import { UpdateProjectDto } from './dto/update-project.dto';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('projects')
@@ -59,6 +61,26 @@ export class ProjectsController {
     @Query('limit', new ParseIntPipe({ optional: true })) limit: number = 20,
   ) {
     return this.projectsService.getAllProjects(page, limit);
+  }
+
+  @ApiOperation({ summary: 'Update a project (Manager)' })
+  @Patch(':projectId')
+  @Roles(UserRole.MANAGER)
+  async updateProject(
+    @CurrentUser() manager: JwtPayload,
+    @Param('projectId', ParseUUIDPipe) projectId: string,
+    @Body() dto: UpdateProjectDto,
+  ) {
+    if (!manager.organizationId) {
+      throw new ForbiddenException(
+        'You must be a manager of an Organization to update a project',
+      );
+    }
+    return this.projectsService.updateProject(
+      projectId,
+      manager.organizationId,
+      dto,
+    );
   }
 
   @ApiOperation({
