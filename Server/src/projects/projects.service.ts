@@ -1,14 +1,16 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Project } from './entities/project.entity';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { PaginatedProject } from './interfaces/paginated-project.interface';
+import { Task } from 'src/tasks/entities/task.entity';
 
 @Injectable()
 export class ProjectsService {
   constructor(
     @InjectRepository(Project) private projectRepo: Repository<Project>,
+    private readonly dataSource: DataSource,
   ) {}
 
   async createProject(orgId: string, dto: CreateProjectDto) {
@@ -71,5 +73,37 @@ export class ProjectsService {
       page,
       lastPage: Math.ceil(total / take),
     };
+  }
+
+  async deleteProject(
+    projectId: string,
+    orgId: string,
+  ): Promise<{ message: string }> {
+    //check if this project exists in this org
+    await this.validateProjectExistsForOrg(projectId, orgId);
+    // Transaction to ensure "All or Nothing"
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      //soft delete tasks in this project
+      await queryRunner.manager.softDelete(Task, { projectId });
+
+      //soft delete the project
+      await queryRunner.manager.softDelete(Project, projectId);
+      await queryRunner.commitTransaction();
+
+      return {
+        message:
+          'Project and all associated tasks have been deleted successfully',
+      };
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      console.error('Error deleting project:', err);
+      throw err;
+    } finally {
+      await queryRunner.release();
+    }
   }
 }
