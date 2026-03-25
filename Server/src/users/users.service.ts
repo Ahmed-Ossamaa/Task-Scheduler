@@ -6,18 +6,20 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { User } from './entities/user.entity';
-import { FindOptionsSelect, Repository } from 'typeorm';
+import { DataSource, FindOptionsSelect, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaginatedUsers } from './types/user.responses';
 import { Profile } from 'passport-google-oauth20';
 import { UserRole } from './enums/user-roles.enum';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
+import { Task } from 'src/tasks/entities/task.entity';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
+    private readonly dataSource: DataSource,
   ) {}
 
   async createUser(userData: Partial<User>): Promise<User> {
@@ -170,29 +172,77 @@ export class UserService {
     return this.userRepo.save(user);
   }
 
-  async deleteUser(userId: string): Promise<void> {
-    const result = await this.userRepo.softDelete(userId);
+  async deleteUser(userId: string): Promise<{ message: string }> {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
 
-    if (result.affected === 0) {
-      throw new NotFoundException(`User with ID ${userId} not found`);
+    try {
+      //soft delete tasks assigned to the deleted user
+      await queryRunner.manager.softDelete(Task, {
+        assignedTo: { id: userId },
+      });
+
+      //soft delete user
+      const result = await queryRunner.manager.softDelete(User, userId);
+      if (result.affected === 0) {
+        throw new NotFoundException(`User with ID ${userId} not found`);
+      }
+
+      await queryRunner.commitTransaction();
+
+      //Later: send an email to the user to notify them that their account has been deleted
+      return {
+        message: `User with ID ${userId} and his tasks have been deleted successfully`,
+      };
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      console.error('Error deleting user:', err);
+      throw err;
+    } finally {
+      await queryRunner.release();
     }
   }
 
   async deleteEmployee(
     managerOrgId: string,
     employeeId: string,
-  ): Promise<void> {
+  ): Promise<{ message: string }> {
     const employee = await this.findUserById(employeeId);
     if (employee.organizationId !== managerOrgId) {
       throw new ForbiddenException(
         'You can only manage users in your own organization',
       );
     }
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
 
-    const result = await this.userRepo.softDelete(employeeId);
+    try {
+      //Soft delete tasks assigned to this employee
+      await queryRunner.manager.softDelete(Task, {
+        assignedTo: { id: employeeId },
+      });
 
-    if (result.affected === 0) {
-      throw new NotFoundException(`User with ID ${employeeId} not found`);
+      //Soft delete the Employee
+      const result = await queryRunner.manager.softDelete(User, employeeId);
+
+      if (result.affected === 0) {
+        throw new NotFoundException(`User with ID ${employeeId} not found`);
+      }
+
+      await queryRunner.commitTransaction();
+
+      //Later: send an emai to the Employee to notify them that their account has been deleted
+      return {
+        message: `Employee with ID ${employeeId} and his tasks have been deleted successfully`,
+      };
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      console.error('Error deleting employee:', err);
+      throw err;
+    } finally {
+      await queryRunner.release();
     }
   }
 

@@ -77,7 +77,6 @@ export class OrganizationsService {
     return this.orgRepo.save(org);
   }
 
-  // to be tested
   async removeOrganization(orgId: string) {
     // Transaction to ensure "All or Nothing" => remove the org and all its data
     const queryRunner = this.dataSource.createQueryRunner();
@@ -103,12 +102,14 @@ export class OrganizationsService {
 
       await queryRunner.commitTransaction();
 
+      //Later: send an email to the users to notify them that their account has been deleted
+
       return {
         message: 'Organization and all associated data have been suspended.',
       };
     } catch (err) {
       await queryRunner.rollbackTransaction();
-      console.log('delete org error', err);
+      console.error('Error deleting organization:', err);
       throw err;
     } finally {
       await queryRunner.release();
