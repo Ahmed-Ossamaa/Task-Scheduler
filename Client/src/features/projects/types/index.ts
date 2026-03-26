@@ -6,6 +6,7 @@ export interface Project {
   createdAt: string;
 }
 
+
 export interface PaginatedProject {
   data: Project[] | [];
   total: number;

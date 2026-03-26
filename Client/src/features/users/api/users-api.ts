@@ -11,7 +11,7 @@ export const usersApi = {
   },
 
   createEmployee: async (payload: CreateEmployeeDto) => {
-    const { data } = await api.post<User>('auth/register/employee', payload);
-    return data;
+    const { data } = await api.post<{user: User}>('auth/register/employee', payload);
+    return data.user;
   },
 };

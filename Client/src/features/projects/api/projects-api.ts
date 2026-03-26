@@ -16,5 +16,16 @@ export const projectsApi = {
   getAllProjects: async () => {
     const { data } = await api.get<PaginatedProject>('/projects');
     return data;
-  }
+  },
+
+  editProject: async (projectId: string,payload: Partial<Project>) => {
+    const { data } = await api.patch<Project>(`/projects/${projectId}`, payload);
+    return data;
+  },
+
+  deleteProject: async (projectId: string) => {
+    const { data } = await api.delete<Project>(`/projects/${projectId}`);
+    return data;
+  },
+
 };

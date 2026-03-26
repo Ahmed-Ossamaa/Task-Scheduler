@@ -1,4 +1,5 @@
 import { User } from '@/features/auth/types/user-interface';
+import { Project } from '@/features/projects/types';
 
 export enum TaskStatus {
   PENDING = 'pending',
@@ -48,12 +49,7 @@ export type Task = {
     project:Project
     
 }
-export type Project = {
-    id: string;
-    name: string;
-    description?: string;
-    createdAt: string;
-}
+
 export interface Tasks {
   data: Task[];
   total: number;
