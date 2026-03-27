@@ -81,6 +81,7 @@ export class ProjectsService {
     Object.assign(project, dto);
     return this.projectRepo.save(project);
   }
+
   async deleteProject(
     projectId: string,
     orgId: string,
