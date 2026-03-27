@@ -32,12 +32,11 @@ export const MENU_ITEMS: MenuItem[] = [
     roles: [UserRoles.MANAGER, UserRoles.EMP],
   },
 
-  // Manager Exclusive
   {
     title: 'Team Directory',
     url: '/dashboard/team',
     icon: Users,
-    roles: [UserRoles.MANAGER],
+    roles: [UserRoles.MANAGER, UserRoles.EMP],
   },
 
   // Admin Exclusive
