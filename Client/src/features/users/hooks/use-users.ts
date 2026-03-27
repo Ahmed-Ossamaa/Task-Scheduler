@@ -35,3 +35,45 @@ export const useCreateEmployee = () => {
     },
   });
 };
+
+
+/**
+ * Hook to delete (soft delete) an employee and their tasks (Manager only).
+ * @returns The result of the mutation.
+ *
+ * Will invalidate the 'org-employees' query when the employee is deleted successfully.
+ * Will remove the employee from the cached list.
+ */
+export const  useDeleteEmployee = () => {
+  const queryClient = useQueryClient();
+  const user = useAuthStore((state) => state.user);
+
+  return useMutation({
+    mutationFn: usersApi.deleteEmployee,
+    onSuccess: (_, employeeId) => {
+      //remove employee from the cashed list
+      queryClient.setQueryData<User[]>(
+        ['users', 'org-employees', user?.organizationId],
+        (old) => old?.filter((emp) => emp.id !== employeeId)||[],
+      );
+
+      //invalidate  tasks list (after deleting an employee)
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+    },
+  })
+}
+
+  export const useEditMyProfile = () => {
+    const queryClient = useQueryClient();
+    const setUser = useAuthStore((state) => state.setUser);
+  
+    return useMutation({
+      mutationFn: usersApi.editMyProfile,
+      onSuccess: (updatedUser) => {
+        // Update user in the store
+        setUser(updatedUser);
+        // refresh list (Later:(not sure if needed here))
+        queryClient.invalidateQueries({ queryKey: ['users', 'me'] });
+      },
+    })
+  }

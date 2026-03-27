@@ -2,16 +2,47 @@ import api from '@/lib/api/axios';
 import { User } from '@/features/auth/types/user-interface';
 import { CreateEmployeeDto } from '../types';
 
-
-
 export const usersApi = {
-  getOrgEmployees: async () => {
+  /**
+   * Admin/Manager/Emp: Get All Employees in Organization
+   * @returns {Promise<User[]>} - An array of all employees in the organization
+   */
+  getOrgEmployees: async (): Promise<User[]> => {
     const { data } = await api.get<User[]>('/user/org-employees');
     return data;
   },
 
-  createEmployee: async (payload: CreateEmployeeDto) => {
-    const { data } = await api.post<{user: User}>('auth/register/employee', payload);
+  /**
+   * Manager: Create a new employee (register a new employee account in my organization)
+   * @returns {Promise<User>} - Newly created employee
+   */
+  createEmployee: async (payload: CreateEmployeeDto): Promise<User> => {
+    const { data } = await api.post<{ user: User }>(
+      'auth/register/employee',
+      payload,
+    );
     return data.user;
   },
+
+
+  /**
+   * Manager: Delete an employee and their tasks (Soft Delete)
+   * @returns {Promise<{ message: string }>} Success Deletion message on Success
+   */
+  deleteEmployee: async (userId: string): Promise<{ message: string }> => {
+    const { data } = await api.delete<{ message: string }>(
+      `/user/employee/${userId}`,
+    );
+    return data;
+  },
+
+  editMyProfile: async ( payload: User): Promise<User> => {
+    const { data } = await api.patch<User>(
+      `/user/me`,
+      payload,
+    );
+    return data;
+  },
+
+
 };

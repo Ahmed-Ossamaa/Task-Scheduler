@@ -17,8 +17,7 @@ import { UserRoles } from '@/features/auth/types/user-interface';
 export default function ProjectsPage() {
   const { data: projects, isLoading } = useOrgProjects();
   const user = useAuthStore((state) => state.user);
-  const isManagerOrAdmin =
-    user?.role === UserRoles.MANAGER || user?.role === UserRoles.ADMIN;
+  const isManager = user?.role === UserRoles.MANAGER;
 
   return (
     <div className="flex flex-col space-y-6 w-full">
@@ -29,7 +28,7 @@ export default function ProjectsPage() {
             Manage your team&apos;s project spaces.
           </p>
         </div>
-        {isManagerOrAdmin && <CreateProjectDialog />}
+        {isManager && <CreateProjectDialog />}
       </div>
 
       {isLoading ? (
