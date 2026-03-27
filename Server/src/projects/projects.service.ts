@@ -100,7 +100,7 @@ export class ProjectsService {
       //soft delete the project
       await queryRunner.manager.softDelete(Project, projectId);
       await queryRunner.commitTransaction();
-
+      //Later: maybe send an email to the users to notify them that their project and tasks have been deleted
       return {
         message:
           'Project and all associated tasks have been deleted successfully',
