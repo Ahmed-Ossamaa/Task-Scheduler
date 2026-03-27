@@ -81,7 +81,7 @@ export const useEditProject = () => {
 };
 
 /**
- * Hook to delete a project (Manager only).
+ * Hook to delete (soft delete) a project and its associated tasks (Manager only).
  * @returns - The result of the mutation.
  * It contains the deleted project and methods to handle the mutation state.
  * Will update the 'projects' cash when the project is deleted successfully.
@@ -98,7 +98,7 @@ export const useDeleteProject = () => {
         (old) => old?.filter((p) => p.id !== projectId) || [],
       );
       //invalidate  tasks list (after deleting a project)
-      queryClient.invalidateQueries({ queryKey: ['tasks', 'my-tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
     },
   });
 };
