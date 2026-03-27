@@ -20,7 +20,6 @@ export const useOrgProjects = () => {
   });
 };
 
-
 /**
  * Hook to retrieve all projects system-wide (Admin only).
  * @returns - The result of the query.
@@ -51,14 +50,12 @@ export const useCreateProject = () => {
   });
 };
 
-
 /**
  * Hook to edit a project (Manager only).
  * @returns - The result of the mutation.
  * It contains the updated project and methods to handle the mutation state.
  * Will update the 'projects' cash when the project is edited successfully.
  */
-
 export const useEditProject = () => {
   const queryClient = useQueryClient();
 
@@ -76,9 +73,8 @@ export const useEditProject = () => {
       queryClient.setQueryData<Project[]>(
         ['projects', 'org'],
         (old) =>
-          old?.map((p) =>
-            p.id === updatedProject.id ? updatedProject : p
-          ) || []
+          old?.map((p) => (p.id === updatedProject.id ? updatedProject : p)) ||
+          [],
       );
     },
   });
@@ -99,8 +95,10 @@ export const useDeleteProject = () => {
     onSuccess: (_, projectId) => {
       queryClient.setQueryData<Project[]>(
         ['projects', 'org'],
-        (old) => old?.filter((p) => p.id !== projectId) || []
+        (old) => old?.filter((p) => p.id !== projectId) || [],
       );
+      //invalidate  tasks list (after deleting a project)
+      queryClient.invalidateQueries({ queryKey: ['tasks', 'my-tasks'] });
     },
   });
 };

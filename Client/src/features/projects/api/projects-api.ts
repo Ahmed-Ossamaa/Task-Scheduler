@@ -13,18 +13,30 @@ export const projectsApi = {
     return data;
   },
 
+  /**
+   * Admin: Get all projects (Paginated)
+   * @returns {Promise<PaginatedProject>} - A promise resolving with an object containing projects data and pagination metadata.
+   */
   getAllProjects: async () => {
     const { data } = await api.get<PaginatedProject>('/projects');
     return data;
   },
 
-  editProject: async (projectId: string,payload: Partial<Project>) => {
+  /**
+   * Edit a project (Manager only).
+   * @returns {Promise<Project>} - Updated project
+   */
+  editProject: async (projectId: string,payload: Partial<Project>): Promise<Project> => {
     const { data } = await api.patch<Project>(`/projects/${projectId}`, payload);
     return data;
   },
 
-  deleteProject: async (projectId: string) => {
-    const { data } = await api.delete<Project>(`/projects/${projectId}`);
+  /**
+   * Manager: Delete a project and its associated tasks (Soft Delete).
+   * @returns {Promise<{ message: string }>} - Success Deletion message on Success.
+   */
+  deleteProject: async (projectId: string):Promise<{ message: string }> => {
+    const { data } = await api.delete<{ message: string }>(`/projects/${projectId}`);
     return data;
   },
 
