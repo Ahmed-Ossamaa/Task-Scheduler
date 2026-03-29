@@ -2,21 +2,16 @@ import {
   Body,
   Controller,
   Delete,
-  FileTypeValidator,
   ForbiddenException,
   Get,
-  MaxFileSizeValidator,
   Param,
-  ParseFilePipe,
   ParseIntPipe,
   ParseUUIDPipe,
   Patch,
   Query,
   UploadedFile,
   UseGuards,
-  UseInterceptors,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
 import { UserService } from './users.service';
 import { StorageService } from '../integrations/storage/storage.interface';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
@@ -24,16 +19,12 @@ import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 import type { JwtPayload } from 'src/auth/interfaces/jwt-payload.interface';
 import { User } from './entities/user.entity';
 import { UpdateUserDto } from './dto/update-user.dto';
-import {
-  ApiBearerAuth,
-  ApiOperation,
-  ApiConsumes,
-  ApiBody,
-} from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { UserRole } from './enums/user-roles.enum';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { Throttle } from '@nestjs/throttler';
 import { ApiImageUpload } from 'src/common/decorators/api-image-upload.decorator';
+import { ImageValidationPipe } from 'src/common/pipes/image-validation.pipe';
 
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
@@ -64,21 +55,14 @@ export class UserController {
   @Patch('avatar')
   async uploadAvatar(
     @CurrentUser() user: JwtPayload,
-    @UploadedFile(
-      new ParseFilePipe({
-        validators: [
-          new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 5 }), // 5MB
-          new FileTypeValidator({ fileType: '.(png|jpeg|jpg|webp)' }),
-        ],
-      }),
-    )
+    @UploadedFile(ImageValidationPipe)
     file: Express.Multer.File,
   ): Promise<User> {
     const avatarUrl = await this.storageService.uploadImage(
       file,
-      'user_avatars',
-      user.sub,
-      true,
+      'user_avatars', //folderName
+      user.sub, //fileName = user_id
+      true, //overwrite existing
     );
 
     //Save URL to the user.avatar
