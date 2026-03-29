@@ -172,6 +172,13 @@ export class UserService {
     return this.userRepo.save(user);
   }
 
+  async updateAvatar(userId: string, avatarUrl: string): Promise<User> {
+    const user = await this.findUserById(userId);
+    user.avatar = avatarUrl;
+
+    return this.userRepo.save(user);
+  }
+
   async deleteUser(userId: string): Promise<{ message: string }> {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
