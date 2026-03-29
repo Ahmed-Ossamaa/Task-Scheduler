@@ -9,9 +9,10 @@ import appConfig from './config/app.config';
 import jwtConfig from './config/jwt.config';
 import dbConfig from './config/db.config';
 import googleAuthConfig from './config/oAuth.config';
+import redisConfig from './config/redis.config';
+import cloudinaryConfig from './config/cloudinary.config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BullModule } from '@nestjs/bullmq';
-import redisConfig from './config/redis.config';
 import { validationSchema } from './config/validation.schema';
 import { OrganizationsModule } from './organizations/organizations.module';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
@@ -23,7 +24,14 @@ import { ProjectsModule } from './projects/projects.module';
     ConfigModule.forRoot({
       isGlobal: true,
       validationSchema,
-      load: [appConfig, jwtConfig, dbConfig, redisConfig, googleAuthConfig],
+      load: [
+        appConfig,
+        jwtConfig,
+        dbConfig,
+        redisConfig,
+        googleAuthConfig,
+        cloudinaryConfig,
+      ],
     }),
 
     TypeOrmModule.forRootAsync({
