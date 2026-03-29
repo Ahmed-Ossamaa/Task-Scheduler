@@ -33,6 +33,7 @@ import {
 import { UserRole } from './enums/user-roles.enum';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { Throttle } from '@nestjs/throttler';
+import { ApiImageUpload } from 'src/common/decorators/api-image-upload.decorator';
 
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
@@ -59,20 +60,8 @@ export class UserController {
   }
 
   @ApiOperation({ summary: 'Upload or update my avatar' })
-  @ApiConsumes('multipart/form-data')
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        avatar: {
-          type: 'string',
-          format: 'binary',
-        },
-      },
-    },
-  })
+  @ApiImageUpload('avatar')
   @Patch('avatar')
-  @UseInterceptors(FileInterceptor('avatar'))
   async uploadAvatar(
     @CurrentUser() user: JwtPayload,
     @UploadedFile(
