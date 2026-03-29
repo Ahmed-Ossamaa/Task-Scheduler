@@ -7,22 +7,30 @@ import {
   Patch,
   Post,
   Query,
+  UploadedFile,
   UseGuards,
 } from '@nestjs/common';
 import { OrganizationsService } from './organizations.service';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { UserRole } from 'src/users/enums/user-roles.enum';
-import { ApiOperation } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 import type { JwtPayload } from 'src/auth/interfaces/jwt-payload.interface';
 import { CreateOrgDto } from './dto/create-org.dto';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { ApiImageUpload } from 'src/common/decorators/api-image-upload.decorator';
+import { ImageValidationPipe } from 'src/common/pipes/image-validation.pipe';
+import { StorageService } from 'src/integrations/storage/storage.interface';
 
+@ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('organizations')
 export class OrganizationsController {
-  constructor(private readonly organizationsService: OrganizationsService) {}
+  constructor(
+    private readonly organizationsService: OrganizationsService,
+    private readonly storageService: StorageService,
+  ) {}
 
   @ApiOperation({ summary: 'Create an organization (manager only)' })
   @Post('/create')
@@ -34,6 +42,31 @@ export class OrganizationsController {
     return this.organizationsService.createOrganization(
       createOrgDto,
       manager.sub,
+    );
+  }
+
+  @ApiOperation({ summary: 'Upload or Update Organization Logo' })
+  @ApiImageUpload('logo')
+  @Patch('/update-logo')
+  @Roles(UserRole.MANAGER)
+  async uploadOrgLogo(
+    @CurrentUser() manager: JwtPayload,
+    @UploadedFile(ImageValidationPipe) file: Express.Multer.File,
+  ) {
+    if (!manager.organizationId) {
+      throw new BadRequestException('You are not part of any organization');
+    }
+
+    const logoUrl = await this.storageService.uploadImage(
+      file,
+      'org_logos', //folderName
+      manager.organizationId, //fileName = org_id
+      true, //overwrite existing
+    );
+
+    return this.organizationsService.updateOrgLogo(
+      manager.organizationId,
+      logoUrl,
     );
   }
   @ApiOperation({ summary: 'Get my organization details (manager only)' })

@@ -41,6 +41,13 @@ export class OrganizationsService {
     return savedOrg;
   }
 
+  async updateOrgLogo(orgId: string, logoUrl: string): Promise<Organization> {
+    const org = await this.findOrgById(orgId);
+    org.logo = logoUrl;
+
+    return this.orgRepo.save(org);
+  }
+
   async findOrgById(orgId: string): Promise<Organization> {
     const org = await this.orgRepo.findOne({
       where: { id: orgId },
