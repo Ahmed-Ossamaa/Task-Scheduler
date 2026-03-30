@@ -56,7 +56,7 @@ export class User {
   address?: string;
 
   @Column({ nullable: true })
-  avatar?: string;
+  avatar?: string | null;
 
   @Index('IDX_USERS_REFRESH_TOKEN')
   @Column({ type: 'text', nullable: true, select: false })

@@ -69,6 +69,7 @@ export class OrganizationsController {
       logoUrl,
     );
   }
+
   @ApiOperation({ summary: 'Get my organization details (manager only)' })
   @Get('/my-org')
   @Roles(UserRole.MANAGER)

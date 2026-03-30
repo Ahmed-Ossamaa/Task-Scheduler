@@ -24,7 +24,7 @@ export class UserService {
 
   async createUser(userData: Partial<User>): Promise<User> {
     const user = this.userRepo.create(userData);
-    return this.userRepo.save(user);
+    return this.saveUser(user);
   }
 
   async createEmployee(
@@ -55,7 +55,7 @@ export class UserService {
       isEmailVerified: true,
     });
 
-    return this.userRepo.save(newEmployee);
+    return this.saveUser(newEmployee);
   }
 
   async findMyEmployees(organizationId: string): Promise<User[]> {
@@ -149,7 +149,7 @@ export class UserService {
   async updateUserPassword(user: User, newPassword: string) {
     user.password = newPassword;
     user.refreshToken = null;
-    return this.userRepo.save(user);
+    return this.saveUser(user);
   }
 
   async updateRefreshToken(
@@ -165,7 +165,7 @@ export class UserService {
   ): Promise<User> {
     const user = await this.findUserById(userId);
     Object.assign(user, profile);
-    return this.userRepo.save(user);
+    return this.saveUser(user);
   }
 
   async saveUser(user: User): Promise<User> {
@@ -176,7 +176,13 @@ export class UserService {
     const user = await this.findUserById(userId);
     user.avatar = avatarUrl;
 
-    return this.userRepo.save(user);
+    return this.saveUser(user);
+  }
+
+  async removeAvatar(userId: string): Promise<User> {
+    const user = await this.findUserById(userId);
+    user.avatar = null;
+    return this.saveUser(user);
   }
 
   async deleteUser(userId: string): Promise<{ message: string }> {

@@ -51,6 +51,7 @@ export class UserController {
   }
 
   @ApiOperation({ summary: 'Upload or update my avatar' })
+  @Throttle({ default: { limit: 2, ttl: 60000 } })
   @ApiImageUpload('avatar')
   @Patch('avatar')
   async uploadAvatar(
@@ -67,6 +68,20 @@ export class UserController {
 
     //Save URL to the user.avatar
     return this.userService.updateAvatar(user.sub, avatarUrl);
+  }
+
+  @ApiOperation({
+    summary: 'Remove My avatar and delete it from cloud storage',
+  })
+  @Throttle({ default: { limit: 3, ttl: 60000 } })
+  @Delete('avatar')
+  async removeAvatar(@CurrentUser() user: JwtPayload) {
+    try {
+      await this.storageService.deleteImage(`user_avatars/${user.sub}`);
+    } catch (error) {
+      console.warn('Error while deleting avatar from cloud', error);
+    }
+    return this.userService.removeAvatar(user.sub);
   }
 
   @ApiOperation({ summary: 'Get all users with pagination (admin only)' })
