@@ -36,6 +36,19 @@ export const usersApi = {
     return data;
   },
 
+  /**
+   * Manager: Update an employee's role
+   * @returns {Promise<User>}  The updated employee
+   */
+  updateEmpRole: async (userId: string, role: string): Promise<User> => {
+    const {data} = await api.patch(`/user/employee/${userId}/role`, {role});
+    return data;
+  },
+
+  /**
+   * Edit My profile data ( excluding password, email, avatar )
+   * @returns {Promise<User>}  The updated user
+   */
   editMyProfile: async ( payload: User): Promise<User> => {
     const { data } = await api.patch<User>(
       `/user/me`,
