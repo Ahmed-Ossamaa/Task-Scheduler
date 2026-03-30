@@ -40,8 +40,9 @@ export function TaskTable({
             {showProject && <TableHead>Project</TableHead>}
             {showAssignee && <TableHead>Assigned To</TableHead>}
             <TableHead>Deadline</TableHead>
-            <TableHead>Completed</TableHead>
-            <TableHead className="w-25"></TableHead> {/* Actions Column */}
+            <TableHead>Completed At</TableHead>
+            <TableHead className="w-25">Actions</TableHead>
+            <TableHead >View</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
