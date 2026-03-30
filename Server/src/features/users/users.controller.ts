@@ -105,6 +105,30 @@ export class UserController {
     return users;
   }
 
+  @ApiOperation({ summary: 'Change employee role (Manager only)' })
+  @Patch('employee/:userId/role')
+  @Roles(UserRole.MANAGER)
+  async updateEmployeeRole(
+    @CurrentUser() manager: JwtPayload,
+    @Param('userId', ParseUUIDPipe) empId: string,
+    @Body('role') newRole: UserRole.MANAGER | UserRole.EMP,
+  ) {
+    if (!manager.organizationId) {
+      throw new ForbiddenException('You are not assigned to an organization.');
+    }
+
+    //Prevent managers from demoting themselves
+    if (manager.sub === empId) {
+      throw new ForbiddenException('You cannot change your own role.');
+    }
+
+    return await this.userService.updateEmployeeRole(
+      manager.organizationId,
+      empId,
+      newRole,
+    );
+  }
+
   @ApiOperation({ summary: 'Remove employee from my org (Manager only)' })
   @Delete('employee/:userId')
   @Roles(UserRole.MANAGER)

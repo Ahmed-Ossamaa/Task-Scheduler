@@ -185,6 +185,27 @@ export class UserService {
     return this.saveUser(user);
   }
 
+  async updateEmployeeRole(
+    orgId: string,
+    employeeId: string,
+    newRole: UserRole.MANAGER | UserRole.EMP,
+  ): Promise<User> {
+    const employee = await this.userRepo.findOne({
+      where: {
+        id: employeeId,
+        organizationId: orgId,
+      },
+    });
+
+    if (!employee) {
+      throw new NotFoundException(`Employee not found in your organization.`);
+    }
+
+    employee.role = newRole;
+
+    return this.saveUser(employee);
+  }
+
   async deleteUser(userId: string): Promise<{ message: string }> {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
