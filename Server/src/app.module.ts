@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { UserModule } from './users/users.module';
-import { TasksModule } from './tasks/tasks.module';
-import { AuthModule } from './auth/auth.module';
+import { UserModule } from './features/users/users.module';
+import { TasksModule } from './features/tasks/tasks.module';
+import { AuthModule } from './features/auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import appConfig from './config/app.config';
 import jwtConfig from './config/jwt.config';
@@ -14,10 +14,10 @@ import cloudinaryConfig from './config/cloudinary.config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BullModule } from '@nestjs/bullmq';
 import { validationSchema } from './config/validation.schema';
-import { OrganizationsModule } from './organizations/organizations.module';
+import { OrganizationsModule } from './features/organizations/organizations.module';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
-import { ProjectsModule } from './projects/projects.module';
+import { ProjectsModule } from './features/projects/projects.module';
 
 @Module({
   imports: [
