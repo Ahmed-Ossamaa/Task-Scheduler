@@ -9,7 +9,7 @@ import {
   JoinColumn,
   DeleteDateColumn,
 } from 'typeorm';
-import { Organization } from '../../organizations/entities/organization.entity';
+import { Organization } from 'src/features/organizations/entities/organization.entity';
 import { Task } from '../../tasks/entities/task.entity';
 
 @Entity('projects')
