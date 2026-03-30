@@ -48,4 +48,9 @@ export class RegisterUserDto {
   @IsOptional()
   @IsString()
   phone?: string;
+
+  @ApiPropertyOptional({ example: 'Alexandria, Egypt' })
+  @IsOptional()
+  @IsString()
+  adress?: string;
 }
