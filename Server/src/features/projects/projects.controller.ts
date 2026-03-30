@@ -20,9 +20,10 @@ import { CreateProjectDto } from './dto/create-project.dto';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { UserRole } from 'src/features/users/enums/user-roles.enum';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
-import { ApiOperation } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { UpdateProjectDto } from './dto/update-project.dto';
 
+@ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('projects')
 export class ProjectsController {
