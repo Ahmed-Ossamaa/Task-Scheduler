@@ -151,14 +151,14 @@ export function AppSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <div className="flex items-center gap-3 px-2 py-1.5 mb-2 group-data-[collapsible=icon]:p-0 group-data-[collapsible=icon]:justify-center">
-              <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+              <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden">
                 {user.avatar ? (
                   <Image
                     src={user.avatar}
                     alt={user.name || 'User'}
                     width={32}
                     height={32}
-                    className="rounded-full"
+                    className=" object-cover"
                   />
                 ) : (
                   <User className="h-4 w-4" />
