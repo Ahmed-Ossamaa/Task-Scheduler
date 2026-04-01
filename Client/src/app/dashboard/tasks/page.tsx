@@ -9,6 +9,7 @@ import { useAuthStore } from '@/features/auth/store/auth.store';
 export default function MyTasksPage() {
   const { data: myTasks, isLoading } = useMyTasks();
   const user = useAuthStore((state) => state.user);
+   const isManager = user?.role === UserRoles.MANAGER;
 
   return (
     <div className="flex flex-col space-y-6 w-full">
@@ -17,7 +18,7 @@ export default function MyTasksPage() {
           <p className="text-muted-foreground"> Manage Your Tasks</p>
 
         </div>
-          {user && user.role === UserRoles.MANAGER && <CreateTaskDialog />}
+          {isManager && <CreateTaskDialog />}
       </div>
 
       <TaskTable
