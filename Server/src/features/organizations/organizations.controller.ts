@@ -3,7 +3,9 @@ import {
   Body,
   Controller,
   Get,
+  Param,
   ParseIntPipe,
+  ParseUUIDPipe,
   Patch,
   Post,
   Query,
@@ -111,9 +113,9 @@ export class OrganizationsController {
   @ApiOperation({
     summary: 'Remove organization and all its data "Soft delete" (admin only)',
   })
-  @Patch('/remove')
+  @Patch('/remove/:orgId')
   @Roles(UserRole.ADMIN)
-  async removeOrganization(@Body() orgId: string) {
+  async removeOrganization(@Param('orgId', ParseUUIDPipe) orgId: string) {
     return this.organizationsService.removeOrganization(orgId);
   }
 }
