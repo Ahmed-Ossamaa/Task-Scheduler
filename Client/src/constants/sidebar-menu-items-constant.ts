@@ -65,3 +65,23 @@ export const MENU_ITEMS: MenuItem[] = [
     roles: [UserRoles.ADMIN],
   },
 ];
+
+// Sort menu items (longest)
+export const SORTED_MENU_ITEMS = [...MENU_ITEMS].sort(
+  (a, b) => b.url.length - a.url.length
+);
+
+/**
+ * Returns the title of the page based on the pathname
+ * @param {string} pathname
+ * @returns {string} The title of the page
+ */
+export function getPageTitle(pathname: string): string {
+
+  const match = SORTED_MENU_ITEMS.find((item) =>
+    pathname.startsWith(item.url)
+  );
+
+
+  return match?.title || 'Dashboard';
+}
