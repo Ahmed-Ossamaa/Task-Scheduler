@@ -49,13 +49,9 @@ export default function DashboardPage() {
   const completedAndCanceledTasks =
     tasks?.filter((t) => t.status === TaskStatus.DONE || t.status === TaskStatus.CANCELED) || [];
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold tracking-tight">Overview</h1>
-      </div>
-      <div className="max-w-200 mx-10 py-12 px-6">
+      <div className="max-w-200 mx-10 py-4">
         {/*IN PROGRESS SECTION */}
-        <div className="mb-16">
+        <div className="mb-12">
           <h2 className="text-[11px] font-bold tracking-[0.2em] uppercase text-muted-foreground border-b border-border/60 pb-4 mb-6">
             In Progress — {inProgressTasks.length} Task
             {inProgressTasks.length !== 1 && 's'}
@@ -94,6 +90,5 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
-    </div>
   );
 }
