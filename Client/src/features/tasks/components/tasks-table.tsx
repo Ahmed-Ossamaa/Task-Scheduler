@@ -34,7 +34,7 @@ export function TaskTable({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Title</TableHead>
+            <TableHead className='pl-3 '>Title</TableHead>
             <TableHead>Priority</TableHead>
             <TableHead>Status</TableHead>
             {showProject && <TableHead>Project</TableHead>}
@@ -42,7 +42,7 @@ export function TaskTable({
             <TableHead>Deadline</TableHead>
             <TableHead>Completed At</TableHead>
             <TableHead className="w-25">Actions</TableHead>
-            <TableHead >View</TableHead>
+            <TableHead className='pr-3'>View</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

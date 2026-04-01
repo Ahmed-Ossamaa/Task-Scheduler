@@ -23,9 +23,9 @@ export default function ProjectsPage() {
     <div className="flex flex-col space-y-6 w-full">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Projects</h1>
           <p className="text-muted-foreground">
-            Manage your team&apos;s project spaces.
+            {isManager ? " Manage your team's project spaces.": "Organizantion's Projects" }
+           
           </p>
         </div>
         {isManager && <CreateProjectDialog />}

@@ -12,11 +12,12 @@ export default function MyTasksPage() {
 
   return (
     <div className="flex flex-col space-y-6 w-full">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">My Tasks</h1>
-        <div className="flex justify-end">
-          {user && user.role === UserRoles.MANAGER && <CreateTaskDialog />}
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-muted-foreground"> Manage Your Tasks</p>
+
         </div>
+          {user && user.role === UserRoles.MANAGER && <CreateTaskDialog />}
       </div>
 
       <TaskTable

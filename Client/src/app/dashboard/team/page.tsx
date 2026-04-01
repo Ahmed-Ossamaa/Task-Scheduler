@@ -80,7 +80,6 @@ export default function TeamPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Team Directory</h1>
           <p className="text-muted-foreground">
             {isManager
               ? "Manage your organization's members and their access."
