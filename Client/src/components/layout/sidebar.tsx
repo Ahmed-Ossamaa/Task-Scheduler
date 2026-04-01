@@ -52,13 +52,13 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon">
       {/*Header with Logo */}
-      <SidebarHeader className="h-16 flex items-center justify-center border-b border-sidebar-border px-4">
+      <SidebarHeader className="h-12 flex items-center justify-center border-b border-sidebar-border  px-4">
         <Link
           href="/"
           className="flex items-center gap-2 w-full overflow-hidden"
         >
           {/* Logo (icon for now)*/}
-          <CheckCircle className="h-4 w-4 text-red-800 shrink-0" />
+          <CheckCircle className="h-4 w-4 text-red-500 shrink-0" />
           <span className="text-sm font-bold tracking-widest uppercase truncate group-data-[collapsible=icon]:hidden">
             Task<span className="text-primary">Flow</span>
           </span>
@@ -68,7 +68,7 @@ export function AppSidebar() {
       {/*Tabs (Menu)*/}
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel className="text-xs tracking-widest uppercase">
+          <SidebarGroupLabel className="text-xs tracking-widest uppercase mb-5">
             Menu
           </SidebarGroupLabel>
           <SidebarGroupContent>
