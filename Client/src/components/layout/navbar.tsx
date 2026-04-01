@@ -23,6 +23,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { getInitials } from '@/lib/utils';
+import Image from 'next/image';
 
 export function Navbar() {
   const user = useAuthStore((state) => state.user);
@@ -41,7 +42,7 @@ export function Navbar() {
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 bg-nav/70 backdrop-blur-md">
-      <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-8">
+      <div className="container mx-auto flex h-13 items-center justify-between px-4 md:px-8">
         {/* Logo (icon for now)*/}
         <Link
           href="/"
@@ -52,7 +53,7 @@ export function Navbar() {
           <span className="text-xl font-bold tracking-tight">Flow</span>
         </Link>
 
-        <div className="hidden md:flex items-center gap-6 text-md font-bold uppercase text-primary">
+        <div className="hidden md:flex items-center gap-6 text-sm font-bold uppercase text-primary">
           <Link
             href="/#features"
             className="hover:text-foreground hover:scale-101 transition-colors "
@@ -65,7 +66,6 @@ export function Navbar() {
           >
             How it Works
           </Link>
-
         </div>
 
         {/* Right Side Controls */}
@@ -80,10 +80,22 @@ export function Navbar() {
                   variant="ghost"
                   className="relative h-8 w-8 rounded-full"
                 >
-                  <Avatar className="h-8 w-8 border border-border">
+                  <Avatar className="relative h-8 w-8 border border-border overflow-hidden">
+                    {user.avatar ? (
+                      
+                        <Image
+                          src={user?.avatar}
+                          alt={user.name}
+                          quality={100}
+                          fill
+                          className="object-cover"
+                        />
+                      
+                    ):(
                     <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
                       {getInitials(user.name)}
                     </AvatarFallback>
+                    )}
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
@@ -91,7 +103,7 @@ export function Navbar() {
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
                     <p className="text-sm font-medium leading-none">
-                      {user.name} 
+                      {user.name}
                     </p>
                     <p className="text-xs leading-none text-muted-foreground">
                       {user.email}
