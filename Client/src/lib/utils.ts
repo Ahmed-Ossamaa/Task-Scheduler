@@ -6,16 +6,27 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export const formatDateTime = (dateString?: string | null) => {
+export const formatDateTime = (
+  dateString?: string | null,
+  full: boolean = true,
+) => {
   if (!dateString) return '-';
-  return new Date(dateString).toLocaleString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-    hour12: true,
-  });
+  if (full) {
+    return new Date(dateString).toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    });
+  } else {
+    return new Date(dateString).toLocaleString('en-US', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+    });
+  }
 };
 
 export const getInitials = (name?: string) => {
@@ -28,10 +39,7 @@ export const getInitials = (name?: string) => {
     .toUpperCase();
 };
 
-export const getTaskStatusInfo = (
-  deadline: string | Date,
-  status: string,
-) => {
+export const getTaskStatusInfo = (deadline: string | Date, status: string) => {
   //Completed Tasks
   if (status === TaskStatus.DONE)
     return {
@@ -40,7 +48,7 @@ export const getTaskStatusInfo = (
       textColor: 'text-green-500 font-bold',
     };
 
-    //Canceled Tasks
+  //Canceled Tasks
   if (status === TaskStatus.CANCELED)
     return {
       label: 'Canceled x',
