@@ -143,7 +143,7 @@ export class UserController {
   }
 
   @ApiOperation({ summary: 'Delete user "soft delete" (admin only)' })
-  @Delete(':userId')
+  @Patch(':userId')
   @Roles(UserRole.ADMIN)
   async deleteUser(@Param('userId') userId: string) {
     return this.userService.deleteUser(userId);
