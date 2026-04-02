@@ -134,7 +134,25 @@ export class UserService {
     const skip = (page - 1) * take;
     const [users, total] = await this.userRepo.findAndCount({
       where: {},
-      select: select,
+      relations: ['organization'],
+      select: select || {
+        id: true,
+        name: true,
+        email: true,
+        phone: true,
+        address: true,
+        role: true,
+        avatar: true,
+        organizationId: true,
+        createdAt: true,
+        updatedAt: true,
+        deletedAt: true,
+        organization: {
+          id: true,
+          name: true,
+        },
+      },
+      order: { createdAt: 'DESC' },
       skip,
       take,
     });
