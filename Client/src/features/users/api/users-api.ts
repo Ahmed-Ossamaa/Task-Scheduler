@@ -1,6 +1,6 @@
 import api from '@/lib/api/axios';
 import { User } from '@/features/auth/types/user-interface';
-import { CreateEmployeeDto } from '../types';
+import { CreateEmployeeDto, PaginatedUser } from '../types';
 
 export const usersApi = {
   /**
@@ -54,6 +54,21 @@ export const usersApi = {
       `/user/me`,
       payload,
     );
+    return data;
+  },
+
+
+  //................Admin APIs................
+
+  getAllUsers: async (page: number = 1, limit: number = 20): Promise<PaginatedUser> => {
+    const { data } = await api.get('/user/all', {
+      params: { page, limit },
+    });
+    return data;
+  },
+
+  removeUser: async (userId: string): Promise<{ message: string }> => {
+    const { data } = await api.patch<{ message: string }>(`/user/${userId}`); 
     return data;
   },
 

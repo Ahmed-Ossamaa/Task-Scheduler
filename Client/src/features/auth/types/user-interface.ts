@@ -3,13 +3,19 @@ export interface User {
   email: string;
   name: string;
   role: UserRoles
-  avatar?: string;
+  avatar?: string | null;
   gender?: string;
   age?: number;
   phone?: string;
   address?: string;
-  organizationId?: string;
   createdAt?: string;
+  updatedAt?: string;
+  deletedAt?: string | null;
+  organizationId?: string | null;
+  organization?:{
+    id: string;
+    name: string;
+  }
 }
 
 export enum UserRoles {

@@ -99,3 +99,26 @@ export const useEditMyProfile = () => {
     },
   });
 };
+
+
+
+
+//.......Admin Hooks .............
+
+export const useAllUsers = (page: number = 1, limit: number = 20) => {
+  return useQuery({
+    queryKey: ['users', 'admin-all', page, limit],
+    queryFn: () => usersApi.getAllUsers(page, limit),
+  });
+};
+
+export const useAdminDeleteUser = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (userId: string) => usersApi.removeUser(userId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users', 'admin-all'] });
+    },
+  });
+};
