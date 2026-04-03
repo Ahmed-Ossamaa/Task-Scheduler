@@ -7,13 +7,8 @@ import { ProjectsModule } from '../projects/projects.module';
 import { TasksModule } from '../tasks/tasks.module';
 
 @Module({
-  controllers: [
-    AnalyticsController,
-    UserModule,
-    OrganizationsModule,
-    ProjectsModule,
-    TasksModule,
-  ],
+  imports: [UserModule, OrganizationsModule, ProjectsModule, TasksModule],
+  controllers: [AnalyticsController],
   providers: [AnalyticsService],
 })
 export class AnalyticsModule {}

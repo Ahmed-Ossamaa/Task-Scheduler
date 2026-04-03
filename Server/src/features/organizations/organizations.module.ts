@@ -14,5 +14,6 @@ import { StorageModule } from 'src/integrations/storage/storage.module';
   ],
   controllers: [OrganizationsController],
   providers: [OrganizationsService],
+  exports: [OrganizationsService],
 })
 export class OrganizationsModule {}
