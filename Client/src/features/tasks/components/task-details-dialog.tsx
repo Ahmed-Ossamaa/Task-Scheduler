@@ -24,7 +24,7 @@ export function TaskDetailsDialog({ task }: { task: Task }) {
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8 text-muted-foreground hover:text-primary"
+          className="h-8 w-8 text-muted-foreground hover:text-green-600"
         >
           <Eye className="h-4 w-4" />
           <span className="sr-only">View Details</span>
