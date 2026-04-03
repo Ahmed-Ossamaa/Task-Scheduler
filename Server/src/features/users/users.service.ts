@@ -224,6 +224,12 @@ export class UserService {
     return this.saveUser(employee);
   }
 
+  /**
+   * Deletes any user and their associated tasks (Soft Delete).
+   * should be used by Admins only
+   * @param userId - The ID of the user to be deleted.
+   * @returns {Promise<{ message: string }>} - Success Deletion message on Success.
+   */
   async deleteUser(userId: string): Promise<{ message: string }> {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
@@ -256,6 +262,13 @@ export class UserService {
     }
   }
 
+  /**
+   * Delete an employee and all associated tasks (Soft Delete).
+   * Only accessible to a manager of the employee's organization.
+   * @param managerOrgId - The ID of the manager's organization.
+   * @param employeeId - The ID of the employee to be deleted.
+   * @returns {Promise<{ message: string }>} - Success Deletion message on Success.
+   */
   async deleteEmployee(
     managerOrgId: string,
     employeeId: string,
@@ -298,6 +311,25 @@ export class UserService {
     }
   }
 
+  async getUsersCount() {
+    return this.userRepo.count();
+  }
+
+  /**
+   * Returns the distribution of roles within the organization.
+   * An array of objects with the role and its count.
+   *
+   * Example: [{ role: 'admin', count: 2 }, { role: 'manager', count: 4 }, { role: 'employee', count: 10 }]
+   */
+  async getRoleDistribution(): Promise<{ role: UserRole; count: number }[]> {
+    return this.userRepo
+      .createQueryBuilder('user')
+      .select('user.role', 'role')
+      .addSelect('COUNT(user.id)::int', 'count')
+      .groupBy('user.role')
+      .getRawMany<{ role: UserRole; count: number }>();
+  }
+
   async findOrCreateUserFromGoogle(profile: Profile) {
     if (profile.emails) {
       const email = profile.emails[0].value;
@@ -318,6 +350,13 @@ export class UserService {
     }
   }
 
+  /**
+   * Validate that an employee is part of the same organization as the manager.
+   * @param organizationId - The ID of the manager's organization.
+   * @param employeeId - The ID of the employee to be validated.
+   * @returns The validated employee.
+   * @throws {ForbiddenException} - If the employee is not part of the manager's organization.
+   */
   async validateEmployeeInOrg(
     organizationId: string,
     employeeId: string,
@@ -329,9 +368,7 @@ export class UserService {
     }
 
     if (organizationId !== employee.organizationId) {
-      throw new ForbiddenException(
-        'You cannot assign tasks to users outside your organization',
-      );
+      throw new ForbiddenException('You are not part of this organization');
     }
 
     return employee;

@@ -122,4 +122,8 @@ export class OrganizationsService {
       await queryRunner.release();
     }
   }
+
+  async getOrgsCount() {
+    return this.orgRepo.count();
+  }
 }

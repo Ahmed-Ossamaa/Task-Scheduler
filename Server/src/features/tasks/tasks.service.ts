@@ -322,4 +322,8 @@ export class TasksService {
       }
     }
   }
+
+  async getTasksCount() {
+    return this.tasksRepo.count();
+  }
 }

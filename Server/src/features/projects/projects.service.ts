@@ -113,4 +113,7 @@ export class ProjectsService {
       await queryRunner.release();
     }
   }
+  async getProjectsCount() {
+    return this.projectRepo.count();
+  }
 }

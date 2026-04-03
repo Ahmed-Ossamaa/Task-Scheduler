@@ -18,6 +18,7 @@ import { OrganizationsModule } from './features/organizations/organizations.modu
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { ProjectsModule } from './features/projects/projects.module';
+import { AnalyticsModule } from './features/analytics/analytics.module';
 
 @Module({
   imports: [
@@ -77,6 +78,7 @@ import { ProjectsModule } from './features/projects/projects.module';
     AuthModule,
     OrganizationsModule,
     ProjectsModule,
+    AnalyticsModule,
   ],
   controllers: [AppController],
   providers: [
