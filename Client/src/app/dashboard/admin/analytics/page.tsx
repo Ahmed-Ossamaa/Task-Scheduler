@@ -2,7 +2,20 @@
 
 import { usePlatformAnalytics } from '@/features/analytics/hooks/use-analytics';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, Building2, FolderKanban, CheckCircle, Loader2 } from 'lucide-react';
+import {
+  Users,
+  Building2,
+  FolderKanban,
+  CheckCircle,
+  Loader2,
+} from 'lucide-react';
+import {
+  ROLE_COLORS,
+  DEFAULT_COLOR,
+} from '@/constants/analytics-charts-constants';
+import { RoleDistributionChart } from '@/features/analytics/components/role-distribution-chart';
+import { RoleCount } from '@/features/analytics/types';
+
 
 export default function AdminAnalyticsPage() {
   const { data, isLoading } = usePlatformAnalytics();
@@ -16,7 +29,14 @@ export default function AdminAnalyticsPage() {
   }
 
   const overview = data?.overview;
-
+  const roleChartData =
+    data?.roles?.map((r: RoleCount) => ({  
+      name: r.role,
+      value: r.count,
+      fill: ROLE_COLORS[r.role] || DEFAULT_COLOR,
+    }
+  )) || [];
+  
   return (
     <div className="flex flex-col space-y-6 w-full">
       <div>
@@ -25,7 +45,7 @@ export default function AdminAnalyticsPage() {
         </p>
       </div>
 
-      {/* KPI Cards Grid */}
+      {/* Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         
         <Card>
@@ -74,16 +94,10 @@ export default function AdminAnalyticsPage() {
 
       </div>
 
-      {/* Later: Charts  ==> place holder for now, maybe not displayed in cards*/}
+      {/* Charts */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-         <Card className="col-span-4">
-            <CardHeader>
-              <CardTitle>Growth Overview</CardTitle>
-            </CardHeader>
-            <CardContent className="h-75 flex items-center justify-center text-muted-foreground border-t border-dashed m-6">
-               Charts coming soon...
-            </CardContent>
-         </Card>
+        <RoleDistributionChart data={roleChartData} />
+        {/* Later: will add other charts (2 per row , or maybe 1) */}
       </div>
 
     </div>
