@@ -42,6 +42,8 @@ export const useOrgTasks = (
  * Hook to retrieve all tasks.
  * @returns {UseQueryResult<Tasks>} - The result of the query.
  * It contains the tasks and methods to handle the query state.
+ * @deprecated (Not used Rn, Maybe Later or i will just remove it as admin doesnt need it after  
+ * i have removed the All tasks page for admin)
  */
 export const useAllTasks = (
   page: number = 1,
@@ -166,5 +168,6 @@ export const useProjectTasks = (projectId: string): UseQueryResult<Task[]> => {
     queryKey: ['tasks', 'project', projectId],
     queryFn: () => tasksApi.getTasksByProject(projectId),
     enabled: !!projectId,
+    staleTime: 1000 * 30,
   });
 };

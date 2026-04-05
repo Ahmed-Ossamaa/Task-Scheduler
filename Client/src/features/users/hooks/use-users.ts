@@ -94,7 +94,7 @@ export const useEditMyProfile = () => {
     onSuccess: (updatedUser) => {
       // Update user in the store
       setUser(updatedUser);
-      // refresh list (Later:(not sure if needed here))
+      // refresh list 
       queryClient.invalidateQueries({ queryKey: ['users', 'me'] });
     },
   });
@@ -119,6 +119,7 @@ export const useAdminDeleteUser = () => {
     mutationFn: (userId: string) => usersApi.removeUser(userId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users', 'admin-all'] });
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
     },
   });
 };

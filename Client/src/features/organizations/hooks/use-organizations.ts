@@ -59,6 +59,9 @@ export const useRemoveOrg = () => {
       queryClient.invalidateQueries({
         queryKey: ['organizations', 'admin-all'],
       });
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['users'] });
     },
   });
 };

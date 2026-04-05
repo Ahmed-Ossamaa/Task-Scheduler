@@ -68,10 +68,9 @@ export const useEditProject = () => {
       data: Partial<Project>;
     }) => projectsApi.editProject(projectId, data),
 
-    // later: gonna test cash (set cash manually instead of  invalidate and refetch)
     onSuccess: (updatedProject) => {
-      queryClient.setQueryData<Project[]>(
-        ['projects', 'org'],
+      queryClient.setQueriesData<Project[]>(
+        { queryKey: ['projects', 'org'] },
         (old) =>
           old?.map((p) => (p.id === updatedProject.id ? updatedProject : p)) ||
           [],
@@ -93,8 +92,8 @@ export const useDeleteProject = () => {
     mutationFn: projectsApi.deleteProject,
 
     onSuccess: (_, projectId) => {
-      queryClient.setQueryData<Project[]>(
-        ['projects', 'org'],
+      queryClient.setQueriesData<Project[]>(
+        { queryKey: ['projects', 'org'] },
         (old) => old?.filter((p) => p.id !== projectId) || [],
       );
       //invalidate  tasks list (after deleting a project)
