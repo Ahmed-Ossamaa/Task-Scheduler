@@ -51,4 +51,10 @@ export class AnalyticsService {
   ): Promise<{ month: Date; users: number }[]> {
     return this.userService.getUserGrowth(interval);
   }
+
+  async getOrgGrowth(
+    interval: GrowthInterval,
+  ): Promise<{ month: Date; orgs: number }[]> {
+    return this.orgsService.getOrgGrowth(interval);
+  }
 }

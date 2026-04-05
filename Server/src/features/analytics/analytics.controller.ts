@@ -26,8 +26,17 @@ export class AnalyticsController {
     summary:
       'get User Growth by interval (One month, three months, six months or one year)',
   })
-  @Get('growth')
+  @Get('growth/user')
   getUserGrowth(@Query() dto: AnalyticsDto) {
     return this.analyticsService.getUserGrowth(dto.interval);
+  }
+
+  @ApiOperation({
+    summary:
+      'get Organization Growth by interval (One month, three months, six months or one year)',
+  })
+  @Get('growth/org')
+  getOrgGrowth(@Query() dto: AnalyticsDto) {
+    return this.analyticsService.getOrgGrowth(dto.interval);
   }
 }

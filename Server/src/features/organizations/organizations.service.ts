@@ -12,6 +12,7 @@ import { PaginatedOrg } from './interfaces/paginated-org.interface';
 import { User } from 'src/features/users/entities/user.entity';
 import { Task } from 'src/features/tasks/entities/task.entity';
 import { Project } from 'src/features/projects/entities/project.entity';
+import { GrowthInterval } from '../analytics/types/analytics.types';
 
 @Injectable()
 export class OrganizationsService {
@@ -125,5 +126,20 @@ export class OrganizationsService {
 
   async getOrgsCount() {
     return this.orgRepo.count();
+  }
+
+  async getOrgGrowth(
+    interval: GrowthInterval = GrowthInterval.SIX_MONTHS,
+  ): Promise<{ month: Date; orgs: number }[]> {
+    return this.orgRepo
+      .createQueryBuilder('org')
+      .select(`DATE_TRUNC('month', org."createdAt")`, 'month')
+      .addSelect(`COUNT(org.id)::int`, 'orgs')
+      .where(`org."createdAt" >= NOW() - CAST(:interval AS INTERVAL)`, {
+        interval,
+      })
+      .groupBy(`DATE_TRUNC('month', org."createdAt")`)
+      .orderBy(`DATE_TRUNC('month', org."createdAt")`, 'ASC')
+      .getRawMany<{ month: Date; orgs: number }>();
   }
 }
