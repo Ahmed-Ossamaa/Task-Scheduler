@@ -13,6 +13,7 @@ import { Profile } from 'passport-google-oauth20';
 import { UserRole } from './enums/user-roles.enum';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { Task } from 'src/features/tasks/entities/task.entity';
+import { GrowthInterval } from '../analytics/types/analytics.types';
 
 @Injectable()
 export class UserService {
@@ -328,6 +329,30 @@ export class UserService {
       .addSelect('COUNT(user.id)::int', 'count')
       .groupBy('user.role')
       .getRawMany<{ role: UserRole; count: number }>();
+  }
+
+  /**
+   * Returns the growth of users within the organization for the given interval.
+   * An array of objects with the month and its count.
+   *
+   * Example: [{ month: 2026-01, users: 2 }, { month: 2026-02, users: 4 }, { month: 2026-03, users: 10 }]
+   *
+   * @param {GrowthInterval} interval - The interval for which to retrieve the user growth.
+   * @returns {Promise<{ month: Date; users: number }[]>}
+   */
+  async getUserGrowth(
+    interval: GrowthInterval = GrowthInterval.SIX_MONTHS,
+  ): Promise<{ month: Date; users: number }[]> {
+    const result = await this.userRepo
+      .createQueryBuilder('user')
+      .select(`DATE_TRUNC('month', user."createdAt")`, 'month')
+      .addSelect(`COUNT(user.id)::int`, 'users')
+      .where(`user."createdAt" >= NOW() - INTERVAL :interval`, { interval }) // createdAt after now - interval (6 months)
+      .groupBy(`DATE_TRUNC('month', user."createdAt")`)
+      .orderBy(`DATE_TRUNC('month', user."createdAt")`, 'ASC')
+      .getRawMany<{ month: Date; users: number }>();
+
+    return result;
   }
 
   async findOrCreateUserFromGoogle(profile: Profile) {

@@ -1,13 +1,15 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { AnalyticsService } from './analytics.service';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { UserRole } from 'src/features/users/enums/user-roles.enum';
 import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
+import { AnalyticsDto } from './dto/analytics.dto';
 
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard)
+@Roles(UserRole.ADMIN)
 @Controller('analytics')
 export class AnalyticsController {
   constructor(private readonly analyticsService: AnalyticsService) {}
@@ -16,8 +18,16 @@ export class AnalyticsController {
     summary: 'get Platform analytics (Total users, orgs, projects, tasks)',
   })
   @Get('platform')
-  @Roles(UserRole.ADMIN)
   getAnalytics() {
     return this.analyticsService.getPlatformAnalytics();
+  }
+
+  @ApiOperation({
+    summary:
+      'get User Growth by interval (One month, three months, six months or one year)',
+  })
+  @Get('growth')
+  getUserGrowth(@Query() dto: AnalyticsDto) {
+    return this.analyticsService.getUserGrowth(dto.interval);
   }
 }
