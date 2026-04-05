@@ -14,10 +14,13 @@ import { CreateTaskDto, Task, Tasks, UpdateTaskDto } from '../types';
  * @returns {UseQueryResult<Task[]>} - The result of the query.
  * It contains the tasks assigned to the current user and methods to handle the query state.
  */
-export const useMyTasks = (): UseQueryResult<Task[]> => {
+export const useMyTasks = (options?: { enabled?: boolean }): UseQueryResult<Task[]> => {
   return useQuery({
     queryKey: ['tasks', 'my-tasks'],
     queryFn: tasksApi.getMyTasks,
+    enabled: options?.enabled ?? true,
+    staleTime: 1000 * 60,
+    refetchOnWindowFocus: true,
   });
 };
 /**
