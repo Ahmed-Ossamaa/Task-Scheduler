@@ -16,10 +16,21 @@ import { Loader2 } from 'lucide-react';
 
 export default function DashboardPage() {
   const user = useAuthStore((state) => state.user);
-  const { data: tasks, isLoading } = useMyTasks();
+  const isManagerWithoutOrg = user?.role === UserRoles.MANAGER && !user?.organizationId;
+  const isAdmin = user?.role === UserRoles.ADMIN;
+  const needsTasks = !!user && !isAdmin && !isManagerWithoutOrg;
+  const { data: tasks, isLoading } = useMyTasks({ enabled: needsTasks });
 
   if (!user) return null;
-  if (user.role === UserRoles.MANAGER && !user.organizationId) {
+    if(isAdmin) {
+    return (
+      <div>
+        <h1>Admin Dashboard</h1>
+      </div>
+    )
+  }
+
+  if (isManagerWithoutOrg) {
     return (
       <div className="flex h-[80vh] items-center justify-center">
         <Card className="w-full max-w-md">
@@ -37,13 +48,15 @@ export default function DashboardPage() {
       </div>
     );
   }
-  if (isLoading) {
+
+  if (isLoading && needsTasks) {
     return (
       <div className="flex items-center justify-center h-[60vh]">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
+
   const inProgressTasks =
     tasks?.filter((t) => t.status !== TaskStatus.DONE && t.status !== TaskStatus.CANCELED) || [];
   const completedAndCanceledTasks =

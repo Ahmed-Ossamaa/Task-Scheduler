@@ -10,8 +10,6 @@ import {
 } from 'lucide-react';
 import { ThemeToggle } from '../ui/theme-toggle';
 import { useAuthStore } from '@/features/auth/store/auth.store';
-import { authApi } from '@/features/auth/api/auth-api';
-import { useRouter } from 'next/navigation';
 
 import {
   DropdownMenu,
@@ -24,21 +22,12 @@ import {
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { getInitials } from '@/lib/utils';
 import Image from 'next/image';
+import { useLogout } from '@/features/auth/hooks/use-auth';
 
 export function Navbar() {
   const user = useAuthStore((state) => state.user);
-  const clearAuth = useAuthStore((state) => state.clearAuth);
-  const router = useRouter();
-  const handleLogout = async () => {
-    try {
-      await authApi.logout();
-    } catch (error) {
-      console.error('Logout failed', error);
-    } finally {
-      clearAuth();
-      router.push('/');
-    }
-  };
+  const { mutate: logout, isPending } = useLogout();
+
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 bg-nav/70 backdrop-blur-md">
@@ -126,7 +115,8 @@ export function Navbar() {
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
-                  onClick={handleLogout}
+                  onClick={() => logout()}
+                  disabled={isPending}
                   className="cursor-pointer text-destructive focus:text-destructive"
                 >
                   <LogOut className="mr-2 h-4 w-4" />
