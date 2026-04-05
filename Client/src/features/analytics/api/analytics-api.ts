@@ -30,4 +30,24 @@ export const analyticsApi = {
     }));
   },
 
+
+  /**
+   * Retrieves the organization growth over the given interval.
+   *
+   * @param {GrowthInterval} interval - The interval for which the organization growth should be returned.
+   * @returns A promise that resolves to an array of organization growth objects, each containing the month and the number of organizations that were created during that month.
+   */
+  getOrgGrowth: async (
+    interval: GrowthInterval,
+  ): Promise<{ month: Date; orgs: number }[]> => {
+    const { data } = await api.get('/analytics/growth/org', {
+      params: { interval },
+    });
+    return data.map((item: { month: string; orgs: number }) => ({
+      month: new Date(item.month),
+      orgs: item.orgs,
+    }));
+  },
+
+  
 };

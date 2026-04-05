@@ -17,3 +17,10 @@ export const useUserGrowth = (interval: GrowthInterval) => {
     queryFn: () => analyticsApi.getUserGrowth(interval),
   });
 };
+
+export const useOrgGrowth = (interval: GrowthInterval) => {
+  return useQuery({
+    queryKey: ['admin', 'analytics', 'org-growth', interval], 
+    queryFn: () => analyticsApi.getOrgGrowth(interval),
+  });
+};
