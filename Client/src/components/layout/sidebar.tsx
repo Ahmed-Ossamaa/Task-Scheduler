@@ -19,17 +19,16 @@ import {
   SidebarHeader,
 } from '@/components/ui/sidebar';
 import { useAuthStore } from '@/features/auth/store/auth.store';
-import { usePathname, useRouter } from 'next/navigation';
-import { authApi } from '@/features/auth/api/auth-api';
+import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { MENU_ITEMS } from '@/constants/sidebar-menu-items-constant';
+import { useLogout } from '@/features/auth/hooks/use-auth';
 
 
 export function AppSidebar() {
   const user = useAuthStore((state) => state.user);
-  const clearAuth = useAuthStore((state) => state.clearAuth);
-  const router = useRouter();
+  const { mutate: logout, isPending } = useLogout();
   const pathname = usePathname();
 
   if (!user) return null;
@@ -38,16 +37,6 @@ export function AppSidebar() {
     item.roles.includes(user.role),
   );
 
-  const handleLogout = async () => {
-    try {
-      await authApi.logout();
-    } catch (error) {
-      console.error('Logout failed', error);
-    } finally {
-      clearAuth();
-      router.push('/login');
-    }
-  };
 
   return (
     <Sidebar collapsible="icon">
@@ -176,7 +165,8 @@ export function AppSidebar() {
           </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton
-              onClick={handleLogout}
+              onClick={() => logout()}
+              disabled={isPending}
               tooltip="Log out"
               className="text-destructive! hover:text-destructive! hover:bg-destructive/10!"
             >
