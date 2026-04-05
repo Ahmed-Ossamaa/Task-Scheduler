@@ -21,28 +21,29 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
-import { GrowthInterval, UsersGrowthChartProps } from '@/features/analytics/types';
+import { GrowthInterval, OrgGrowthChartProps } from '@/features/analytics/types';
 import { Loader2 } from 'lucide-react';
 
 
 
-export function UsersGrowthChart({
-  data,
-  interval,
+export function OrgGrowthChart({ 
+  data, 
+  interval, 
   onIntervalChange,
-  isLoading,
-}: UsersGrowthChartProps) {
+  isLoading 
+}: OrgGrowthChartProps) {
   return (
-    <Card className=" min-w-0 flex flex-col">
+    <Card className="min-w-0 flex flex-col">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <div className="space-y-1">
-          <CardTitle>Users Growth</CardTitle>
-          <CardDescription>User acquisition over time.</CardDescription>
+          <CardTitle>Organization Growth</CardTitle>
+          <CardDescription>
+            New Organziations Created over time.
+          </CardDescription>
         </div>
-
-        {/* interval dropdown */}
-        <Select
-          value={interval}
+        
+        <Select 
+          value={interval} 
           onValueChange={(val) => onIntervalChange(val as GrowthInterval)}
         >
           <SelectTrigger className="w-35 h-8 text-xs">
@@ -50,12 +51,8 @@ export function UsersGrowthChart({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value={GrowthInterval.ONE_MONTH}>Last Month</SelectItem>
-            <SelectItem value={GrowthInterval.THREE_MONTHS}>
-              Last 3 Months
-            </SelectItem>
-            <SelectItem value={GrowthInterval.SIX_MONTHS}>
-              Last 6 Months
-            </SelectItem>
+            <SelectItem value={GrowthInterval.THREE_MONTHS}>Last 3 Months</SelectItem>
+            <SelectItem value={GrowthInterval.SIX_MONTHS}>Last 6 Months</SelectItem>
             <SelectItem value={GrowthInterval.ONE_YEAR}>Last Year</SelectItem>
           </SelectContent>
         </Select>
@@ -68,39 +65,29 @@ export function UsersGrowthChart({
           </div>
         ) : !data || data.length === 0 ? (
           <div className="flex h-75 w-full items-center justify-center">
-            <p className="text-muted-foreground">
-              Not enough data to display growth.
-            </p>
+            <p className="text-muted-foreground">Not enough data to display growth.</p>
           </div>
         ) : (
           <div className="w-full">
             <ResponsiveContainer width="100%" height={300} minWidth={1}>
-              {/* Area chart */}
               <AreaChart
                 data={data}
-                margin={{ top: 10, right: 10, left: -30, bottom: 0 }}
+                margin={{ top: 20, right: 10, left: -20, bottom: 0 }}
               >
-                {/*Gradient area */}
                 <defs>
-                  <linearGradient id="colorUsers" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.03} />
+                  {/* Gradient Area */}
+                  <linearGradient id="colorOrgs" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  vertical={false}
-                  className="stroke-muted"
-                />
-
+                
+                <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-muted" />
+                
                 <XAxis
                   dataKey="month"
-                  tickFormatter={
-                    (value: Date) =>
-                      new Date(value).toLocaleString('en-US', {
-                        month: 'short',
-                      })
+                  tickFormatter={(value: Date) =>
+                    new Date(value).toLocaleString('en-US', { month: 'short' })
                   }
                   tickLine={false}
                   axisLine={false}
@@ -121,21 +108,18 @@ export function UsersGrowthChart({
                   // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   labelFormatter={(label: any) => {
                     if (!label) return '';
-                    return new Date(label).toLocaleString('en-US', {
-                      month: 'long',
-                      year: 'numeric',
-                    });
+                    return new Date(label).toLocaleString('en-US', { month: 'long', year: 'numeric' });
                   }}
                 />
-
+                
                 <Area
                   type="monotone"
-                  dataKey="users"
-                  name="New Users"
-                  stroke="#3b82f6"
+                  dataKey="orgs"
+                  name="New Organizations"
+                  stroke="#10b981"
                   strokeWidth={2}
-                  fill="url(#colorUsers)"
                   fillOpacity={1}
+                  fill="url(#colorOrgs)"
                 />
               </AreaChart>
             </ResponsiveContainer>

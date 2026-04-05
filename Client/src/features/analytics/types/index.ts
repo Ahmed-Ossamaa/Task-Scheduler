@@ -39,3 +39,10 @@ export interface UsersGrowthChartProps {
   onIntervalChange: (interval: GrowthInterval) => void;
   isLoading?: boolean;
 }
+
+export interface OrgGrowthChartProps {
+  data: OrgGrowthData[];
+  interval: GrowthInterval;
+  onIntervalChange: (interval: GrowthInterval) => void;
+  isLoading?: boolean;
+}

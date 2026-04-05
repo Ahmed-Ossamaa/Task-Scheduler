@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import {
+  useOrgGrowth,
   usePlatformAnalytics,
   useUserGrowth,
 } from '@/features/analytics/hooks/use-analytics';
@@ -20,14 +21,21 @@ import {
 import { RoleDistributionChart } from '@/features/analytics/components/role-distribution-chart';
 import { GrowthInterval, RoleCount } from '@/features/analytics/types';
 import { UsersGrowthChart } from '@/features/analytics/components/Users-growth-chart';
+import { OrgGrowthChart } from '@/features/analytics/components/org-growth-chart';
 
 export default function AdminAnalyticsPage() {
-  const [interval, setInterval] = useState<GrowthInterval>(
+  const [userInterval, setUserInterval] = useState<GrowthInterval>(
+    GrowthInterval.SIX_MONTHS,
+  );
+  const [orgInterval, setOrgInterval] = useState<GrowthInterval>(
     GrowthInterval.SIX_MONTHS,
   );
   const { data, isLoading } = usePlatformAnalytics();
   const { data: userGrowth, isLoading: isGrowthLoading } =
-    useUserGrowth(interval);
+    useUserGrowth(userInterval);
+
+  const { data: orgGrowth, isLoading: isOrgLoading } =
+    useOrgGrowth(orgInterval);
 
   if (isLoading) {
     return (
@@ -45,12 +53,18 @@ export default function AdminAnalyticsPage() {
       fill: ROLE_COLORS[r.role] || DEFAULT_COLOR,
     })) || [];
 
-const growthChartData =
+  const userChartData =
     userGrowth?.map((item) => ({
       month: new Date(item.month),
       users: item.users,
     })) || [];
 
+  const orgChartData =
+    orgGrowth?.map((item) => ({
+      month: new Date(item.month),
+      orgs: item.orgs,
+    })) || [];
+    
   return (
     <div className="flex flex-col space-y-6 w-full">
       <div>
@@ -125,11 +139,19 @@ const growthChartData =
       {/* Charts */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
         <RoleDistributionChart data={roleChartData} />
-        <UsersGrowthChart 
-          data={growthChartData} 
-          interval={interval}
-          onIntervalChange={setInterval}
+        </div>
+        <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2">
+        <UsersGrowthChart
+          data={userChartData}
+          interval={userInterval}
+          onIntervalChange={setUserInterval}
           isLoading={isGrowthLoading}
+        />
+        <OrgGrowthChart 
+          data={orgChartData} 
+          interval={orgInterval}
+          onIntervalChange={setOrgInterval}
+          isLoading={isOrgLoading}
         />
       </div>
     </div>
