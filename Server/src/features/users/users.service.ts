@@ -344,12 +344,14 @@ export class UserService {
     interval: GrowthInterval = GrowthInterval.SIX_MONTHS,
   ): Promise<{ month: Date; users: number }[]> {
     const result = await this.userRepo
-      .createQueryBuilder('user')
-      .select(`DATE_TRUNC('month', user."createdAt")`, 'month')
-      .addSelect(`COUNT(user.id)::int`, 'users')
-      .where(`user."createdAt" >= NOW() - INTERVAL :interval`, { interval }) // createdAt after now - interval (6 months)
-      .groupBy(`DATE_TRUNC('month', user."createdAt")`)
-      .orderBy(`DATE_TRUNC('month', user."createdAt")`, 'ASC')
+      .createQueryBuilder('u')
+      .select(`DATE_TRUNC('month', u."createdAt")`, 'month')
+      .addSelect(`COUNT(u.id)::int`, 'users')
+      .where(`u."createdAt" >= NOW() - CAST(:interval AS INTERVAL)`, {
+        interval,
+      })
+      .groupBy(`DATE_TRUNC('month', u."createdAt")`)
+      .orderBy(`DATE_TRUNC('month', u."createdAt")`, 'ASC')
       .getRawMany<{ month: Date; users: number }>();
 
     return result;
