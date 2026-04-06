@@ -17,13 +17,44 @@ export const useCreateOrganization = () => {
     },
   });
 };
-//later: 
 
-//export const getMyOrg = () => {}
+export const useMyOrganization = () => {
+  return useQuery({
+    queryKey: ['organizations', 'my-org'],
+    queryFn: () => orgApi.getMyOrganization(),
+  });
+};
 
-// export const useUploadOrgLogo = () => {}
 
-// export const updateOrgName = () => {}
+
+export const useUploadOrgLogo = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (file: File) => orgApi.uploadOrgLogo(file),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['organizations', 'my-org'],
+      });
+    },
+  });
+};
+
+
+export const useUpdateOrgName = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (name: string) => orgApi.updateOrgName(name),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['organizations', 'my-org'],
+      });
+    },
+  });
+};
 
 
 
