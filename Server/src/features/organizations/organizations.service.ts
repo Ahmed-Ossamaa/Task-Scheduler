@@ -26,20 +26,40 @@ export class OrganizationsService {
   async createOrganization(
     orgDto: CreateOrgDto,
     managerId: string,
-  ): Promise<Organization> {
-    //manager can have only one organization
-    const manager = await this.userService.findUserById(managerId);
-    if (manager.organizationId) {
-      throw new BadRequestException('You are already part of an organization.');
+  ): Promise<{ organization: Organization; user: User }> {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      const manager = await this.userService.findUserById(managerId);
+
+      if (manager.organizationId) {
+        throw new BadRequestException(
+          'You are already part of an organization.',
+        );
+      }
+
+      //creating the org
+      const organization = this.orgRepo.create({ name: orgDto.name });
+
+      //saving the org to generate id
+      const savedOrg = await queryRunner.manager.save(organization);
+
+      //adding the org ID to the manager & save
+      manager.organizationId = savedOrg.id;
+      const savedManager = await queryRunner.manager.save(manager);
+
+      await queryRunner.commitTransaction();
+      return {
+        organization: savedOrg,
+        user: savedManager,
+      };
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
     }
-    //creating the org
-    const orgnization = this.orgRepo.create({ name: orgDto.name });
-    //saving the org to generate id
-    const savedOrg = await this.orgRepo.save(orgnization);
-    //adding the org ID to the manager
-    manager.organizationId = savedOrg.id;
-    await this.userService.saveUser(manager);
-    return savedOrg;
   }
 
   async updateOrgLogo(orgId: string, logoUrl: string): Promise<Organization> {
