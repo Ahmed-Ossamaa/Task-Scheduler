@@ -25,10 +25,10 @@ export const useOrgProjects = () => {
  * @returns - The result of the query.
  * It contains the projects and methods to handle the query state.
  */
-export const useAllProjects = () => {
+export const useAllProjects = (page = 1, limit = 20) => {
   return useQuery({
-    queryKey: ['projects', 'all'],
-    queryFn: projectsApi.getAllProjects,
+    queryKey: ['projects', 'all', page, limit],
+    queryFn: () => projectsApi.getAllProjects(page, limit),
   });
 };
 
@@ -97,7 +97,7 @@ export const useDeleteProject = () => {
         (old) => old?.filter((p) => p.id !== projectId) || [],
       );
       //invalidate  tasks list (after deleting a project)
-      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['tasks','project', projectId] });
     },
   });
 };
