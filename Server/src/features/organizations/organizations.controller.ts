@@ -24,6 +24,7 @@ import { JwtAuthGuard } from 'src/features/auth/guards/jwt-auth.guard';
 import { ApiImageUpload } from 'src/common/decorators/api-image-upload.decorator';
 import { ImageValidationPipe } from 'src/common/pipes/image-validation.pipe';
 import { StorageService } from 'src/integrations/storage/storage.interface';
+import { UpdateOrgNameDto } from './dto/update-org-name.dto';
 
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -99,14 +100,14 @@ export class OrganizationsController {
   @Roles(UserRole.MANAGER)
   async updateOrgName(
     @CurrentUser() manager: JwtPayload,
-    @Body() name: string,
+    @Body() orgDto: UpdateOrgNameDto,
   ) {
     if (!manager.organizationId) {
       throw new BadRequestException('You are not part of any organization');
     }
     return this.organizationsService.updateOrgName(
       manager.organizationId,
-      name,
+      orgDto.name,
     );
   }
 
