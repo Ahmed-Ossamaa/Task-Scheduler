@@ -1,22 +1,19 @@
 import { useMutation, useQuery, useQueryClient, UseQueryResult } from '@tanstack/react-query';
 import { orgApi } from '../api/org-api';
 import { useAuthStore } from '@/features/auth/store/auth.store';
-import api from '@/lib/api/axios';
 import { CreateOrgDto, PaginatedOrg } from '../types';
 
 export const useCreateOrganization = () => {
   const setUser = useAuthStore((state) => state.setUser);
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (data: CreateOrgDto) => orgApi.createOrganization(data),
-    onSuccess: async () => {
-      // refetch user after org creation  -- to get the orgId in the user and save it in the store
-      try {
-        const { data: updatedUser } = await api.get('/user/me');
-        setUser(updatedUser);
-      } catch (error) {
-        console.error('Failed to refresh user after org creation', error);
-      }
+    
+    onSuccess: async (response) => {
+     setUser(response.user);
+     queryClient.invalidateQueries({ queryKey: ['organizations'] });
+
     },
   });
 };

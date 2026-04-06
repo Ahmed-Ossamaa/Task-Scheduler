@@ -25,3 +25,8 @@ export interface PaginatedOrg {
   page: number;
   lastPage: number;
 }
+
+export interface CreateOrgResponse {
+  organization: Organization;
+  user: User;
+}

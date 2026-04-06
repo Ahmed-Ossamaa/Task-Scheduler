@@ -14,6 +14,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
+import { toast } from 'sonner';
 
 const formSchema = z.object({
   name: z.string().min(3, 'Organization name must be at least 3 characters'),
@@ -33,6 +34,10 @@ export function CreateOrgForm({ onSuccess }: { onSuccess?: () => void }) {
       onSuccess: () => {
         form.reset();
         if (onSuccess) onSuccess();
+      },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      onError: (error: any) => {
+        toast.error(error.response?.data?.message || 'Failed to create org');
       },
     });
   }
