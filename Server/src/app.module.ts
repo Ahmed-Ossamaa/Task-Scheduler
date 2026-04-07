@@ -19,6 +19,7 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { ProjectsModule } from './features/projects/projects.module';
 import { AnalyticsModule } from './features/analytics/analytics.module';
+import { ActivityModule } from './features/activity/activity.module';
 
 @Module({
   imports: [
@@ -79,6 +80,7 @@ import { AnalyticsModule } from './features/analytics/analytics.module';
     OrganizationsModule,
     ProjectsModule,
     AnalyticsModule,
+    ActivityModule,
   ],
   controllers: [AppController],
   providers: [
