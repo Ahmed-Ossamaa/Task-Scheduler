@@ -16,10 +16,11 @@ import { BullModule } from '@nestjs/bullmq';
 import { validationSchema } from './config/validation.schema';
 import { OrganizationsModule } from './features/organizations/organizations.module';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { ProjectsModule } from './features/projects/projects.module';
 import { AnalyticsModule } from './features/analytics/analytics.module';
 import { ActivityModule } from './features/activity/activity.module';
+import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
 
 @Module({
   imports: [
@@ -88,6 +89,10 @@ import { ActivityModule } from './features/activity/activity.module';
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
+    },
+    {
+      provide: APP_FILTER,
+      useClass: GlobalExceptionFilter,
     },
   ],
 })
