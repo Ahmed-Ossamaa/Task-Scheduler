@@ -25,7 +25,7 @@ export class ErrorLog {
   @Column({ type: 'text', nullable: true })
   stackTrace!: string | null;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   userId!: string | null;
 
   @CreateDateColumn({ type: 'timestamptz' })
