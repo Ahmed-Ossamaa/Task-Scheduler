@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ActivityLog } from './entities/activity-log.entity';
 import { Repository } from 'typeorm';
 import { ErrorLog } from './entities/error-log.entity';
-import { PaginatedResult } from './types/activity-paginated-response.types';
+import { PaginatedResponse } from './types/activity-paginated-response.types';
 
 @Injectable()
 export class ActivityService {
@@ -23,7 +23,7 @@ export class ActivityService {
   async getGlobalActivity(
     page: number = 1,
     limit: number = 20,
-  ): Promise<PaginatedResult<ActivityLog>> {
+  ): Promise<PaginatedResponse<ActivityLog>> {
     const take = Math.min(limit, 100);
     const [logs, total] = await this.activityRepo.findAndCount({
       order: { createdAt: 'DESC' },
@@ -48,7 +48,7 @@ export class ActivityService {
   async getSystemErrors(
     page: number = 1,
     limit: number = 5,
-  ): Promise<PaginatedResult<ErrorLog>> {
+  ): Promise<PaginatedResponse<ErrorLog>> {
     const take = Math.min(limit, 100);
     const [errors, total] = await this.errorRepo.findAndCount({
       order: { createdAt: 'DESC' },
