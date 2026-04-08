@@ -3,13 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ActivityLog } from './entities/activity-log.entity';
 import { Repository } from 'typeorm';
 import { ErrorLog } from './entities/error-log.entity';
+import { PaginatedResult } from './types/activity-paginated-response.types';
 
-export interface PaginatedResult<T> {
-  data: T[];
-  total: number;
-  page: number;
-  lastPage: number;
-}
 @Injectable()
 export class ActivityService {
   constructor(
