@@ -4,12 +4,13 @@ import {
   InsertEvent,
   RemoveEvent,
   DataSource,
+  SoftRemoveEvent,
 } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { ActivityLog } from '../entities/activity-log.entity';
 import { ActionType } from '../types/activity-log-types';
-import type { User } from 'src/features/users/entities/user.entity';
-import type { Organization } from 'src/features/organizations/entities/organization.entity';
+import { User } from 'src/features/users/entities/user.entity';
+import { Organization } from 'src/features/organizations/entities/organization.entity';
 
 @Injectable()
 @EventSubscriber()
@@ -24,11 +25,15 @@ export class ActivitySubscriber implements EntitySubscriberInterface {
   async afterInsert(event: InsertEvent<User | Organization>) {
     if (!this.trackedTables.includes(event.metadata.tableName)) return;
 
+    const extraInfo = this.getEntityDetails(event.entity);
+    const entityName =
+      event.metadata.tableName === 'organizations' ? 'Organization' : 'User';
+
     const log = new ActivityLog();
     log.actionType = ActionType.CREATED;
     log.entityType = event.metadata.tableName;
     log.entityId = event.entity.id;
-    log.details = `New ${event.metadata.tableName} was created.`;
+    log.details = `New ${entityName} created${extraInfo}`;
 
     await event.manager.save(ActivityLog, log);
   }
@@ -58,12 +63,58 @@ export class ActivitySubscriber implements EntitySubscriberInterface {
       );
       return;
     }
+
+    const extraInfo = this.getEntityDetails(event.entity);
+
+    const entityName =
+      event.metadata.tableName === 'organizations' ? 'Organization' : 'User';
+
     const log = new ActivityLog();
     log.actionType = ActionType.DELETED;
     log.entityType = event.metadata.tableName;
     log.entityId = deletedId;
-    log.details = `A/an ${event.metadata.tableName} was deleted.`;
+    log.details = `A ${entityName} was hard deleted${extraInfo}`;
+    await event.manager.save(ActivityLog, log);
+  }
+
+  async afterSoftRemove(event: SoftRemoveEvent<User | Organization>) {
+    if (!this.trackedTables.includes(event.metadata.tableName)) return;
+
+    let deletedId: string | undefined;
+    if (event.entity?.id) deletedId = event.entity.id;
+    else if (typeof event.entityId === 'string') deletedId = event.entityId;
+
+    if (!deletedId) {
+      console.warn(
+        `Could not log deletion for ${event.metadata.tableName}: ID missing`,
+      );
+      return;
+    }
+
+    const extraInfo = this.getEntityDetails(event.entity);
+
+    const entityName =
+      event.metadata.tableName === 'organizations' ? 'Organization' : 'User';
+
+    const log = new ActivityLog();
+    log.actionType = ActionType.ARCHIVED;
+    log.entityType = event.metadata.tableName;
+    log.entityId = deletedId;
+    log.details = `A ${entityName} was soft deleted${extraInfo}`;
 
     await event.manager.save(ActivityLog, log);
+  }
+
+  private getEntityDetails(entity: unknown): string {
+    if (!entity) return '';
+    // If its a User, return email and email
+    if (entity instanceof User) {
+      return ` (${entity.name} - ${entity.email})`;
+    }
+    // If its an Organization, return name
+    if (entity instanceof Organization) {
+      return ` (${entity.name})`;
+    }
+    return '';
   }
 }
