@@ -6,6 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { AdminOverview } from '@/features/admin-overview/components/AdminOverview';
 import { useAuthStore } from '@/features/auth/store/auth.store';
 import { UserRoles } from '@/features/auth/types/user-interface';
 import { CreateOrgForm } from '@/features/organizations/components/create-org-form';
@@ -24,9 +25,7 @@ export default function DashboardPage() {
   if (!user) return null;
     if(isAdmin) {
     return (
-      <div>
-        <h1>Admin Dashboard</h1>
-      </div>
+      <AdminOverview />
     )
   }
 
