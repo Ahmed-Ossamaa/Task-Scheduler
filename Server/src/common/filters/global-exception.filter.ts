@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import {
   ExceptionFilter,
   Catch,
@@ -19,18 +21,27 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<AuthenticatedRequest>();
 
-    // Nest.js erro || or internal 500
+    // Determine Status Code (HTTP error / internal 500)
     const status =
       exception instanceof HttpException
         ? exception.getStatus()
         : HttpStatus.INTERNAL_SERVER_ERROR;
 
-    const message =
+    //  Extract Error Message
+    const rawResponse =
       exception instanceof HttpException
         ? exception.getResponse()
         : 'Internal server error';
 
-    // the Internal_server_error
+    //get the msg if it is an object or string
+    const extracted =
+      typeof rawResponse === 'object' && rawResponse !== null
+        ? (rawResponse as any).message
+        : rawResponse;
+
+    // Flatten validation arrays (from class validator)
+    const displayMessage = Array.isArray(extracted) ? extracted[0] : extracted;
+
     if (status === 500) {
       try {
         const errorLog = new ErrorLog();
@@ -38,7 +49,6 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         errorLog.path = request.url;
         errorLog.method = request.method;
 
-        // Error msg and StackTrace
         if (exception instanceof Error) {
           errorLog.errorMessage = exception.message;
           errorLog.stackTrace = exception.stack || null;
@@ -46,24 +56,25 @@ export class GlobalExceptionFilter implements ExceptionFilter {
           errorLog.errorMessage = String(exception);
         }
 
-        // get the User's ID from JWT
+        // get the id of the user if he is logged in (affected User)
         if (request.user?.sub) {
           errorLog.userId = request.user.sub;
         }
 
-        // Save The log to ErrorLog entity
         await this.dataSource.getRepository(ErrorLog).save(errorLog);
       } catch (logError) {
         console.error('CRITICAL: Failed to save error log to DB', logError);
       }
     }
 
-    // Response
     response.status(status).json({
       statusCode: status,
       timestamp: new Date().toISOString(),
       path: request.url,
-      message: status === 500 ? 'Unexpected system error occurred.' : message,
+      message:
+        status === 500
+          ? 'An unexpected system error occurred.'
+          : displayMessage,
     });
   }
 }
