@@ -37,4 +37,12 @@ export class ActivityController {
   ) {
     return this.activityService.getSystemErrors(page, limit);
   }
+
+  // @Get('test-crash')
+  // @Roles(UserRole.ADMIN, UserRole.MANAGER, UserRole.EMP)
+  // simulateSystemCrash() {
+  //   throw new Error(
+  //     'This is a deliberate test crash to verify the logging system.',
+  //   );
+  // }
 }

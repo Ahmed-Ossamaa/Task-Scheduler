@@ -112,6 +112,13 @@ export class OrganizationsService {
     await queryRunner.startTransaction();
 
     try {
+      const org = await queryRunner.manager.findOne(Organization, {
+        where: { id: orgId },
+      });
+
+      if (!org) {
+        throw new NotFoundException(`Organization with ID ${orgId} not found`);
+      }
       // Soft Delete all Tasks in that Org
       await queryRunner.manager.softDelete(Task, { organizationId: orgId });
 
@@ -122,11 +129,7 @@ export class OrganizationsService {
       await queryRunner.manager.softDelete(Project, { organizationId: orgId });
 
       // Soft Delete the Organization
-      const result = await queryRunner.manager.softDelete(Organization, orgId);
-
-      if (result.affected === 0) {
-        throw new NotFoundException(`Organization with ID ${orgId} not found`);
-      }
+      await queryRunner.manager.softRemove(org);
 
       await queryRunner.commitTransaction();
 

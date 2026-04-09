@@ -237,22 +237,26 @@ export class UserService {
     await queryRunner.startTransaction();
 
     try {
+      const user = await queryRunner.manager.findOne(User, {
+        where: { id: userId },
+      });
+
+      if (!user) {
+        throw new NotFoundException(`User with ID ${userId} not found`);
+      }
       //soft delete tasks assigned to the deleted user
       await queryRunner.manager.softDelete(Task, {
         assignedTo: { id: userId },
       });
 
       //soft delete user
-      const result = await queryRunner.manager.softDelete(User, userId);
-      if (result.affected === 0) {
-        throw new NotFoundException(`User with ID ${userId} not found`);
-      }
+      await queryRunner.manager.softRemove(user);
 
       await queryRunner.commitTransaction();
 
       //Later: send an email to the user to notify them that their account has been deleted
       return {
-        message: `User with ID ${userId} and his tasks have been deleted successfully`,
+        message: `User with ID ${userId} and his tasks have been suspended successfully`,
       };
     } catch (err) {
       await queryRunner.rollbackTransaction();
@@ -285,23 +289,27 @@ export class UserService {
     await queryRunner.startTransaction();
 
     try {
+      const emp = await queryRunner.manager.findOne(User, {
+        where: { id: employeeId },
+      });
+
+      if (!emp) {
+        throw new NotFoundException(`Employee with ID ${employeeId} not found`);
+      }
+
       //Soft delete tasks assigned to this employee
       await queryRunner.manager.softDelete(Task, {
         assignedTo: { id: employeeId },
       });
 
       //Soft delete the Employee
-      const result = await queryRunner.manager.softDelete(User, employeeId);
-
-      if (result.affected === 0) {
-        throw new NotFoundException(`User with ID ${employeeId} not found`);
-      }
+      await queryRunner.manager.softRemove(emp);
 
       await queryRunner.commitTransaction();
 
       //Later: send an emai to the Employee to notify them that their account has been deleted
       return {
-        message: `Employee with ID ${employeeId} and his tasks have been deleted successfully`,
+        message: `Employee with ID ${employeeId} and his tasks have been suspended successfully`,
       };
     } catch (err) {
       await queryRunner.rollbackTransaction();
