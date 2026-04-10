@@ -262,11 +262,10 @@ export class UserService {
       };
     } catch (err) {
       await queryRunner.rollbackTransaction();
-      if (err instanceof Error) {
-        this.logger.error(err.message, err.stack);
-      } else {
-        this.logger.error('Error deleting user', err);
-      }
+      this.logger.error(
+        'Failed to delete user',
+        err instanceof Error ? err.stack : err,
+      );
       throw err;
     } finally {
       await queryRunner.release();
@@ -319,12 +318,49 @@ export class UserService {
       };
     } catch (err) {
       await queryRunner.rollbackTransaction();
-      if (err instanceof Error) {
-        this.logger.error(err.message, err.stack);
-      } else {
-        this.logger.error('Error deleting employee:', err);
-      }
+      this.logger.error(
+        'Failed to delete employee',
+        err instanceof Error ? err.stack : err,
+      );
       throw err;
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  async restoreEmployee(managerOrgId: string, employeeId: string) {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    // find the employee even if its deleted, ensuring they belong to this manager org
+
+    try {
+      const employee = await queryRunner.manager.findOne(User, {
+        where: { id: employeeId, organizationId: managerOrgId },
+        withDeleted: true,
+      });
+      if (!employee) {
+        throw new NotFoundException(`Employee not found in your organization.`);
+      }
+      if (!employee.deletedAt) {
+        throw new BadRequestException('This employee is not deleted.');
+      }
+
+      //Restore the tasks (doesnt trigger subscribers)
+      await queryRunner.manager.restore(Task, { organizationId: managerOrgId });
+
+      //Recover User (triggers Subscriber!)
+      await queryRunner.manager.recover(employee);
+
+      await queryRunner.commitTransaction();
+
+      return { message: 'Employee restored successfully.' };
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      this.logger.error(
+        'Error restoring employee: ',
+        err instanceof Error ? err.stack : err,
+      );
     } finally {
       await queryRunner.release();
     }
