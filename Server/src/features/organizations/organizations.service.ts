@@ -130,7 +130,7 @@ export class OrganizationsService {
       //soft Delete the projects in org
       await queryRunner.manager.softDelete(Project, { organizationId: orgId });
 
-      // Soft Delete the Organization
+      // Soft Delete the Organization (trigger subscribers)
       await queryRunner.manager.softRemove(org);
 
       await queryRunner.commitTransaction();
@@ -142,11 +142,55 @@ export class OrganizationsService {
       };
     } catch (err) {
       await queryRunner.rollbackTransaction();
-      if (err instanceof Error) {
-        this.logger.error('Error Deleting Organization: ', err.stack);
-      } else {
-        this.logger.error('Unknown error occurred');
+      this.logger.error(
+        'Error deleting Organization: ',
+        err instanceof Error ? err.stack : err,
+      );
+      throw err;
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  async restoreOrganization(orgId: string) {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      //find org even if its deleted
+      const org = await queryRunner.manager.findOne(Organization, {
+        where: { id: orgId },
+        withDeleted: true,
+      });
+
+      if (!org) {
+        throw new NotFoundException(`Organization not found.`);
       }
+
+      if (!org.deletedAt) {
+        throw new BadRequestException(`This organization is not deleted.`);
+      }
+
+      //Restore children (associated data when org was deleted) without triggering  subscribers
+      await queryRunner.manager.restore(Task, { organizationId: orgId });
+      await queryRunner.manager.restore(User, { organizationId: orgId });
+      await queryRunner.manager.restore(Project, { organizationId: orgId });
+
+      // Restore the org (trigger subscribers)
+      await queryRunner.manager.recover(org);
+
+      await queryRunner.commitTransaction();
+
+      return {
+        message: 'Organization and all associated data successfully restored.',
+      };
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      this.logger.error(
+        'Error restoring Organization: ',
+        err instanceof Error ? err.stack : err,
+      );
       throw err;
     } finally {
       await queryRunner.release();
