@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Project } from './entities/project.entity';
 import { DataSource, Repository } from 'typeorm';
@@ -9,6 +9,7 @@ import { UpdateProjectDto } from './dto/update-project.dto';
 
 @Injectable()
 export class ProjectsService {
+  private readonly logger = new Logger(ProjectsService.name);
   constructor(
     @InjectRepository(Project) private projectRepo: Repository<Project>,
     private readonly dataSource: DataSource,
@@ -107,7 +108,11 @@ export class ProjectsService {
       };
     } catch (err) {
       await queryRunner.rollbackTransaction();
-      console.error('Error deleting project:', err);
+      if (err instanceof Error) {
+        this.logger.error('Error deleting project', err.stack);
+      } else {
+        this.logger.error('Error deleting project', err);
+      }
       throw err;
     } finally {
       await queryRunner.release();

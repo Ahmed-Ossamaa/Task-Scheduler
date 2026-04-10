@@ -4,6 +4,7 @@ import {
   Delete,
   ForbiddenException,
   Get,
+  Logger,
   Param,
   ParseIntPipe,
   ParseUUIDPipe,
@@ -30,6 +31,7 @@ import { ImageValidationPipe } from 'src/common/pipes/image-validation.pipe';
 @UseGuards(JwtAuthGuard)
 @Controller('user')
 export class UserController {
+  private readonly logger = new Logger(UserController.name);
   constructor(
     private readonly userService: UserService,
     private readonly storageService: StorageService,
@@ -79,7 +81,14 @@ export class UserController {
     try {
       await this.storageService.deleteImage(`user_avatars/${user.sub}`);
     } catch (error) {
-      console.warn('Error while deleting avatar from cloud', error);
+      if (error instanceof Error) {
+        this.logger.warn(
+          'Failed to delete avatar from cloud storage',
+          error.stack,
+        );
+      } else {
+        this.logger.warn('Failed to delete avatar from cloud storage');
+      }
     }
     return this.userService.removeAvatar(user.sub);
   }

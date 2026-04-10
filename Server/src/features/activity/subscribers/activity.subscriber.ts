@@ -6,7 +6,7 @@ import {
   DataSource,
   SoftRemoveEvent,
 } from 'typeorm';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ActivityLog } from '../entities/activity-log.entity';
 import { ActionType } from '../types/activity-log-types';
 import { User } from 'src/features/users/entities/user.entity';
@@ -15,6 +15,7 @@ import { Organization } from 'src/features/organizations/entities/organization.e
 @Injectable()
 @EventSubscriber()
 export class ActivitySubscriber implements EntitySubscriberInterface {
+  private readonly logger = new Logger(ActivitySubscriber.name);
   constructor(dataSource: DataSource) {
     dataSource.subscribers.push(this);
   }
@@ -48,17 +49,17 @@ export class ActivitySubscriber implements EntitySubscriberInterface {
 
     let deletedId: string | undefined;
 
-    //entity?.id: if there is a fully loaded entity (for remove methods)
+    //entity?.id: if there is a fully loaded entity passed (for remove methods)
     if (event.entity?.id) {
       deletedId = event.entity.id;
-      //entityId: if there is just an Id (for delete methods)
+      //entityId: if there is just an Id passed instead of a fully loaded entity
     } else if (typeof event.entityId === 'string') {
       deletedId = event.entityId;
     }
 
     // if there is no Id at all (undefined)
     if (!deletedId) {
-      console.warn(
+      this.logger.warn(
         `Could not log deletion for ${event.metadata.tableName}: ID missing`,
       );
       return;
@@ -85,7 +86,7 @@ export class ActivitySubscriber implements EntitySubscriberInterface {
     else if (typeof event.entityId === 'string') deletedId = event.entityId;
 
     if (!deletedId) {
-      console.warn(
+      this.logger.warn(
         `Could not log deletion for ${event.metadata.tableName}: ID missing`,
       );
       return;

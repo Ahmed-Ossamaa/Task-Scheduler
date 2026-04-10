@@ -3,6 +3,7 @@ import {
   ConflictException,
   ForbiddenException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { User } from './entities/user.entity';
@@ -17,6 +18,7 @@ import { GrowthInterval } from '../analytics/types/analytics.types';
 
 @Injectable()
 export class UserService {
+  private readonly logger = new Logger(UserService.name);
   constructor(
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
@@ -260,7 +262,11 @@ export class UserService {
       };
     } catch (err) {
       await queryRunner.rollbackTransaction();
-      console.error('Error deleting user:', err);
+      if (err instanceof Error) {
+        this.logger.error(err.message, err.stack);
+      } else {
+        this.logger.error('Error deleting user', err);
+      }
       throw err;
     } finally {
       await queryRunner.release();
@@ -313,7 +319,11 @@ export class UserService {
       };
     } catch (err) {
       await queryRunner.rollbackTransaction();
-      console.error('Error deleting employee:', err);
+      if (err instanceof Error) {
+        this.logger.error(err.message, err.stack);
+      } else {
+        this.logger.error('Error deleting employee:', err);
+      }
       throw err;
     } finally {
       await queryRunner.release();

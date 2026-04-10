@@ -6,6 +6,7 @@ import {
   ArgumentsHost,
   HttpException,
   HttpStatus,
+  Logger,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { DataSource } from 'typeorm';
@@ -14,6 +15,7 @@ import { AuthenticatedRequest } from './authenticated-request.interface';
 
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
+  private readonly logger = new Logger(GlobalExceptionFilter.name);
   constructor(private readonly dataSource: DataSource) {}
 
   async catch(exception: unknown, host: ArgumentsHost) {
@@ -63,7 +65,11 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 
         await this.dataSource.getRepository(ErrorLog).save(errorLog);
       } catch (logError) {
-        console.error('CRITICAL: Failed to save error log to DB', logError);
+        if (logError instanceof Error) {
+          this.logger.error(logError.message, logError.stack);
+        } else {
+          this.logger.error('Failed to save error log to DB');
+        }
       }
     }
 

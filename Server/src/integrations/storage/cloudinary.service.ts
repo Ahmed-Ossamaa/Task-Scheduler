@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, Logger } from '@nestjs/common';
 import {
   v2 as cloudinary,
   UploadApiResponse,
@@ -10,6 +10,7 @@ import 'multer';
 
 @Injectable()
 export class CloudinaryService implements StorageService {
+  private readonly logger = new Logger(CloudinaryService.name);
   /**
    * Uploads an image to Cloudinary.
    * @param file The image to upload.
@@ -27,15 +28,29 @@ export class CloudinaryService implements StorageService {
     return new Promise((resolve, reject) => {
       const upload = cloudinary.uploader.upload_stream(
         { folder, public_id: customFilename, overwrite: overwrite },
-        (error: UploadApiErrorResponse, result: UploadApiResponse) => {
+        (error?: UploadApiErrorResponse, result?: UploadApiResponse) => {
           if (error) {
-            return reject(new BadRequestException('Failed to upload image'));
+            return reject(
+              new BadRequestException(
+                `Cloudinary upload failed: ${error.message}`,
+              ),
+            );
           }
+          if (!result) {
+            return reject(new BadRequestException('Upload failed: no result'));
+          }
+
           resolve(result.secure_url);
         },
       );
 
-      Readable.from(file.buffer).pipe(upload);
+      const stream = Readable.from(file.buffer);
+
+      stream.on('error', (err) => {
+        reject(new BadRequestException(`Stream error: ${err.message}`));
+      });
+
+      stream.pipe(upload);
     });
   }
 
@@ -50,7 +65,11 @@ export class CloudinaryService implements StorageService {
     try {
       await cloudinary.uploader.destroy(publicId);
     } catch (error) {
-      console.error(`Cloudinary deletion failed for ID: \n ${publicId}`, error);
+      this.logger.error(
+        `Cloudinary deletion failed for ID: ${publicId}`,
+        error instanceof Error ? error.stack : undefined,
+      );
+
       throw new BadRequestException('Failed to delete image');
     }
   }
@@ -62,30 +81,25 @@ export class CloudinaryService implements StorageService {
    * @returns The (public ID) as a string, or (null) if an error occurs.
    */
   extractPublicIdFromUrl(url: string): string | null {
-    try {
-      if (!url || typeof url !== 'string') return null;
+    if (!url || typeof url !== 'string') return null;
 
-      //Split the URL at '/upload/'
-      //upload/ then =>>  version/folder/filename
-      const urlParts = url.split('/upload/');
-      if (urlParts.length < 2) return null;
+    //Split the URL at '/upload/'
+    //upload/ then =>>  version/folder/filename
+    const urlParts = url.split('/upload/');
+    if (urlParts.length < 2) return null;
 
-      let pathString = urlParts[1];
+    let pathString = urlParts[1];
 
-      //Remove version ('v1612345678/')
-      pathString = pathString.replace(/^v\d+\//, '');
+    //Remove version ('v1612345678/')
+    pathString = pathString.replace(/^v\d+\//, '');
 
-      //Remove the file extension (.jpg, .png) whatevrr after the last dot
-      const lastDotIndex = pathString.lastIndexOf('.');
-      if (lastDotIndex !== -1) {
-        return pathString.substring(0, lastDotIndex);
-      }
-
-      //if no file extension (fallback)
-      return pathString;
-    } catch (error) {
-      console.warn('Error extracting public ID from URL:', error);
-      return null;
+    //Remove the file extension (.jpg, .png) whatevrr after the last dot
+    const lastDotIndex = pathString.lastIndexOf('.');
+    if (lastDotIndex !== -1) {
+      return pathString.substring(0, lastDotIndex);
     }
+
+    //if no file extension (fallback)
+    return pathString;
   }
 }

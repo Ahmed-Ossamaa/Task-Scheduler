@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -16,6 +17,7 @@ import { GrowthInterval } from '../analytics/types/analytics.types';
 
 @Injectable()
 export class OrganizationsService {
+  private readonly logger = new Logger(OrganizationsService.name);
   constructor(
     @InjectRepository(Organization)
     private readonly orgRepo: Repository<Organization>,
@@ -140,7 +142,11 @@ export class OrganizationsService {
       };
     } catch (err) {
       await queryRunner.rollbackTransaction();
-      console.error('Error deleting organization:', err);
+      if (err instanceof Error) {
+        this.logger.error('Error Deleting Organization: ', err.stack);
+      } else {
+        this.logger.error('Unknown error occurred');
+      }
       throw err;
     } finally {
       await queryRunner.release();

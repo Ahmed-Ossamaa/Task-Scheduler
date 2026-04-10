@@ -128,7 +128,6 @@ export class AuthController {
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
-    // console.log('userId', user.sub);
     const refreshToken = req.cookies.refreshToken as string;
     const data = await this.authService.refreshTokens(user.sub, refreshToken);
     this.setRefreshTokenCookie(res, data.refreshToken);
