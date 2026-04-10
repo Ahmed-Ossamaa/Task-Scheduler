@@ -328,7 +328,7 @@ export class UserService {
     }
   }
 
-  async restoreEmployee(managerOrgId: string, employeeId: string) {
+  async restoreEmployee(employeeId: string, managerOrgId: string) {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();

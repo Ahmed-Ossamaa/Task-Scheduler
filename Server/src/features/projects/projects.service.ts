@@ -1,4 +1,9 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Project } from './entities/project.entity';
 import { DataSource, Repository } from 'typeorm';
@@ -36,9 +41,11 @@ export class ProjectsService {
   async validateProjectExistsForOrg(
     projectId: string,
     orgId: string,
+    withDeleted: boolean = false,
   ): Promise<Project> {
     const project = await this.projectRepo.findOne({
       where: { id: projectId, organizationId: orgId },
+      withDeleted,
     });
 
     if (!project) {
@@ -108,11 +115,10 @@ export class ProjectsService {
       };
     } catch (err) {
       await queryRunner.rollbackTransaction();
-      if (err instanceof Error) {
-        this.logger.error('Error deleting project', err.stack);
-      } else {
-        this.logger.error('Error deleting project', err);
-      }
+      this.logger.error(
+        'Error deleting project',
+        err instanceof Error ? err.stack : err,
+      );
       throw err;
     } finally {
       await queryRunner.release();
@@ -120,5 +126,39 @@ export class ProjectsService {
   }
   async getProjectsCount() {
     return this.projectRepo.count();
+  }
+
+  async restoreProject(projectId: string, managerOrgId: string) {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const project = await this.validateProjectExistsForOrg(
+        projectId,
+        managerOrgId,
+        true,
+      );
+
+      if (!project.deletedAt) {
+        throw new BadRequestException('This project is not deleted.');
+      }
+      //Restore the tasks and project (doesnt trigger subscribers)
+      await queryRunner.manager.restore(Task, { projectId: projectId });
+      await queryRunner.manager.restore(Project, { id: projectId });
+
+      await queryRunner.commitTransaction();
+
+      return { message: 'Project restored successfully.' };
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      this.logger.error(
+        'Error restoring project',
+        err instanceof Error ? err.stack : err,
+      );
+      throw err;
+    } finally {
+      await queryRunner.release();
+    }
   }
 }
