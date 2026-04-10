@@ -9,6 +9,7 @@ export const validationSchema = Joi.object({
   PORT: Joi.number().default(5000),
   CLIENT_URL: Joi.string().uri().default('http://localhost:3000'),
   BASE_URL: Joi.string().uri().default('http://localhost:5000'),
+  DATA_RETENTION_CRON: Joi.string().default('0 3 * * *'),
 
   // JWT
   JWT_ACCESS_SECRET: Joi.string().required(),

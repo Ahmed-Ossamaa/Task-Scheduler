@@ -21,6 +21,7 @@ import { ProjectsModule } from './features/projects/projects.module';
 import { AnalyticsModule } from './features/analytics/analytics.module';
 import { ActivityModule } from './features/activity/activity.module';
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
+import { BackgroundJobsModule } from './features/background-jobs/background-jobs.module';
 
 @Module({
   imports: [
@@ -82,6 +83,7 @@ import { GlobalExceptionFilter } from './common/filters/global-exception.filter'
     ProjectsModule,
     AnalyticsModule,
     ActivityModule,
+    BackgroundJobsModule,
   ],
   controllers: [AppController],
   providers: [
