@@ -57,11 +57,8 @@ export class ActivitySubscriber implements EntitySubscriberInterface {
       deletedId = event.entityId;
     }
 
-    // if there is no Id at all (undefined)
+    // if there is no Id at all (undefined) or no id due to bulk delete
     if (!deletedId) {
-      this.logger.warn(
-        `Could not log deletion for ${event.metadata.tableName}: ID missing`,
-      );
       return;
     }
 
@@ -85,10 +82,8 @@ export class ActivitySubscriber implements EntitySubscriberInterface {
     if (event.entity?.id) deletedId = event.entity.id;
     else if (typeof event.entityId === 'string') deletedId = event.entityId;
 
+    // if there is no Id at all (undefined) or no id due to bulk delete
     if (!deletedId) {
-      this.logger.warn(
-        `Could not log deletion for ${event.metadata.tableName}: ID missing`,
-      );
       return;
     }
 
