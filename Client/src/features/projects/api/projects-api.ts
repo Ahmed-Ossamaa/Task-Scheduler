@@ -44,7 +44,18 @@ export const projectsApi = {
    */
   deleteProject: async (projectId: string): Promise<{ message: string }> => {
     const { data } = await api.delete<{ message: string }>(
-      `/projects/${projectId}`,
+      `/projects/${projectId}/delete`,
+    );
+    return data;
+  },
+
+  /**
+   * Manager: Restore a project and its associated tasks (Soft Delete).
+   * @returns {Promise<{ message: string }>} - Success Restoration message on Success.
+   */
+  restoreProject: async (projectId: string): Promise<{ message: string }> => {
+    const { data } = await api.patch<{ message: string }>(
+      `/projects/${projectId}/restore`,
     );
     return data;
   },

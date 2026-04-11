@@ -6,9 +6,6 @@ import { Project } from '@/features/projects/types';
 
 /**
  * Hook to retrieve all projects for the current user's organization.
- * @returns - The result of the query.
- * It contains the projects and methods to handle the query state.
- * Will only fetch the data when a user is logged in and has an organizationId.
  */
 export const useOrgProjects = () => {
   const user = useAuthStore((state) => state.user);
@@ -22,8 +19,6 @@ export const useOrgProjects = () => {
 
 /**
  * Hook to retrieve all projects system-wide (Admin only).
- * @returns - The result of the query.
- * It contains the projects and methods to handle the query state.
  */
 export const useAllProjects = (page = 1, limit = 20) => {
   return useQuery({
@@ -34,9 +29,6 @@ export const useAllProjects = (page = 1, limit = 20) => {
 
 /**
  * Hook to create a new project (Manager only).
- * @returns - The result of the mutation.
- * It contains the project and methods to handle the mutation state.
- * Will invalidate the 'projects' query when the project is created successfully.
  */
 export const useCreateProject = () => {
   const queryClient = useQueryClient();
@@ -52,9 +44,6 @@ export const useCreateProject = () => {
 
 /**
  * Hook to edit a project (Manager only).
- * @returns - The result of the mutation.
- * It contains the updated project and methods to handle the mutation state.
- * Will update the 'projects' cash when the project is edited successfully.
  */
 export const useEditProject = () => {
   const queryClient = useQueryClient();
@@ -81,9 +70,6 @@ export const useEditProject = () => {
 
 /**
  * Hook to delete (soft delete) a project and its associated tasks (Manager only).
- * @returns - The result of the mutation.
- * It contains the deleted project and methods to handle the mutation state.
- * Will update the 'projects' cash when the project is deleted successfully.
  */
 export const useDeleteProject = () => {
   const queryClient = useQueryClient();
@@ -98,6 +84,20 @@ export const useDeleteProject = () => {
       );
       //invalidate  tasks list (after deleting a project)
       queryClient.invalidateQueries({ queryKey: ['tasks','project', projectId] });
+    },
+  });
+};
+
+export const useRestoreProject = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (projectId: string) => projectsApi.restoreProject(projectId),
+    onSuccess: (_, projectId) => {
+      queryClient.invalidateQueries({ queryKey: ['projects', 'org'] });
+
+      //invalidate  tasks list (after restoring a project)
+      queryClient.invalidateQueries({ queryKey: ['tasks', 'project', projectId] });
     },
   });
 };
