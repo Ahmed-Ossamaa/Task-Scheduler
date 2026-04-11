@@ -128,4 +128,14 @@ export class OrganizationsController {
   async restoreOrganization(@Param('orgId', ParseUUIDPipe) orgId: string) {
     return this.organizationsService.restoreOrganization(orgId);
   }
+
+  @ApiOperation({ summary: 'get all the deleted organizations (admin only)' })
+  @Get('archived')
+  @Roles(UserRole.ADMIN)
+  async getArchivedOrgs(
+    @Query('page', new ParseIntPipe({ optional: true })) page: number,
+    @Query('limit', new ParseIntPipe({ optional: true })) limit: number = 20,
+  ) {
+    return this.organizationsService.getDeletedOrgs(page, limit);
+  }
 }

@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Organization } from './entities/organization.entity';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, IsNull, Not, Repository } from 'typeorm';
 import { UserService } from 'src/features/users/users.service';
 import { CreateOrgDto } from './dto/create-org.dto';
 import { PaginatedOrg } from './interfaces/paginated-org.interface';
@@ -214,5 +214,23 @@ export class OrganizationsService {
       .groupBy(`DATE_TRUNC('month', org."createdAt")`)
       .orderBy(`DATE_TRUNC('month', org."createdAt")`, 'ASC')
       .getRawMany<{ month: Date; orgs: number }>();
+  }
+
+  async getDeletedOrgs(page: number = 1, limit: number = 20) {
+    const take = Math.min(limit, 100);
+    const skip = (page - 1) * take;
+    const [orgs, total] = await this.orgRepo.findAndCount({
+      where: { deletedAt: Not(IsNull()) },
+      withDeleted: true,
+      order: { deletedAt: 'DESC' },
+      skip,
+      take,
+    });
+    return {
+      data: orgs,
+      total,
+      page,
+      lastPage: Math.ceil(total / take),
+    };
   }
 }
