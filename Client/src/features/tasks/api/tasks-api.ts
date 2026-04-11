@@ -45,7 +45,7 @@ export const tasksApi = {
    * @returns {Promise<Tasks>} - A promise resolving with an object containing tasks data and pagination metadata.
    */
   getAllTasks: async (page: number = 1, limit: number = 20): Promise<Tasks> => {
-    const { data } = await api.get<Tasks>(`/tasks/all`, {
+    const { data } = await api.get<Tasks>(`/tasks`, {
       params: { page, limit },
     });
     return data;
@@ -58,7 +58,7 @@ export const tasksApi = {
    * @returns {Promise<Task>} - A promise resolving with the created task data
    */
   createTask: async (payload: CreateTaskDto): Promise<Task> => {
-    const { data } = await api.post<Task>('/tasks/schedule', payload);
+    const { data } = await api.post<Task>('/tasks', payload);
     return data;
   },
 

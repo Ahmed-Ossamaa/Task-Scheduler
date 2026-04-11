@@ -43,7 +43,7 @@ export const useDeleteEmployee = () => {
   const user = useAuthStore((state) => state.user);
 
   return useMutation({
-    mutationFn: usersApi.deleteEmployee,
+    mutationFn: usersApi.removeEmployee,
     onSuccess: (_, employeeId) => {
       //remove employee from the cashed list
       queryClient.setQueryData<User[]>(

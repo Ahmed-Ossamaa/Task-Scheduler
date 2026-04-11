@@ -29,9 +29,9 @@ export const usersApi = {
    * Manager: Delete an employee and their tasks (Soft Delete)
    * @returns {Promise<{ message: string }>} Success Deletion message on Success
    */
-  deleteEmployee: async (userId: string): Promise<{ message: string }> => {
+  removeEmployee: async (userId: string): Promise<{ message: string }> => {
     const { data } = await api.patch<{ message: string }>(
-      `/user/employee/${userId}/delete`,
+      `/user/employee/${userId}`,
     );
     return data;
   },
@@ -72,7 +72,7 @@ export const usersApi = {
   //................Admin APIs................
 
   getAllUsers: async (page: number = 1, limit: number = 20): Promise<PaginatedUser> => {
-    const { data } = await api.get('/user/all', {
+    const { data } = await api.get('/user', {
       params: { page, limit },
     });
     return data;
@@ -83,7 +83,7 @@ export const usersApi = {
    * @returns {Promise<{ message: string }>} Success Deletion message on Success.
    */
   removeUser: async (userId: string): Promise<{ message: string }> => {
-    const { data } = await api.patch<{ message: string }>(`/user/${userId}/delete`); 
+    const { data } = await api.patch<{ message: string }>(`/user/${userId}`); 
     return data;
   },
 
