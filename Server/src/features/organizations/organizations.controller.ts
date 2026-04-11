@@ -89,8 +89,8 @@ export class OrganizationsController {
   @Get('/all')
   @Roles(UserRole.ADMIN)
   async getAllOrgs(
-    @Query('page', new ParseIntPipe()) page: number = 1,
-    @Query('limit', new ParseIntPipe()) limit: number = 20,
+    @Query('page', new ParseIntPipe({ optional: true })) page: number = 1,
+    @Query('limit', new ParseIntPipe({ optional: true })) limit: number = 20,
   ) {
     return this.organizationsService.findAllOrgs(page, limit);
   }
