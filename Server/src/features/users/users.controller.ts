@@ -139,7 +139,7 @@ export class UserController {
   }
 
   @ApiOperation({ summary: 'Remove employee from my org (Manager only)' })
-  @Delete('employee/:userId')
+  @Patch('employee/:userId')
   @Roles(UserRole.MANAGER)
   async removeEmployee(
     @CurrentUser() manager: JwtPayload,
@@ -151,10 +151,30 @@ export class UserController {
     return this.userService.deleteEmployee(manager.organizationId, empId);
   }
 
+  @ApiOperation({ summary: 'restore deleted Employee (Manager only)' })
+  @Patch('employee/restore/:userId')
+  @Roles(UserRole.MANAGER)
+  async restoreEmployee(
+    @CurrentUser() manager: JwtPayload,
+    @Param('userId', ParseUUIDPipe) empId: string,
+  ) {
+    if (!manager.organizationId) {
+      throw new ForbiddenException('You are not assigned to an organization.');
+    }
+    return this.userService.restoreEmployee(empId, manager.organizationId);
+  }
+
   @ApiOperation({ summary: 'Delete user "soft delete" (admin only)' })
   @Patch(':userId')
   @Roles(UserRole.ADMIN)
   async deleteUser(@Param('userId') userId: string) {
     return this.userService.deleteUser(userId);
+  }
+
+  @ApiOperation({ summary: 'Restore deleted user (admin only)' })
+  @Patch('restore/:userId')
+  @Roles(UserRole.ADMIN)
+  async restoreUser(@Param('userId', ParseUUIDPipe) userId: string) {
+    return this.userService.restoreUser(userId);
   }
 }
