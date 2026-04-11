@@ -31,7 +31,14 @@ export const usersApi = {
    */
   deleteEmployee: async (userId: string): Promise<{ message: string }> => {
     const { data } = await api.patch<{ message: string }>(
-      `/user/employee/${userId}`,
+      `/user/employee/${userId}/delete`,
+    );
+    return data;
+  },
+
+  restoreEmployee: async (userId: string): Promise<{ message: string }> => {
+    const { data } = await api.patch<{ message: string }>(
+      `/user/employee/${userId}/restore`,
     );
     return data;
   },
