@@ -426,8 +426,14 @@ export class UserService {
     }
   }
 
-  async getDeletedEmployees(orgId: string) {
-    return await this.userRepo.find({
+  async getDeletedEmployees(
+    orgId: string,
+    page = 1,
+    limit = 20,
+  ): Promise<PaginatedUsers> {
+    const take = Math.min(limit, 100);
+    const skip = (page - 1) * take;
+    const [employees, total] = await this.userRepo.findAndCount({
       where: {
         organizationId: orgId,
         deletedAt: Not(IsNull()),
@@ -436,7 +442,40 @@ export class UserService {
       order: {
         deletedAt: 'DESC',
       },
+      skip,
+      take,
     });
+
+    return {
+      data: employees,
+      total,
+      page,
+      lastPage: Math.ceil(total / take),
+    };
+  }
+
+  async getDeletedUsers(page = 1, limit = 20): Promise<PaginatedUsers> {
+    const take = Math.min(limit, 100);
+    const skip = (page - 1) * take;
+
+    const [users, total] = await this.userRepo.findAndCount({
+      where: {
+        deletedAt: Not(IsNull()),
+      },
+      withDeleted: true,
+      order: {
+        deletedAt: 'DESC',
+      },
+      skip,
+      take,
+    });
+
+    return {
+      data: users,
+      total,
+      page,
+      lastPage: Math.ceil(total / take),
+    };
   }
 
   async getUsersCount() {

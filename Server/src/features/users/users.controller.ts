@@ -166,11 +166,28 @@ export class UserController {
 
   @Get('employees/archived')
   @Roles(UserRole.MANAGER)
-  async getArchivedEmployees(@CurrentUser() manager: User) {
+  async getArchivedEmployees(
+    @CurrentUser() manager: User,
+    @Query('page', new ParseIntPipe({ optional: true })) page: number,
+    @Query('limit', new ParseIntPipe({ optional: true })) limit: number,
+  ) {
     if (!manager.organizationId) {
       throw new ForbiddenException('You are not assigned to an organization.');
     }
-    return this.userService.getDeletedEmployees(manager.organizationId);
+    return this.userService.getDeletedEmployees(
+      manager.organizationId,
+      page,
+      limit,
+    );
+  }
+
+  @Get('archived')
+  @Roles(UserRole.ADMIN)
+  async getDeletedUsers(
+    @Query('page', new ParseIntPipe({ optional: true })) page: number,
+    @Query('limit', new ParseIntPipe({ optional: true })) limit: number,
+  ) {
+    return this.userService.getDeletedUsers(page, limit);
   }
 
   @ApiOperation({ summary: 'Delete user "soft delete" (admin only)' })
