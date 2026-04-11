@@ -139,7 +139,7 @@ export class UserController {
   }
 
   @ApiOperation({ summary: 'Remove employee from my org (Manager only)' })
-  @Patch('employee/:userId')
+  @Patch('employee/:userId/delete')
   @Roles(UserRole.MANAGER)
   async removeEmployee(
     @CurrentUser() manager: JwtPayload,
@@ -152,7 +152,7 @@ export class UserController {
   }
 
   @ApiOperation({ summary: 'restore deleted Employee (Manager only)' })
-  @Patch('employee/restore/:userId')
+  @Patch('employee/:userId/restore')
   @Roles(UserRole.MANAGER)
   async restoreEmployee(
     @CurrentUser() manager: JwtPayload,
