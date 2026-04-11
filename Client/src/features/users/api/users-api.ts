@@ -36,6 +36,10 @@ export const usersApi = {
     return data;
   },
 
+  /**
+   * Manager: Restore an employee and their tasks (Soft Deleted)
+   * @returns {Promise<{ message: string }>} Success Restoration message on Success
+   */
   restoreEmployee: async (userId: string): Promise<{ message: string }> => {
     const { data } = await api.patch<{ message: string }>(
       `/user/employee/${userId}/restore`,
@@ -74,10 +78,22 @@ export const usersApi = {
     return data;
   },
 
+  /**
+   * Admin: Delete a user and their tasks (Soft Delete).
+   * @returns {Promise<{ message: string }>} Success Deletion message on Success.
+   */
   removeUser: async (userId: string): Promise<{ message: string }> => {
     const { data } = await api.patch<{ message: string }>(`/user/${userId}/delete`); 
     return data;
   },
 
+  /**
+   * Admin: Restore a user and their tasks (Soft Deleted)
+   * @returns {Promise<{ message: string }>} Success Restoration message on Success
+   */
+  restoreUser: async (userId: string): Promise<{ message: string }> => {
+    const { data } = await api.patch<{ message: string }>(`/user/${userId}/restore`); 
+    return data;
+  },
 
 };

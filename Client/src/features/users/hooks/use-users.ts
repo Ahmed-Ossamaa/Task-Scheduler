@@ -4,6 +4,9 @@ import { useAuthStore } from '@/features/auth/store/auth.store';
 import { CreateEmployeeDto } from '../types';
 import { User, UserRoles } from '@/features/auth/types/user-interface';
 
+/**
+ * Hook to get all employees in the current organization.
+*/
 export const useOrgEmployees = () => {
   const user = useAuthStore((state) => state.user);
 
@@ -14,6 +17,9 @@ export const useOrgEmployees = () => {
   });
 };
 
+/**
+ * Hook to create a new employee (Manager only).
+ */
 export const useCreateEmployee = () => {
   const queryClient = useQueryClient();
   const user = useAuthStore((state) => state.user);
@@ -31,10 +37,6 @@ export const useCreateEmployee = () => {
 
 /**
  * Hook to delete (soft delete) an employee and their tasks (Manager only).
- * @returns The result of the mutation.
- *
- * Will invalidate the 'org-employees' query when the employee is deleted successfully.
- * Will remove the employee from the cached list.
  */
 export const useDeleteEmployee = () => {
   const queryClient = useQueryClient();
@@ -105,6 +107,9 @@ export const useEditMyProfile = () => {
 
 //.......Admin Hooks .............
 
+/**
+ * Hook to retrieve all users (Paginated).
+ */
 export const useAllUsers = (page: number = 1, limit: number = 20) => {
   return useQuery({
     queryKey: ['users', 'admin-all', page, limit],
@@ -112,11 +117,28 @@ export const useAllUsers = (page: number = 1, limit: number = 20) => {
   });
 };
 
+/**
+ * Hook to soft delete any user and his tasks
+ */
 export const useAdminDeleteUser = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (userId: string) => usersApi.removeUser(userId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users', 'admin-all'] });
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+    },
+  });
+};
+
+/**
+ * Hook to restore any soft deleted user and his tasks
+ */
+export  const useAdminRestoreUser = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (userId: string) => usersApi.restoreUser(userId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users', 'admin-all'] });
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
