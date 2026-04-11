@@ -109,15 +109,15 @@ export class TasksService {
     await this.tasksRepo.save(task);
   }
 
-  async getUserTasks(userId: string, orgId?: string): Promise<Task[]> {
-    const criteria: Record<string, string> = {
-      assignedToId: userId,
-    };
-    if (orgId) {
-      criteria.organizationId = orgId;
-    }
+  async getUserTasks(userId: string, orgId: string): Promise<Task[]> {
+    // const criteria: Record<string, string> = {
+    //   assignedToId: userId,
+    // };
+    // if (orgId) {
+    //   criteria.organizationId = orgId;
+    // }
     return this.tasksRepo.find({
-      where: criteria,
+      where: { assignedToId: userId, organizationId: orgId },
       relations: ['project', 'assignedTo', 'assignedBy'],
       order: { createdAt: 'DESC' },
     });

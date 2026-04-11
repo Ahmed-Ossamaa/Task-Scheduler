@@ -31,39 +31,18 @@ import { Throttle } from '@nestjs/throttler';
 export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
 
-  @ApiOperation({
-    summary: 'Create and Schedule a new task (Manager Only)',
-  })
-  @Post('/schedule')
-  @Roles(UserRole.MANAGER)
-  async scheduleTask(
-    @CurrentUser() manager: JwtPayload,
-    @Body() taskDto: CreateTaskDTO,
-  ) {
-    if (!manager.organizationId) {
-      throw new ForbiddenException(
-        'You must create an organization before assigning tasks.',
-      );
-    }
-    const scheduledTask = await this.tasksService.scheduleTask(
-      taskDto,
-      manager.sub,
-      manager.organizationId,
-    );
-    return scheduledTask;
-  }
+  //--------Static GET Routes--------
 
   @ApiOperation({
-    summary: 'Get all tasks in the system (Admin Only)',
+    summary: 'Get tasks assigned to the current user (employee/manager)',
   })
-  @Throttle({ default: { limit: 50, ttl: 60000 } })
-  @Get('all')
-  @Roles(UserRole.ADMIN)
-  async getAllTasks(
-    @Query('page', new ParseIntPipe({ optional: true })) page: number = 1,
-    @Query('limit', new ParseIntPipe({ optional: true })) limit: number = 20,
-  ) {
-    return this.tasksService.getAllTasks(page, limit);
+  @Get('my-tasks')
+  @Roles(UserRole.EMP, UserRole.MANAGER)
+  async getMyTasks(@CurrentUser() user: JwtPayload) {
+    if (!user.organizationId) {
+      return [];
+    }
+    return this.tasksService.getUserTasks(user.sub, user.organizationId);
   }
 
   @ApiOperation({
@@ -91,37 +70,75 @@ export class TasksController {
   }
 
   @ApiOperation({
-    summary: 'See all tasks assigned to a specific user (Admin/Manager)',
+    summary: 'Get all tasks in the system (Admin Only)',
+  })
+  @Throttle({ default: { limit: 50, ttl: 60000 } })
+  @Get()
+  @Roles(UserRole.ADMIN)
+  async getAllTasks(
+    @Query('page', new ParseIntPipe({ optional: true })) page: number = 1,
+    @Query('limit', new ParseIntPipe({ optional: true })) limit: number = 20,
+  ) {
+    return this.tasksService.getAllTasks(page, limit);
+  }
+
+  //--------Prefixed Dynamic Routes--------
+
+  @ApiOperation({
+    summary:
+      "See all tasks assigned to a specific user within Manager's organization (Manager)",
   })
   @Get('user/:userId')
-  @Roles(UserRole.ADMIN, UserRole.MANAGER)
+  @Roles(UserRole.MANAGER)
   async getUserTasks(
-    @CurrentUser() user: JwtPayload,
+    @CurrentUser() manager: JwtPayload,
     @Param('userId', ParseUUIDPipe) userId: string,
   ) {
-    // Manager
-    if (user.role === UserRole.MANAGER) {
-      if (!user.organizationId) {
-        throw new BadRequestException('You dont belong to any organization');
-      }
-
-      return this.tasksService.getUserTasks(userId, user.organizationId);
+    if (!manager.organizationId) {
+      throw new BadRequestException('You dont belong to any organization');
     }
-    // Admin
-    return this.tasksService.getUserTasks(userId);
+
+    return this.tasksService.getUserTasks(userId, manager.organizationId);
   }
 
   @ApiOperation({
-    summary: 'Get tasks assigned to the current user (employee/manager)',
+    summary: 'Get all tasks for a specific project (within your org)',
   })
-  @Get('/my-tasks')
-  @Roles(UserRole.EMP, UserRole.MANAGER)
-  async getMyTasks(@CurrentUser() user: JwtPayload) {
-    if (!user.organizationId) {
-      return [];
-    }
-    return this.tasksService.getUserTasks(user.sub, user.organizationId);
+  @Get('project/:projectId')
+  async getProjectTasks(
+    @CurrentUser() user: JwtPayload,
+    @Param('projectId', ParseUUIDPipe) projectId: string,
+  ) {
+    if (!user.organizationId)
+      throw new ForbiddenException('You are not part of any organization');
+    return this.tasksService.getTasksByProject(projectId, user.organizationId);
   }
+
+  // -------- Static POST Routes --------
+
+  @ApiOperation({
+    summary: 'Create and Schedule a new task (Manager Only)',
+  })
+  @Post()
+  @Roles(UserRole.MANAGER)
+  async scheduleTask(
+    @CurrentUser() manager: JwtPayload,
+    @Body() taskDto: CreateTaskDTO,
+  ) {
+    if (!manager.organizationId) {
+      throw new ForbiddenException(
+        'You must create an organization before assigning tasks.',
+      );
+    }
+    const scheduledTask = await this.tasksService.scheduleTask(
+      taskDto,
+      manager.sub,
+      manager.organizationId,
+    );
+    return scheduledTask;
+  }
+
+  // --------Direct ID Dynamic Routes --------
 
   @ApiOperation({
     summary: 'Employee mark a task as DONE (Stops the Overdue Timer)',
@@ -147,19 +164,6 @@ export class TasksController {
   }
 
   @ApiOperation({
-    summary: 'Get all tasks for a specific project (within your org)',
-  })
-  @Get('project/:projectId')
-  async getProjectTasks(
-    @CurrentUser() user: JwtPayload,
-    @Param('projectId', ParseUUIDPipe) projectId: string,
-  ) {
-    if (!user.organizationId)
-      throw new ForbiddenException('You are not part of any organization');
-    return this.tasksService.getTasksByProject(projectId, user.organizationId);
-  }
-
-  @ApiOperation({
     summary: 'Update task details Deadline, Title, etc. (Manager Only)',
   })
   @Patch(':taskId')
@@ -172,6 +176,7 @@ export class TasksController {
     return this.tasksService.updateTask(taskId, taskDto, manager.sub);
   }
 
+  // --------Delete Routes --------
   @ApiOperation({ summary: 'Delete a task (Admin/Manager)' })
   @Delete(':taskId')
   @Roles(UserRole.MANAGER, UserRole.ADMIN)
