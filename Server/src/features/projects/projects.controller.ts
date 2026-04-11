@@ -124,4 +124,24 @@ export class ProjectsController {
       manager.organizationId,
     );
   }
+
+  @ApiOperation({
+    summary: 'Get deleted projects for an organization (Manager)',
+  })
+  @Get('archived')
+  @Roles(UserRole.MANAGER)
+  async getArchivedProjects(
+    @CurrentUser() manager: JwtPayload,
+    @Query('page', new ParseIntPipe({ optional: true })) page: number = 1,
+    @Query('limit', new ParseIntPipe({ optional: true })) limit: number = 20,
+  ) {
+    if (!manager.organizationId) {
+      throw new ForbiddenException('You are not assigned to an organization.');
+    }
+    return this.projectsService.getDeletedProjects(
+      manager.organizationId,
+      page,
+      limit,
+    );
+  }
 }

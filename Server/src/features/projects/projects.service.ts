@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Project } from './entities/project.entity';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, IsNull, Not, Repository } from 'typeorm';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { PaginatedProject } from './interfaces/paginated-project.interface';
 import { Task } from 'src/features/tasks/entities/task.entity';
@@ -160,5 +160,33 @@ export class ProjectsService {
     } finally {
       await queryRunner.release();
     }
+  }
+
+  async getDeletedProjects(
+    orgId: string,
+    page: number = 1,
+    limit: number = 20,
+  ): Promise<PaginatedProject> {
+    const take = Math.min(limit, 100);
+    const skip = (page - 1) * take;
+    const [projects, total] = await this.projectRepo.findAndCount({
+      where: {
+        organizationId: orgId,
+        deletedAt: Not(IsNull()),
+      },
+      withDeleted: true,
+      order: {
+        deletedAt: 'DESC',
+      },
+      take,
+      skip,
+    });
+
+    return {
+      data: projects,
+      total,
+      page,
+      lastPage: Math.ceil(total / take),
+    };
   }
 }
