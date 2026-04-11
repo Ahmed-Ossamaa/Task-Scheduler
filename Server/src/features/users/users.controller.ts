@@ -37,6 +37,8 @@ export class UserController {
     private readonly storageService: StorageService,
   ) {}
 
+  // -------- Static Routes --------
+
   @ApiOperation({ summary: 'Get my profile' })
   @Get('me')
   async getMyProfile(@CurrentUser() user: JwtPayload): Promise<User> {
@@ -51,6 +53,8 @@ export class UserController {
   ): Promise<User> {
     return this.userService.updateUserProfile(user.sub, updateUserDto);
   }
+
+  //-------User's Media Routes -------
 
   @ApiOperation({ summary: 'Upload or update my avatar' })
   @Throttle({ default: { limit: 2, ttl: 60000 } })
@@ -93,25 +97,36 @@ export class UserController {
     return this.userService.removeAvatar(user.sub);
   }
 
-  @ApiOperation({ summary: 'Get all users with pagination (admin only)' })
-  @Throttle({ default: { limit: 50, ttl: 60000 } })
-  @Roles(UserRole.ADMIN)
-  @Get('all')
-  async getAllUsers(
-    @Query('page', new ParseIntPipe({ optional: true })) page: number,
-    @Query('limit', new ParseIntPipe({ optional: true })) limit: number,
-  ) {
-    return this.userService.findAllUsers(page, limit);
-  }
-
-  @ApiOperation({ summary: 'Get all users in my organization' })
+  @ApiOperation({
+    summary: 'Get all users in my organization (Anyone inside the Org)',
+  })
   @Get('org-employees')
   async getAllUsersInOrg(@CurrentUser() user: JwtPayload) {
     if (!user.organizationId) {
       throw new ForbiddenException('You are not assigned to an organization.');
     }
-    const users = await this.userService.findMyEmployees(user.organizationId);
+    const users = await this.userService.findMyTeam(user.organizationId);
     return users;
+  }
+
+  //--------Organization Routes --------
+
+  @ApiOperation({ summary: 'Get all Deleted employees (Manager only)' })
+  @Get('employee/archived')
+  @Roles(UserRole.MANAGER)
+  async getArchivedEmployees(
+    @CurrentUser() manager: User,
+    @Query('page', new ParseIntPipe({ optional: true })) page: number,
+    @Query('limit', new ParseIntPipe({ optional: true })) limit: number,
+  ) {
+    if (!manager.organizationId) {
+      throw new ForbiddenException('You are not assigned to an organization.');
+    }
+    return this.userService.getDeletedEmployees(
+      manager.organizationId,
+      page,
+      limit,
+    );
   }
 
   @ApiOperation({ summary: 'Change employee role (Manager only)' })
@@ -138,19 +153,6 @@ export class UserController {
     );
   }
 
-  @ApiOperation({ summary: 'Remove employee from my org (Manager only)' })
-  @Patch('employee/:userId/delete')
-  @Roles(UserRole.MANAGER)
-  async removeEmployee(
-    @CurrentUser() manager: JwtPayload,
-    @Param('userId', ParseUUIDPipe) empId: string,
-  ) {
-    if (!manager.organizationId) {
-      throw new ForbiddenException('You are not assigned to an organization.');
-    }
-    return this.userService.deleteEmployee(manager.organizationId, empId);
-  }
-
   @ApiOperation({ summary: 'restore deleted Employee (Manager only)' })
   @Patch('employee/:userId/restore')
   @Roles(UserRole.MANAGER)
@@ -164,22 +166,20 @@ export class UserController {
     return this.userService.restoreEmployee(empId, manager.organizationId);
   }
 
-  @Get('employees/archived')
+  @ApiOperation({ summary: 'Remove employee from my org (Manager only)' })
+  @Delete('employee/:userId')
   @Roles(UserRole.MANAGER)
-  async getArchivedEmployees(
-    @CurrentUser() manager: User,
-    @Query('page', new ParseIntPipe({ optional: true })) page: number,
-    @Query('limit', new ParseIntPipe({ optional: true })) limit: number,
+  async removeEmployee(
+    @CurrentUser() manager: JwtPayload,
+    @Param('userId', ParseUUIDPipe) empId: string,
   ) {
     if (!manager.organizationId) {
       throw new ForbiddenException('You are not assigned to an organization.');
     }
-    return this.userService.getDeletedEmployees(
-      manager.organizationId,
-      page,
-      limit,
-    );
+    return this.userService.deleteEmployee(manager.organizationId, empId);
   }
+
+  //--------Admin Routes --------
 
   @Get('archived')
   @Roles(UserRole.ADMIN)
@@ -190,11 +190,15 @@ export class UserController {
     return this.userService.getDeletedUsers(page, limit);
   }
 
-  @ApiOperation({ summary: 'Delete user "soft delete" (admin only)' })
-  @Patch(':userId/delete')
+  @ApiOperation({ summary: 'Get all users with pagination (admin only)' })
+  @Throttle({ default: { limit: 50, ttl: 60000 } })
   @Roles(UserRole.ADMIN)
-  async deleteUser(@Param('userId') userId: string) {
-    return this.userService.deleteUser(userId);
+  @Get()
+  async getAllUsers(
+    @Query('page', new ParseIntPipe({ optional: true })) page: number,
+    @Query('limit', new ParseIntPipe({ optional: true })) limit: number,
+  ) {
+    return this.userService.findAllUsers(page, limit);
   }
 
   @ApiOperation({ summary: 'Restore deleted user (admin only)' })
@@ -202,5 +206,12 @@ export class UserController {
   @Roles(UserRole.ADMIN)
   async restoreUser(@Param('userId', ParseUUIDPipe) userId: string) {
     return this.userService.restoreUser(userId);
+  }
+
+  @ApiOperation({ summary: 'Delete user "soft delete" (admin only)' })
+  @Delete(':userId')
+  @Roles(UserRole.ADMIN)
+  async deleteUser(@Param('userId') userId: string) {
+    return this.userService.deleteUser(userId);
   }
 }

@@ -67,7 +67,7 @@ export class UserService {
     return this.saveUser(newEmployee);
   }
 
-  async findMyEmployees(organizationId: string): Promise<User[]> {
+  async findMyTeam(organizationId: string): Promise<User[]> {
     const employees = await this.userRepo.find({
       where: {
         organizationId,
