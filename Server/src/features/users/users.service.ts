@@ -272,6 +272,48 @@ export class UserService {
     }
   }
 
+  async restoreUser(userId: string): Promise<{ message: string }> {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const user = await queryRunner.manager.findOne(User, {
+        where: { id: userId },
+      });
+
+      if (!user) {
+        throw new NotFoundException(`User with ID ${userId} not found`);
+      }
+      if (!user.deletedAt) {
+        throw new BadRequestException('This user is not deleted.');
+      }
+      //soft delete tasks assigned to the deleted user
+      await queryRunner.manager.restore(Task, {
+        assignedTo: { id: userId },
+      });
+
+      //soft delete user
+      await queryRunner.manager.recover(user);
+
+      await queryRunner.commitTransaction();
+
+      //Later: send an email to the user to notify them that their account has been restored
+      return {
+        message: `User with ID ${userId} and his tasks have been restored successfully`,
+      };
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      this.logger.error(
+        'Failed to restore user',
+        err instanceof Error ? err.stack : err,
+      );
+      throw err;
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
   /**
    * Delete an employee and all associated tasks (Soft Delete).
    * Only accessible to a manager of the employee's organization.
@@ -328,7 +370,16 @@ export class UserService {
     }
   }
 
-  async restoreEmployee(employeeId: string, managerOrgId: string) {
+  /**
+   * Restore an employee and their tasks (Manager only).
+   * @param employeeId - The ID of the employee to be restored.
+   * @param managerOrgId - The ID of the organization that the manager belongs to.
+   * @returns  Success restoration message on Success.
+   */
+  async restoreEmployee(
+    employeeId: string,
+    managerOrgId: string,
+  ): Promise<{ message: string }> {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -347,20 +398,23 @@ export class UserService {
       }
 
       //Restore the tasks (doesnt trigger subscribers)
-      await queryRunner.manager.restore(Task, { organizationId: managerOrgId });
+      await queryRunner.manager.restore(Task, {
+        assignedTo: { id: employeeId },
+      });
 
       //Recover User (triggers Subscriber!)
       await queryRunner.manager.recover(employee);
 
       await queryRunner.commitTransaction();
 
-      return { message: 'Employee restored successfully.' };
+      return { message: `Employee restored successfully.` };
     } catch (err) {
       await queryRunner.rollbackTransaction();
       this.logger.error(
         'Error restoring employee: ',
         err instanceof Error ? err.stack : err,
       );
+      throw err;
     } finally {
       await queryRunner.release();
     }
