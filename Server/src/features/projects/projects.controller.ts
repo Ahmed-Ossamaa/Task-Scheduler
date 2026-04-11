@@ -87,7 +87,7 @@ export class ProjectsController {
   @ApiOperation({
     summary: 'Soft Delete a project with its associated tasks (Manager)',
   })
-  @Delete(':projectId')
+  @Delete(':projectId/delete')
   @Roles(UserRole.MANAGER)
   async deleteProject(
     @CurrentUser() manager: JwtPayload,
@@ -99,6 +99,27 @@ export class ProjectsController {
       );
     }
     return this.projectsService.deleteProject(
+      projectId,
+      manager.organizationId,
+    );
+  }
+
+  @ApiOperation({
+    summary:
+      'Restore a project (soft deleted) with its associated tasks (Manager)',
+  })
+  @Patch(':projectId/restore')
+  @Roles(UserRole.MANAGER)
+  async restoreProject(
+    @CurrentUser() manager: JwtPayload,
+    @Param('projectId', ParseUUIDPipe) projectId: string,
+  ) {
+    if (!manager.organizationId) {
+      throw new ForbiddenException(
+        'You must be a manager of an Organization to restore a project',
+      );
+    }
+    return this.projectsService.restoreProject(
       projectId,
       manager.organizationId,
     );
