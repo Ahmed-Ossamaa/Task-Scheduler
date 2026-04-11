@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
@@ -35,8 +36,44 @@ export class OrganizationsController {
     private readonly storageService: StorageService,
   ) {}
 
+  //-------- GET Routes--------
+
+  @ApiOperation({ summary: 'Get my organization details (manager only)' })
+  @Get('my-org')
+  @Roles(UserRole.MANAGER)
+  async getMyOrg(@CurrentUser() manager: JwtPayload) {
+    if (!manager.organizationId) {
+      throw new BadRequestException('You are not part of any organization');
+    }
+    return this.organizationsService.findOrgById(manager.organizationId);
+  }
+
+  @ApiOperation({ summary: 'get all the deleted organizations (admin only)' })
+  @Get('archived')
+  @Roles(UserRole.ADMIN)
+  async getArchivedOrgs(
+    @Query('page', new ParseIntPipe({ optional: true })) page: number,
+    @Query('limit', new ParseIntPipe({ optional: true })) limit: number = 20,
+  ) {
+    return this.organizationsService.getDeletedOrgs(page, limit);
+  }
+
+  @ApiOperation({
+    summary: 'Get all organizations with pagination (admin only)',
+  })
+  @Get()
+  @Roles(UserRole.ADMIN)
+  async getAllOrgs(
+    @Query('page', new ParseIntPipe({ optional: true })) page: number = 1,
+    @Query('limit', new ParseIntPipe({ optional: true })) limit: number = 20,
+  ) {
+    return this.organizationsService.findAllOrgs(page, limit);
+  }
+
+  //-------- POST/PATCH Routes--------
+
   @ApiOperation({ summary: 'Create an organization (manager only)' })
-  @Post('/create')
+  @Post()
   @Roles(UserRole.MANAGER)
   async createOrganization(
     @CurrentUser() manager: JwtPayload,
@@ -50,7 +87,7 @@ export class OrganizationsController {
 
   @ApiOperation({ summary: 'Upload or Update Organization Logo' })
   @ApiImageUpload('logo')
-  @Patch('/update-logo')
+  @Patch('logo')
   @Roles(UserRole.MANAGER)
   async uploadOrgLogo(
     @CurrentUser() manager: JwtPayload,
@@ -73,30 +110,8 @@ export class OrganizationsController {
     );
   }
 
-  @ApiOperation({ summary: 'Get my organization details (manager only)' })
-  @Get('/my-org')
-  @Roles(UserRole.MANAGER)
-  async getMyOrg(@CurrentUser() manager: JwtPayload) {
-    if (!manager.organizationId) {
-      throw new BadRequestException('You are not part of any organization');
-    }
-    return this.organizationsService.findOrgById(manager.organizationId);
-  }
-
-  @ApiOperation({
-    summary: 'Get all organizations with pagination (admin only)',
-  })
-  @Get('/all')
-  @Roles(UserRole.ADMIN)
-  async getAllOrgs(
-    @Query('page', new ParseIntPipe({ optional: true })) page: number = 1,
-    @Query('limit', new ParseIntPipe({ optional: true })) limit: number = 20,
-  ) {
-    return this.organizationsService.findAllOrgs(page, limit);
-  }
-
   @ApiOperation({ summary: 'Change organization name (manager only)' })
-  @Patch('/update-name')
+  @Patch('name')
   @Roles(UserRole.MANAGER)
   async updateOrgName(
     @CurrentUser() manager: JwtPayload,
@@ -112,30 +127,22 @@ export class OrganizationsController {
   }
 
   @ApiOperation({
-    summary: 'Remove organization and all its data "Soft delete" (admin only)',
-  })
-  @Patch('/:orgId/delete')
-  @Roles(UserRole.ADMIN)
-  async removeOrganization(@Param('orgId', ParseUUIDPipe) orgId: string) {
-    return this.organizationsService.removeOrganization(orgId);
-  }
-
-  @ApiOperation({
     summary: 'Restore organization and all its data "Soft delete" (admin only)',
   })
-  @Patch('/:orgId/restore')
+  @Patch(':orgId/restore')
   @Roles(UserRole.ADMIN)
   async restoreOrganization(@Param('orgId', ParseUUIDPipe) orgId: string) {
     return this.organizationsService.restoreOrganization(orgId);
   }
 
-  @ApiOperation({ summary: 'get all the deleted organizations (admin only)' })
-  @Get('archived')
+  //-------- DELETE Routes--------
+
+  @ApiOperation({
+    summary: 'Remove organization and all its data "Soft delete" (admin only)',
+  })
+  @Delete(':orgId')
   @Roles(UserRole.ADMIN)
-  async getArchivedOrgs(
-    @Query('page', new ParseIntPipe({ optional: true })) page: number,
-    @Query('limit', new ParseIntPipe({ optional: true })) limit: number = 20,
-  ) {
-    return this.organizationsService.getDeletedOrgs(page, limit);
+  async removeOrganization(@Param('orgId', ParseUUIDPipe) orgId: string) {
+    return this.organizationsService.removeOrganization(orgId);
   }
 }
