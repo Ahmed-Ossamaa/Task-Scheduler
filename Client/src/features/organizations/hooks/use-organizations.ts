@@ -93,3 +93,19 @@ export const useRemoveOrg = () => {
     },
   });
 };
+
+
+export const useRestoreOrg = () => {
+  const queryClient = useQueryClient(); 
+
+  return useMutation({
+    mutationFn: (orgId: string) => orgApi.restoreOrganization(orgId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['organizations', 'admin-all'],
+      });
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+    },
+  })
+}

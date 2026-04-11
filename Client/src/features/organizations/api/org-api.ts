@@ -43,4 +43,16 @@ export const orgApi = {
     );
     return data;
   },
+
+  /**
+   * Admin: Restore a soft deleted organization.
+   * @param orgId The ID of the organization to restore.
+   * @returns restoration success message.
+   */
+  restoreOrganization: async (orgId: string): Promise<{ message: string }> => {
+    const { data } = await api.patch<{ message: string }>(
+      `/organizations/${orgId}/restore`,
+    );
+    return data;
+  },
 };
