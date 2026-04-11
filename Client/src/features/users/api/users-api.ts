@@ -68,7 +68,7 @@ export const usersApi = {
   },
 
   removeUser: async (userId: string): Promise<{ message: string }> => {
-    const { data } = await api.patch<{ message: string }>(`/user/${userId}`); 
+    const { data } = await api.patch<{ message: string }>(`/user/${userId}/delete`); 
     return data;
   },
 
