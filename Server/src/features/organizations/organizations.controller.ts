@@ -114,7 +114,7 @@ export class OrganizationsController {
   @ApiOperation({
     summary: 'Remove organization and all its data "Soft delete" (admin only)',
   })
-  @Patch('/remove/:orgId')
+  @Patch('/:orgId/delete')
   @Roles(UserRole.ADMIN)
   async removeOrganization(@Param('orgId', ParseUUIDPipe) orgId: string) {
     return this.organizationsService.removeOrganization(orgId);

@@ -39,7 +39,7 @@ export const orgApi = {
 
   removeOrganization: async (orgId: string): Promise<{ message: string }> => {
     const { data } = await api.patch<{ message: string }>(
-      `/organizations/remove/${orgId}`,
+      `/organizations/${orgId}/delete`,
     );
     return data;
   },
