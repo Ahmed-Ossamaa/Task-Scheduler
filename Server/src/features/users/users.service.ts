@@ -7,7 +7,13 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { User } from './entities/user.entity';
-import { DataSource, FindOptionsSelect, Repository } from 'typeorm';
+import {
+  DataSource,
+  FindOptionsSelect,
+  IsNull,
+  Not,
+  Repository,
+} from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaginatedUsers } from './types/user.responses';
 import { Profile } from 'passport-google-oauth20';
@@ -418,6 +424,19 @@ export class UserService {
     } finally {
       await queryRunner.release();
     }
+  }
+
+  async getDeletedEmployees(orgId: string) {
+    return await this.userRepo.find({
+      where: {
+        organizationId: orgId,
+        deletedAt: Not(IsNull()),
+      },
+      withDeleted: true,
+      order: {
+        deletedAt: 'DESC',
+      },
+    });
   }
 
   async getUsersCount() {

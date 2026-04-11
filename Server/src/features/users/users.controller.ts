@@ -164,6 +164,15 @@ export class UserController {
     return this.userService.restoreEmployee(empId, manager.organizationId);
   }
 
+  @Get('employees/archived')
+  @Roles(UserRole.MANAGER)
+  async getArchivedEmployees(@CurrentUser() manager: User) {
+    if (!manager.organizationId) {
+      throw new ForbiddenException('You are not assigned to an organization.');
+    }
+    return this.userService.getDeletedEmployees(manager.organizationId);
+  }
+
   @ApiOperation({ summary: 'Delete user "soft delete" (admin only)' })
   @Patch(':userId/delete')
   @Roles(UserRole.ADMIN)
