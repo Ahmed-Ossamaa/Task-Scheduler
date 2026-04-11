@@ -119,4 +119,13 @@ export class OrganizationsController {
   async removeOrganization(@Param('orgId', ParseUUIDPipe) orgId: string) {
     return this.organizationsService.removeOrganization(orgId);
   }
+
+  @ApiOperation({
+    summary: 'Restore organization and all its data "Soft delete" (admin only)',
+  })
+  @Patch('/:orgId/restore')
+  @Roles(UserRole.ADMIN)
+  async restoreOrganization(@Param('orgId', ParseUUIDPipe) orgId: string) {
+    return this.organizationsService.restoreOrganization(orgId);
+  }
 }
