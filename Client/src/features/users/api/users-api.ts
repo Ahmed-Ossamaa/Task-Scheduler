@@ -98,7 +98,7 @@ export const usersApi = {
    * @returns Success Deletion message on Success.
    */
   removeUser: async (userId: string): Promise<{ message: string }> => {
-    const { data } = await api.patch<{ message: string }>(`/user/${userId}`); 
+    const { data } = await api.delete<{ message: string }>(`/user/${userId}`); 
     return data;
   },
 
