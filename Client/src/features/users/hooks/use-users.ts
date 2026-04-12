@@ -5,8 +5,8 @@ import { CreateEmployeeDto } from '../types';
 import { User, UserRoles } from '@/features/auth/types/user-interface';
 
 /**
- * Hook to get all employees in the current organization.
-*/
+ * - Manager/Emp : Hook to get all employees in the current organization.
+ */
 export const useOrgEmployees = () => {
   const user = useAuthStore((state) => state.user);
 
@@ -18,7 +18,7 @@ export const useOrgEmployees = () => {
 };
 
 /**
- * Hook to create a new employee (Manager only).
+ * - Manager : Hook to create a new employee.
  */
 export const useCreateEmployee = () => {
   const queryClient = useQueryClient();
@@ -36,7 +36,7 @@ export const useCreateEmployee = () => {
 };
 
 /**
- * Hook to delete (soft delete) an employee and their tasks (Manager only).
+ * - Manager : Hook to delete (soft delete) an employee and their tasks.
  */
 export const useDeleteEmployee = () => {
   const queryClient = useQueryClient();
@@ -57,8 +57,41 @@ export const useDeleteEmployee = () => {
   });
 };
 
+
 /**
- * Hook to update an employee's role (Manager only).
+ * - Manager : Hook to get all archived (soft Deleted) employees in the current organization.
+*/
+export const useArchivedEmployees = () => {
+  const user = useAuthStore((state) => state.user);
+
+  return useQuery({
+    queryKey: ['users', 'archived', 'org-employees', user?.organizationId],
+    queryFn: () => usersApi.getArchivedEmployees(),
+    enabled: !!user?.organizationId,
+  });
+};
+
+/**
+ * - Manager : Hook to restore an employee and his tasks (Soft Deleted).
+ */
+export const useRestoreEmployee = () => {
+  const queryClient = useQueryClient();
+  const user = useAuthStore((state) => state.user);
+
+  return useMutation({
+    mutationFn: (userId: string) => usersApi.restoreEmployee(userId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['users', 'archived', 'org-employees', user?.organizationId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['users', 'org-employees', user?.organizationId],
+      });
+    },
+  });
+};
+/**
+ * - Manager : Hook to update an employee's role.
  */
 export const useUpdateEmployeeRole = () => {
   const queryClient = useQueryClient();
@@ -85,7 +118,7 @@ export const useUpdateEmployeeRole = () => {
 };
 
 /**
- * Hook to update the current user's profile data (excluding email, pass, avatar).
+ * - Hook to update the current user's profile data (excluding email, pass, avatar).
  */
 export const useEditMyProfile = () => {
   const queryClient = useQueryClient();
@@ -96,19 +129,16 @@ export const useEditMyProfile = () => {
     onSuccess: (updatedUser) => {
       // Update user in the store
       setUser(updatedUser);
-      // refresh list 
+      // refresh list
       queryClient.invalidateQueries({ queryKey: ['users', 'me'] });
     },
   });
 };
 
-
-
-
 //.......Admin Hooks .............
 
 /**
- * Hook to retrieve all users (Paginated).
+ * - Admin : Hook to retrieve all users (Paginated).
  */
 export const useAllUsers = (page: number = 1, limit: number = 20) => {
   return useQuery({
@@ -118,7 +148,7 @@ export const useAllUsers = (page: number = 1, limit: number = 20) => {
 };
 
 /**
- * Hook to soft delete any user and his tasks
+ * - Admin : Hook to soft delete any user and his tasks.
  */
 export const useAdminDeleteUser = () => {
   const queryClient = useQueryClient();
@@ -127,21 +157,33 @@ export const useAdminDeleteUser = () => {
     mutationFn: (userId: string) => usersApi.removeUser(userId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users', 'admin-all'] });
-      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['users', 'archived'] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'analytics'] });
     },
   });
 };
 
 /**
- * Hook to restore any soft deleted user and his tasks
+ * - Admin : Hook to Get All Archived Users Paginated.
  */
-export  const useAdminRestoreUser = () => {
+
+export const useArchivedUsers = (page: number = 1, limit: number = 20) => {
+  return useQuery({
+    queryKey: ['users', 'archived', page, limit],
+    queryFn: () => usersApi.getArchivedUsers(page, limit),
+  });
+};
+/**
+ * - Admin : Hook to restore any soft deleted user and his tasks.
+ */
+export const useAdminRestoreUser = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (userId: string) => usersApi.restoreUser(userId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users', 'admin-all'] });
-      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['users', 'archived'] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'analytics'] });
     },
   });
 };

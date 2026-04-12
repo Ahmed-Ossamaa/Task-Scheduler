@@ -2,30 +2,38 @@ import api from '@/lib/api/axios';
 import { CreateProjectDto, PaginatedProject, Project } from '../types';
 
 export const projectsApi = {
+  /**
+   * - Manager/Emp : Get all projects by organization
+   * @returns An array of projects
+   */
   getOrgProjects: async () => {
     const { data } = await api.get<Project[]>('/projects/org');
     return data;
   },
 
+  /**
+   * - Manager : Create a new project.
+   * @returns The newly created project
+   */
   createProject: async (payload: CreateProjectDto) => {
     const { data } = await api.post<Project>('/projects', payload);
     return data;
   },
 
   /**
-   * Admin: Get all projects (Paginated)
-   * @returnsA promise resolving with an object containing projects data and pagination metadata.
+   * - Admin : Get all projects (Paginated)
+   * @returns promise resolving with an object containing projects data and pagination metadata.
    */
   getAllProjects: async (page: number = 1, limit: number = 20) => {
-    const { data } = await api.get<PaginatedProject>('/projects',{
-       params: { page, limit },
+    const { data } = await api.get<PaginatedProject>('/projects', {
+      params: { page, limit },
     });
     return data;
   },
 
   /**
-   * Edit a project (Manager only).
-   * @returns {Promise<Project>} - Updated project
+   * - Manager : Edit a project .
+   * @returns  The Updated project
    */
   editProject: async (
     projectId: string,
@@ -39,8 +47,8 @@ export const projectsApi = {
   },
 
   /**
-   * Manager: Delete a project and its associated tasks (Soft Delete).
-   * @returns {Promise<{ message: string }>} - Success Deletion message on Success.
+   * - Manager: Delete a project and its associated tasks (Soft Delete).
+   * @returns Success Deletion message on Success.
    */
   deleteProject: async (projectId: string): Promise<{ message: string }> => {
     const { data } = await api.delete<{ message: string }>(
@@ -50,8 +58,19 @@ export const projectsApi = {
   },
 
   /**
-   * Manager: Restore a project and its associated tasks (Soft Delete).
-   * @returns {Promise<{ message: string }>} - Success Restoration message on Success.
+   * - Manager : Get archived projects (Paginated)
+   * @returns An object containing projects data[ ] and pagination metadata.
+   */
+  getArchivedProjects: async (page: number = 1, limit: number = 20) => {
+    const { data } = await api.get<PaginatedProject>('/projects/archived', {
+      params: { page, limit },
+    });
+    return data;
+  },
+
+  /**
+   * - Manager : Restore a project and its associated tasks (Soft Delete).
+   * @returns  Success Restoration message on Success.
    */
   restoreProject: async (projectId: string): Promise<{ message: string }> => {
     const { data } = await api.patch<{ message: string }>(

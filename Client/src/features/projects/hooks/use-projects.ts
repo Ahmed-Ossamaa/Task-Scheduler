@@ -5,7 +5,7 @@ import { CreateProjectDto } from '../types';
 import { Project } from '@/features/projects/types';
 
 /**
- * Hook to retrieve all projects for the current user's organization.
+ * - Manager : Hook to retrieve all projects for the current user's organization.
  */
 export const useOrgProjects = () => {
   const user = useAuthStore((state) => state.user);
@@ -18,7 +18,7 @@ export const useOrgProjects = () => {
 };
 
 /**
- * Hook to retrieve all projects system-wide (Admin only).
+ * - Admin : Hook to retrieve all projects system-wide.
  */
 export const useAllProjects = (page = 1, limit = 20) => {
   return useQuery({
@@ -28,7 +28,7 @@ export const useAllProjects = (page = 1, limit = 20) => {
 };
 
 /**
- * Hook to create a new project (Manager only).
+ * - Manager : Hook to create a new project.
  */
 export const useCreateProject = () => {
   const queryClient = useQueryClient();
@@ -43,7 +43,7 @@ export const useCreateProject = () => {
 };
 
 /**
- * Hook to edit a project (Manager only).
+ * - Manager : Hook to edit a project.
  */
 export const useEditProject = () => {
   const queryClient = useQueryClient();
@@ -69,7 +69,7 @@ export const useEditProject = () => {
 };
 
 /**
- * Hook to delete (soft delete) a project and its associated tasks (Manager only).
+ * - Manager : Hook to delete (soft delete) a project and its associated tasks.
  */
 export const useDeleteProject = () => {
   const queryClient = useQueryClient();
@@ -83,21 +83,42 @@ export const useDeleteProject = () => {
         (old) => old?.filter((p) => p.id !== projectId) || [],
       );
       //invalidate  tasks list (after deleting a project)
-      queryClient.invalidateQueries({ queryKey: ['tasks','project', projectId] });
+      queryClient.invalidateQueries({
+        queryKey: ['tasks', 'project', projectId],
+      });
+      queryClient.invalidateQueries({ queryKey: ['projects', 'archived'] });
     },
   });
 };
 
+/**
+ * - Manager : Hook to retrieve archived projects.
+ */
+export const useArchiveProject = (page: number = 1, limit: number = 20) => {
+  return useQuery({
+    queryKey: ['projects', 'archived', page, limit],
+    queryFn: () => projectsApi.getArchivedProjects(page, limit),
+  });
+};
+
+/**
+ * - Manager : Hook to restore a soft deleted project and its associated tasks.
+ */
 export const useRestoreProject = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (projectId: string) => projectsApi.restoreProject(projectId),
     onSuccess: (_, projectId) => {
+      //invalidate active org projects
       queryClient.invalidateQueries({ queryKey: ['projects', 'org'] });
+      //invalidate archived projects
+      queryClient.invalidateQueries({ queryKey: ['projects', 'archived'] });
 
       //invalidate  tasks list (after restoring a project)
-      queryClient.invalidateQueries({ queryKey: ['tasks', 'project', projectId] });
+      queryClient.invalidateQueries({
+        queryKey: ['tasks', 'project', projectId],
+      });
     },
   });
 };

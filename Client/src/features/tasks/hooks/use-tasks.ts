@@ -11,8 +11,6 @@ import { CreateTaskDto, Task, Tasks, UpdateTaskDto } from '../types';
 //............................FETCH TASKS DATA..............................
 /**
  * Hook to retrieve the tasks assigned to the current user.
- * @returns {UseQueryResult<Task[]>} - The result of the query.
- * It contains the tasks assigned to the current user and methods to handle the query state.
  */
 export const useMyTasks = (options?: { enabled?: boolean }): UseQueryResult<Task[]> => {
   return useQuery({
@@ -23,10 +21,9 @@ export const useMyTasks = (options?: { enabled?: boolean }): UseQueryResult<Task
     refetchOnWindowFocus: true,
   });
 };
+
 /**
  * Hook to retrieve the tasks assigned to the current user's organization.
- * @returns The result of the query.
- * It contains the tasks assigned to the current user's organization and methods to handle the query state.
  */
 export const useOrgTasks = (
   page: number = 1,
@@ -55,6 +52,9 @@ export const useAllTasks = (
   });
 };
 
+/**
+ * Hook to retrieve the tasks assigned to a specific user.
+ */
 export const useUserTasks = (userId: string): UseQueryResult<Task[], Error> => {
   return useQuery({
     queryKey: ['tasks', 'user', userId],
@@ -67,9 +67,6 @@ export const useUserTasks = (userId: string): UseQueryResult<Task[], Error> => {
 
 /**
  * Hook to create a new task.
- * @returns The result of the mutation.
- *
- * Will invalidate the 'tasks' query when the task is created successfully.
  */
 export const useCreateTask = (): UseMutationResult<
   Task,
@@ -90,9 +87,6 @@ export const useCreateTask = (): UseMutationResult<
 
 /**
  * Hook to update a task.
- * @returns The result of the mutation.
- *
- * Will invalidate the 'tasks' query when the task is updated successfully.
  */
 export const useUpdateTask = (): UseMutationResult<
   Task,
@@ -116,7 +110,6 @@ export const useUpdateTask = (): UseMutationResult<
 
 /**
  * Hook to mark a task as done.
- * @returns The result of the mutation.
  */
 export const useCompleteTask = (): UseMutationResult<
   Task,
@@ -137,9 +130,6 @@ export const useCompleteTask = (): UseMutationResult<
 
 /**
  * Hook to delete a task.
- * @returns The result of the mutation.
- *
- * Will invalidate the 'tasks' query when the task is deleted successfully.
  */
 export const useDeleteTask = (): UseMutationResult<
   void,
@@ -159,9 +149,6 @@ export const useDeleteTask = (): UseMutationResult<
 
 /**
  * Hook to retrieve all tasks for a project.
- * @returns {UseQueryResult<Task[]>} - The result of the query.
- * It contains the tasks for the given project and methods to handle the query state.
- * Will only fetch the data when a projectId is provided.
  */
 export const useProjectTasks = (projectId: string): UseQueryResult<Task[]> => {
   return useQuery({

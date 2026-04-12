@@ -4,8 +4,8 @@ import { CreateEmployeeDto, PaginatedUser } from '../types';
 
 export const usersApi = {
   /**
-   * Admin/Manager/Emp: Get All Employees in Organization
-   * @returns {Promise<User[]>} - An array of all employees in the organization
+   * - Admin/Manager/Emp : Get All Employees in Organization
+   * @returns An array of all employees in the organization
    */
   getOrgEmployees: async (): Promise<User[]> => {
     const { data } = await api.get<User[]>('/user/org-employees');
@@ -13,8 +13,8 @@ export const usersApi = {
   },
 
   /**
-   * Manager: Create a new employee (register a new employee account in my organization)
-   * @returns {Promise<User>} - Newly created employee
+   * - Manager : Create a new employee (register a new employee account in my organization)
+   * @returns Newly created employee
    */
   createEmployee: async (payload: CreateEmployeeDto): Promise<User> => {
     const { data } = await api.post<{ user: User }>(
@@ -26,8 +26,8 @@ export const usersApi = {
 
 
   /**
-   * Manager: Delete an employee and their tasks (Soft Delete)
-   * @returns {Promise<{ message: string }>} Success Deletion message on Success
+   * - Manager : Delete an employee and their tasks (Soft Delete)
+   * @returns  Success Deletion message on Success
    */
   removeEmployee: async (userId: string): Promise<{ message: string }> => {
     const { data } = await api.patch<{ message: string }>(
@@ -37,8 +37,19 @@ export const usersApi = {
   },
 
   /**
-   * Manager: Restore an employee and their tasks (Soft Deleted)
-   * @returns {Promise<{ message: string }>} Success Restoration message on Success
+   * - Manager : Get all employees (Paginated)
+   * @returns An object containing employees data[ ] and pagination metadata.
+   */
+  getArchivedEmployees: async (page: number = 1, limit: number = 20): Promise<PaginatedUser> => {
+    const { data } = await api.get<PaginatedUser>('/user/employee/archived',{
+      params: { page, limit },
+    });
+    return data;
+  },
+
+  /**
+   * - Manager : Restore an employee and their tasks (Soft Deleted)
+   * @returns Success Restoration message on Success
    */
   restoreEmployee: async (userId: string): Promise<{ message: string }> => {
     const { data } = await api.patch<{ message: string }>(
@@ -48,8 +59,8 @@ export const usersApi = {
   },
 
   /**
-   * Manager: Update an employee's role
-   * @returns {Promise<User>}  The updated employee
+   * - Manager : Update an employee's role
+   * @returns The updated employee
    */
   updateEmpRole: async (userId: string, role: string): Promise<User> => {
     const {data} = await api.patch(`/user/employee/${userId}/role`, {role});
@@ -57,7 +68,7 @@ export const usersApi = {
   },
 
   /**
-   * Edit My profile data ( excluding password, email, avatar )
+   * - Edit My profile data ( excluding password, email, avatar )
    * @returns {Promise<User>}  The updated user
    */
   editMyProfile: async ( payload: User): Promise<User> => {
@@ -71,6 +82,10 @@ export const usersApi = {
 
   //................Admin APIs................
 
+  /**
+   * - Admin : Get all users (Paginated)
+   * @returns An object containing users data[ ] and pagination metadata.
+   */
   getAllUsers: async (page: number = 1, limit: number = 20): Promise<PaginatedUser> => {
     const { data } = await api.get('/user', {
       params: { page, limit },
@@ -79,8 +94,8 @@ export const usersApi = {
   },
 
   /**
-   * Admin: Delete a user and their tasks (Soft Delete).
-   * @returns {Promise<{ message: string }>} Success Deletion message on Success.
+   * - Admin : Delete a user and their tasks (Soft Delete).
+   * @returns Success Deletion message on Success.
    */
   removeUser: async (userId: string): Promise<{ message: string }> => {
     const { data } = await api.patch<{ message: string }>(`/user/${userId}`); 
@@ -88,7 +103,18 @@ export const usersApi = {
   },
 
   /**
-   * Admin: Restore a user and their tasks (Soft Deleted)
+   * - Admin : Get archived (soft deleted) users (Paginated)
+   * @returns An object containing users data[ ] and pagination metadata.
+   */
+  getArchivedUsers: async (page: number = 1, limit: number = 20): Promise<PaginatedUser> => {
+    const { data } = await api.get('/user/archived', {
+      params: { page, limit },
+    });
+    return data;
+  },
+
+  /**
+   * - Admin: Restore a user and their tasks (Soft Deleted)
    * @returns {Promise<{ message: string }>} Success Restoration message on Success
    */
   restoreUser: async (userId: string): Promise<{ message: string }> => {
