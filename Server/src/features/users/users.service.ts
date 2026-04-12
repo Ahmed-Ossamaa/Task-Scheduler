@@ -286,6 +286,7 @@ export class UserService {
     try {
       const user = await queryRunner.manager.findOne(User, {
         where: { id: userId },
+        withDeleted: true,
       });
 
       if (!user) {
