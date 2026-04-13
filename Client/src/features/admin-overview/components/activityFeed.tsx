@@ -17,6 +17,7 @@ export function ActivityFeed() {
       case 'CREATED': return { icon: <PlusCircle className="w-4 h-4 text-green-500" />, color: 'text-green-600' };
       case 'DELETED': return { icon: <Trash2 className="w-4 h-4 text-rose-500" />, color: 'text-rose-600' };
       case 'ARCHIVED': return { icon: <Archive className="w-4 h-4 text-amber-500" />, color: 'text-amber-600' };
+      case 'RESTORED': return { icon: <RefreshCw className="w-4 h-4 text-blue-500" />, color: 'text-blue-600' };
       default: return { icon: <RefreshCw className="w-4 h-4 text-blue-500" />, color: 'text-blue-600' };
     }
   };
@@ -44,7 +45,7 @@ export function ActivityFeed() {
                 const config = getActionConfig(activity.actionType);
                 return (
                   <div key={activity.id} className="flex items-start gap-3 p-3 rounded-lg hover:bg-secondary transition-colors border border-transparent hover:border-border">
-                    <div className="mt-0.5 bg-background rounded-full p-1 shadow-sm border border-border">
+                    <div className="mt-0.5 bg-secondary rounded-full p-1 shadow-sm border border-border">
                       {config.icon}
                     </div>
                     <div className="flex-1 min-w-0">
