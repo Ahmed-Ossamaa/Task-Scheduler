@@ -159,6 +159,7 @@ export const useAdminDeleteUser = () => {
       queryClient.invalidateQueries({ queryKey: ['users', 'admin-all'] });
       queryClient.invalidateQueries({ queryKey: ['users', 'archived'] });
       queryClient.invalidateQueries({ queryKey: ['admin', 'analytics'] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'activity'] });
     },
   });
 };
@@ -184,6 +185,7 @@ export const useAdminRestoreUser = () => {
       queryClient.invalidateQueries({ queryKey: ['users', 'admin-all'] });
       queryClient.invalidateQueries({ queryKey: ['users', 'archived'] });
       queryClient.invalidateQueries({ queryKey: ['admin', 'analytics'] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'activity'] });
     },
   });
 };
