@@ -1,66 +1,67 @@
 'use client';
 
-import Link from 'next/link';
-import { useOrgProjects } from '@/features/projects/hooks/use-projects';
-import { CreateProjectDialog } from '@/features/projects/components/create-project-dialog';
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from '@/components/ui/card';
-import { Loader2, FolderKanban } from 'lucide-react';
 import { useAuthStore } from '@/features/auth/store/auth.store';
 import { UserRoles } from '@/features/auth/types/user-interface';
+import { CreateProjectDialog } from '@/features/projects/components/create-project-dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ActiveProjectsList } from '@/features/projects/components/active-projects-list';
+import { ArchivedProjectsList } from '@/features/projects/components/archived-projects-list';
+
 
 export default function ProjectsPage() {
-  const { data: projects, isLoading } = useOrgProjects();
   const user = useAuthStore((state) => state.user);
-  const isManager = user?.role === UserRoles.MANAGER;
+  
+  if (!user) return null;
+
+  const isManager = user.role === UserRoles.MANAGER;
 
   return (
-    <div className="flex flex-col space-y-6 w-full">
+    <div className="flex flex-col space-y-6 w-full h-full">
+      {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <p className="text-muted-foreground">
-            {isManager ? " Manage your team's project spaces.": "Organizantion's Projects" }
-           
+          <p className="text-muted-foreground mt-2">
+            {isManager ? "Manage your team's project spaces." : "Organization's Projects"}
           </p>
-        </div>
         {isManager && <CreateProjectDialog />}
       </div>
 
-      {isLoading ? (
-        <div className="flex justify-center py-12">
-          <Loader2 className="animate-spin" />
-        </div>
-      ) : projects?.length === 0 ? (
-        <p className="text-muted-foreground text-center py-12">
-          No projects found. Create one to get started.
-        </p>
+      {isManager ? (
+        // manager : active and archived lists
+        <Tabs defaultValue="active" className="flex flex-col w-full">
+          <div className="flex items-center w-full mb-4">
+            <TabsList
+              className="
+                relative grid w-full max-w-100 grid-cols-2 rounded-lg
+                shadow-[0_4px_10px_rgba(120,90,60,0.2),inset_0_1px_2px_rgba(255,255,255,0.4)]
+              "
+            >
+              <TabsTrigger
+                value="active"
+                className="border-2 border-transparent data-[state=active]:border-2 data-[state=active]:border-primary data-[state=active]:text-foreground"
+              >
+                Active Projects
+              </TabsTrigger>
+              <TabsTrigger
+                value="archived"
+                className="border-2 border-transparent data-[state=active]:border-2 data-[state=active]:border-primary data-[state=active]:text-foreground"
+              >
+                Archived Projects
+              </TabsTrigger>
+            </TabsList>
+          </div>
+
+          <TabsContent value="active" className="w-full mt-0">
+            <ActiveProjectsList isManager={isManager} />
+          </TabsContent>
+
+          <TabsContent value="archived" className="w-full mt-0">
+            <ArchivedProjectsList />
+          </TabsContent>
+        </Tabs>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {projects?.map((project) => (
-            <Link key={project.id} href={`/dashboard/projects/${project.id}`}>
-              <Card className="hover:border-primary transition-colors cursor-pointer h-full">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <FolderKanban className="h-5 w-5 text-primary" />
-                    {project.name}
-                  </CardTitle>
-                  <CardDescription className="line-clamp-2">
-                    {project.description || 'No description provided.'}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground">
-                    Created {new Date(project.createdAt).toLocaleDateString()}
-                  </p>
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
+        // Employee : just the active list
+        <div className="pt-2">
+          <ActiveProjectsList isManager={isManager} />
         </div>
       )}
     </div>
