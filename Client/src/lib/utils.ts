@@ -134,3 +134,6 @@ export const getTaskStatusInfo = (deadline: string | Date, status: string) => {
     textColor: 'text-muted-foreground font-bold',
   };
 };
+
+
+export const restorationPeriod = '30 days'; 
