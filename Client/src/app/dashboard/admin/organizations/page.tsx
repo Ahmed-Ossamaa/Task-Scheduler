@@ -6,16 +6,11 @@ import { ArchivedOrganizationsList } from '@/features/organizations/components/a
 
 export default function AdminOrganizationsPage() {
   return (
-    <div className="flex flex-col space-y-8 w-full h-full">
+    <div className="flex flex-col space-y-6 w-full h-full">
       {/* Page Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Organizations</h1>
           <p className="text-muted-foreground mt-2">
             Manage active and suspended organizations.
           </p>
-        </div>
-      </div>
 
       {/* Tabs Container */}
       <Tabs defaultValue="active" className="flex flex-col w-full ">
