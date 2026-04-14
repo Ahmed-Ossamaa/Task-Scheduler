@@ -7,9 +7,6 @@ import { useAuthStore } from '@/features/auth/store/auth.store';
 import { UserRoles } from '@/features/auth/types/user-interface';
 import { TaskTable } from '@/features/tasks/components/tasks-table';
 import { CreateTaskDialog } from '@/features/tasks/components/create-task-dialog';
-import { ArrowLeft } from 'lucide-react';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
 
 export default function ProjectDetailsPage() {
   const params = useParams();
@@ -24,24 +21,11 @@ export default function ProjectDetailsPage() {
     user?.role === UserRoles.MANAGER;
 
   return (
-    <div className="flex flex-col space-y-2 w-full">
-      {/* Back to Projects Btn */}
-      <div>
-        <Button
-          variant="link"
-          asChild
-          className="p-0 mb-4 text-muted-foreground"
-        >
-          <Link href="/dashboard/projects">
-            <ArrowLeft className="mr-2 h-4 w-4" /> Back to Projects
-          </Link>
-        </Button>
-      </div>
-
+    <div className="flex flex-col space-y-6 w-full">
       <div className="flex items-center justify-between">
         <div>
           <p className="text-muted-foreground">
-            Manage tasks for this project.
+            Manage tasks for {!!tasks?.length  && tasks[0]?.project?.name || 'this project'}
           </p>
         </div>
 
