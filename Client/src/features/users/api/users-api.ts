@@ -30,7 +30,7 @@ export const usersApi = {
    * @returns  Success Deletion message on Success
    */
   removeEmployee: async (userId: string): Promise<{ message: string }> => {
-    const { data } = await api.patch<{ message: string }>(
+    const { data } = await api.delete<{ message: string }>(
       `/user/employee/${userId}`,
     );
     return data;
