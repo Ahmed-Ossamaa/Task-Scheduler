@@ -57,11 +57,26 @@ export class ProjectsService {
     return project;
   }
 
-  async getProjectsByOrg(orgId: string) {
-    return this.projectRepo.find({
+  async getProjectsByOrg(
+    orgId: string,
+    page: number = 1,
+    limit: number = 20,
+  ): Promise<PaginatedProject> {
+    const take = Math.min(limit, 100);
+    const skip = (page - 1) * take;
+    const [projects, total] = await this.projectRepo.findAndCount({
       where: { organizationId: orgId },
       order: { createdAt: 'DESC' },
+      skip,
+      take,
     });
+
+    return {
+      data: projects,
+      total,
+      page,
+      lastPage: Math.ceil(total / take),
+    };
   }
 
   async getAllProjects(

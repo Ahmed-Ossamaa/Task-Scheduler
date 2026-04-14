@@ -32,13 +32,24 @@ export class ProjectsController {
   //-------- GET Routes--------
 
   @ApiOperation({
-    summary: 'Get all projects for an organization (Manager / Employee)',
+    summary:
+      'Get all projects for an organization paginated (Manager / Employee)',
   })
   @Get('org')
   @Roles(UserRole.MANAGER, UserRole.EMP)
-  async getOrgProjects(@CurrentUser() user: JwtPayload) {
-    if (!user.organizationId) return [];
-    return this.projectsService.getProjectsByOrg(user.organizationId);
+  async getOrgProjects(
+    @CurrentUser() user: JwtPayload,
+    @Query('page', new ParseIntPipe({ optional: true })) page: number = 1,
+    @Query('limit', new ParseIntPipe({ optional: true })) limit: number = 20,
+  ) {
+    if (!user.organizationId) {
+      throw new ForbiddenException('You are not assigned to an organization.');
+    }
+    return this.projectsService.getProjectsByOrg(
+      user.organizationId,
+      page,
+      limit,
+    );
   }
 
   @ApiOperation({
