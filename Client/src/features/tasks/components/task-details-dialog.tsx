@@ -1,6 +1,6 @@
 'use client';
 
-import { Task, TaskStatus } from '../types';
+import { Task } from '../types';
 import {
   Dialog,
   DialogContent,
@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Eye } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { formatDateTime } from '@/lib/utils';
+import { getTaskStatusBadge } from './tasks-table-row';
 
 
 
@@ -31,12 +32,13 @@ export function TaskDetailsDialog({ task }: { task: Task }) {
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-125">
-        <DialogHeader>
-          <DialogTitle className="text-xl">{task.title}</DialogTitle>
+      <DialogContent className="sm:max-w-125 bg-secondary">
+        <DialogHeader className='border-b border-border'>
+          <DialogTitle className="text-xl capitalize">{task.title}</DialogTitle>
         </DialogHeader>
+        
 
-        <div className="grid grid-cols-2 gap-4 py-4 text-sm">
+        <div className="grid grid-cols-2 gap-4 py-4 pl-3 text-sm">
           <div className="col-span-2 space-y-1 mb-2">
             <span className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">
               Description
@@ -51,16 +53,7 @@ export function TaskDetailsDialog({ task }: { task: Task }) {
               Status
             </span>
             <div>
-              <Badge
-                variant={
-                  task.status === TaskStatus.DONE ? 'default' : 'secondary'
-                }
-                className={
-                  task.status === TaskStatus.DONE ? 'bg-green-600' : ''
-                }
-              >
-                {task.status}
-              </Badge>
+            {getTaskStatusBadge(task.status)}
             </div>
           </div>
 
@@ -68,8 +61,8 @@ export function TaskDetailsDialog({ task }: { task: Task }) {
             <span className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">
               Priority
             </span>
-            <div>
-              <Badge variant="outline">{task.priority}</Badge>
+            <div className='capitalize'>
+              <Badge variant="default">{task.priority}</Badge>
             </div>
           </div>
 

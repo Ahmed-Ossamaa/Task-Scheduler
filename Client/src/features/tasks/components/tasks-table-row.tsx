@@ -34,7 +34,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { formatDateTime } from '@/lib/utils';
 
-const getTaskStatusBadge = (status: TaskStatus) => {
+export const getTaskStatusBadge = (status: TaskStatus) => {
   switch (status) {
     case TaskStatus.DONE:
       return <Badge className="bg-green-500">Done</Badge>;
