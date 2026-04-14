@@ -53,6 +53,7 @@ export const useDeleteEmployee = () => {
 
       //invalidate  tasks list (after deleting an employee)
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['users', 'archived', 'org-employees', user?.organizationId] });
     },
   });
 };
