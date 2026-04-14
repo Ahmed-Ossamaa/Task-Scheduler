@@ -86,9 +86,7 @@ export function TeamTable({
 
                 {/* Role */}
                 <TableCell>
-                  {roleRender ? (
-                    roleRender(employee)
-                  ) : (
+                  {roleRender?.(employee) || (
                     <Badge
                       variant={
                         employee.role === UserRoles.MANAGER
@@ -96,7 +94,9 @@ export function TeamTable({
                           : 'secondary'
                       }
                       className={
-                        employee.role === UserRoles.MANAGER ? 'bg-blue-600' : ''
+                        employee.role === UserRoles.MANAGER
+                          ? 'bg-blue-600 hover:bg-blue-800'
+                          : ''
                       }
                     >
                       {employee.role === UserRoles.MANAGER
