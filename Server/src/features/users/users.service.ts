@@ -67,14 +67,28 @@ export class UserService {
     return this.saveUser(newEmployee);
   }
 
-  async findMyTeam(organizationId: string): Promise<User[]> {
-    const employees = await this.userRepo.find({
+  async findMyTeam(
+    organizationId: string,
+    page: number = 1,
+    limit: number = 20,
+  ): Promise<PaginatedUsers> {
+    const take = Math.min(limit, 100);
+    const skip = (page - 1) * take;
+    const [employees, total] = await this.userRepo.findAndCount({
       where: {
         organizationId,
       },
+      order: { createdAt: 'DESC' },
+      skip,
+      take,
     });
 
-    return employees;
+    return {
+      data: employees,
+      total,
+      page,
+      lastPage: Math.ceil(total / take),
+    };
   }
 
   async findUserById(userId: string): Promise<User> {

@@ -97,19 +97,27 @@ export class UserController {
     return this.userService.removeAvatar(user.sub);
   }
 
+  //--------Organization Routes --------
+
   @ApiOperation({
     summary: 'Get all users in my organization (Anyone inside the Org)',
   })
   @Get('org-employees')
-  async getAllUsersInOrg(@CurrentUser() user: JwtPayload) {
+  async getAllUsersInOrg(
+    @CurrentUser() user: JwtPayload,
+    @Query('page', new ParseIntPipe({ optional: true })) page: number,
+    @Query('limit', new ParseIntPipe({ optional: true })) limit: number,
+  ) {
     if (!user.organizationId) {
       throw new ForbiddenException('You are not assigned to an organization.');
     }
-    const users = await this.userService.findMyTeam(user.organizationId);
+    const users = await this.userService.findMyTeam(
+      user.organizationId,
+      page,
+      limit,
+    );
     return users;
   }
-
-  //--------Organization Routes --------
 
   @ApiOperation({ summary: 'Get all Deleted employees (Manager only)' })
   @Get('employee/archived')
