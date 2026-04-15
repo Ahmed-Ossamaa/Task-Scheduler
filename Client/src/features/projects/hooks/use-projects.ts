@@ -7,17 +7,18 @@ import { Project } from '@/features/projects/types';
 /**
  * - Manager : Hook to retrieve all projects for the current user's organization.
  */
-export const useOrgProjects = () => {
+export const useOrgProjects = (page: number = 1, limit: number = 20) => {
   const user = useAuthStore((state) => state.user);
 
   return useQuery({
-    queryKey: ['projects', 'org', user?.organizationId],
-    queryFn: projectsApi.getOrgProjects,
+    queryKey: ['projects', 'org', user?.organizationId, page, limit],
+    queryFn: () => projectsApi.getOrgProjects(page, limit),
     enabled: !!user?.organizationId,
   });
 };
 
 /**
+ * @deprecated - 'not used rn, to be used or removed later'
  * - Admin : Hook to retrieve all projects system-wide.
  */
 export const useAllProjects = (page = 1, limit = 20) => {

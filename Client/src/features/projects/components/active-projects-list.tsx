@@ -3,7 +3,10 @@
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { Trash2, Edit2 } from 'lucide-react';
-import { useOrgProjects, useDeleteProject } from '@/features/projects/hooks/use-projects';
+import {
+  useOrgProjects,
+  useDeleteProject,
+} from '@/features/projects/hooks/use-projects';
 import { ProjectsGrid } from '@/features/projects/components/projects-grid';
 import { Button } from '@/components/ui/button';
 import {
@@ -25,11 +28,15 @@ interface ActiveProjectsListProps {
 }
 
 export function ActiveProjectsList({ isManager }: ActiveProjectsListProps) {
-  //use state for pagination later (backend first and hook)
-  const { data: projects, isLoading } = useOrgProjects();
-  const { mutateAsync: removeProject, isPending: isDeleting } = useDeleteProject();
-  
-  const [projectToDelete, setProjectToDelete] = useState<{ id: string; name: string } | null>(null);
+  const [page, setPage] = useState<number>(1);
+  const { data: projects, isLoading } = useOrgProjects(page, 20);
+  const { mutateAsync: removeProject, isPending: isDeleting } =
+    useDeleteProject();
+
+  const [projectToDelete, setProjectToDelete] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
   const [projectToEdit, setProjectToEdit] = useState<Project | null>(null);
 
   const handleRemove = async (id: string) => {
@@ -45,7 +52,7 @@ export function ActiveProjectsList({ isManager }: ActiveProjectsListProps) {
   return (
     <>
       <ProjectsGrid
-        projects={projects}
+        projects={projects?.data}
         isLoading={isLoading}
         actions={(project) =>
           isManager ? (
@@ -73,9 +80,33 @@ export function ActiveProjectsList({ isManager }: ActiveProjectsListProps) {
           ) : null
         }
       />
+      {/* Pagination */}
+      <div className="flex items-center justify-end space-x-2 py-4">
+        <Button
+          variant="default"
+          size="sm"
+          onClick={() => setPage((old) => Math.max(old - 1, 1))}
+          disabled={page === 1 || isLoading}
+        >
+          Previous
+        </Button>
+        <div className="text-sm text-muted-foreground font-medium px-2">
+          Page {page} of {projects?.lastPage || 1}
+        </div>
+        <Button
+          variant="default"
+          size="sm"
+          onClick={() => setPage((old) => old + 1)}
+          disabled={
+            !projects || page >= projects.lastPage || isLoading
+          }
+        >
+          Next
+        </Button>
+      </div>
 
       {/* Edit Dialog */}
-      <EditProjectDialog 
+      <EditProjectDialog
         project={projectToEdit}
         isOpen={!!projectToEdit}
         onClose={() => setProjectToEdit(null)}

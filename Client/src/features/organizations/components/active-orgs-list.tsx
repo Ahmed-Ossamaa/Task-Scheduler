@@ -16,6 +16,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { restorationPeriod } from '@/lib/utils';
 
 export function ActiveOrganizationsList() {
   const [page, setPage] = useState<number>(1);
@@ -84,6 +85,7 @@ export function ActiveOrganizationsList() {
             <AlertDialogDescription>
               Are you sure you want to suspend <strong>{orgToDelete?.name}</strong>? 
               This will instantly revoke access for all employees associated with this organization and move it to the archives.
+              it can be restored within {restorationPeriod}.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

@@ -18,7 +18,7 @@ import {
 } from '@/components/ui/alert-dialog';
 
 export function ArchivedProjectsList() {
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState<number>(1);
   const { data: paginatedResult, isLoading } = useArchiveProject(page, 20);
   const { mutateAsync: restoreProject, isPending: isRestoring } = useRestoreProject();
 
@@ -50,7 +50,30 @@ export function ArchivedProjectsList() {
           </Button>
         )}
       />
-    {/* pagination: Later */}
+     {/* Pagination */}
+      <div className="flex items-center justify-end space-x-2 py-4">
+        <Button
+          variant="default"
+          size="sm"
+          onClick={() => setPage((old) => Math.max(old - 1, 1))}
+          disabled={page === 1 || isLoading}
+        >
+          Previous
+        </Button>
+        <div className="text-sm text-muted-foreground font-medium px-2">
+          Page {page} of {paginatedResult?.lastPage || 1}
+        </div>
+        <Button
+          variant="default"
+          size="sm"
+          onClick={() => setPage((old) => old + 1)}
+          disabled={
+            !paginatedResult || page >= paginatedResult.lastPage || isLoading
+          }
+        >
+          Next
+        </Button>
+      </div>
     
       {/* Restore Dialog */}
       <AlertDialog open={!!projectToRestore} onOpenChange={(isOpen) => !isOpen && setProjectToRestore(null)}>

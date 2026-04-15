@@ -7,8 +7,13 @@ export const usersApi = {
    * - Admin/Manager/Emp : Get All Employees in Organization
    * @returns An array of all employees in the organization
    */
-  getOrgEmployees: async (): Promise<User[]> => {
-    const { data } = await api.get<User[]>('/user/org-employees');
+  getOrgEmployees: async (
+    page: number = 1,
+    limit: number = 20,
+  ): Promise<PaginatedUser> => {
+    const { data } = await api.get<PaginatedUser>('/user/org-employees', {
+      params: { page, limit },
+    });
     return data;
   },
 
@@ -23,7 +28,6 @@ export const usersApi = {
     );
     return data.user;
   },
-
 
   /**
    * - Manager : Delete an employee and their tasks (Soft Delete)
@@ -40,8 +44,11 @@ export const usersApi = {
    * - Manager : Get all employees (Paginated)
    * @returns An object containing employees data[ ] and pagination metadata.
    */
-  getArchivedEmployees: async (page: number = 1, limit: number = 20): Promise<PaginatedUser> => {
-    const { data } = await api.get<PaginatedUser>('/user/employee/archived',{
+  getArchivedEmployees: async (
+    page: number = 1,
+    limit: number = 20,
+  ): Promise<PaginatedUser> => {
+    const { data } = await api.get<PaginatedUser>('/user/employee/archived', {
       params: { page, limit },
     });
     return data;
@@ -63,7 +70,7 @@ export const usersApi = {
    * @returns The updated employee
    */
   updateEmpRole: async (userId: string, role: string): Promise<User> => {
-    const {data} = await api.patch(`/user/employee/${userId}/role`, {role});
+    const { data } = await api.patch(`/user/employee/${userId}/role`, { role });
     return data;
   },
 
@@ -71,14 +78,10 @@ export const usersApi = {
    * - Edit My profile data ( excluding password, email, avatar )
    * @returns {Promise<User>}  The updated user
    */
-  editMyProfile: async ( payload: User): Promise<User> => {
-    const { data } = await api.patch<User>(
-      `/user/me`,
-      payload,
-    );
+  editMyProfile: async (payload: User): Promise<User> => {
+    const { data } = await api.patch<User>(`/user/me`, payload);
     return data;
   },
-
 
   //................Admin APIs................
 
@@ -86,7 +89,10 @@ export const usersApi = {
    * - Admin : Get all users (Paginated)
    * @returns An object containing users data[ ] and pagination metadata.
    */
-  getAllUsers: async (page: number = 1, limit: number = 20): Promise<PaginatedUser> => {
+  getAllUsers: async (
+    page: number = 1,
+    limit: number = 20,
+  ): Promise<PaginatedUser> => {
     const { data } = await api.get('/user', {
       params: { page, limit },
     });
@@ -98,7 +104,7 @@ export const usersApi = {
    * @returns Success Deletion message on Success.
    */
   removeUser: async (userId: string): Promise<{ message: string }> => {
-    const { data } = await api.delete<{ message: string }>(`/user/${userId}`); 
+    const { data } = await api.delete<{ message: string }>(`/user/${userId}`);
     return data;
   },
 
@@ -106,7 +112,10 @@ export const usersApi = {
    * - Admin : Get archived (soft deleted) users (Paginated)
    * @returns An object containing users data[ ] and pagination metadata.
    */
-  getArchivedUsers: async (page: number = 1, limit: number = 20): Promise<PaginatedUser> => {
+  getArchivedUsers: async (
+    page: number = 1,
+    limit: number = 20,
+  ): Promise<PaginatedUser> => {
     const { data } = await api.get('/user/archived', {
       params: { page, limit },
     });
@@ -118,8 +127,9 @@ export const usersApi = {
    * @returns {Promise<{ message: string }>} Success Restoration message on Success
    */
   restoreUser: async (userId: string): Promise<{ message: string }> => {
-    const { data } = await api.patch<{ message: string }>(`/user/${userId}/restore`); 
+    const { data } = await api.patch<{ message: string }>(
+      `/user/${userId}/restore`,
+    );
     return data;
   },
-
 };

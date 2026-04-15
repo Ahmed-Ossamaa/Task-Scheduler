@@ -10,7 +10,7 @@ import { CreateTaskDTO } from './dto/create-task.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserService } from 'src/features/users/users.service';
 import { UpdateTaskDto } from './dto/update-task.dto';
-import { PagintaedTasks } from './interfaces/task.response';
+import { PaginatedTaks } from './interfaces/task.response';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { TaskStatus } from './enums/tasks-status.enums';
@@ -109,18 +109,28 @@ export class TasksService {
     await this.tasksRepo.save(task);
   }
 
-  async getUserTasks(userId: string, orgId: string): Promise<Task[]> {
-    // const criteria: Record<string, string> = {
-    //   assignedToId: userId,
-    // };
-    // if (orgId) {
-    //   criteria.organizationId = orgId;
-    // }
-    return this.tasksRepo.find({
+  async getUserTasks(
+    userId: string,
+    orgId: string,
+    page: number = 1,
+    limit: number = 20,
+  ): Promise<PaginatedTaks> {
+    const take = Math.min(limit, 100);
+    const skip = (page - 1) * take;
+    const [tasks, total] = await this.tasksRepo.findAndCount({
       where: { assignedToId: userId, organizationId: orgId },
       relations: ['project', 'assignedTo', 'assignedBy'],
       order: { createdAt: 'DESC' },
+      skip,
+      take,
     });
+
+    return {
+      data: tasks,
+      total,
+      page,
+      lastPage: Math.ceil(total / take),
+    };
   }
 
   async getTaskById(taskId: string, userOrgId: string): Promise<Task> {
@@ -144,22 +154,39 @@ export class TasksService {
     return task;
   }
 
-  async getTasksByProject(projectId: string, orgId: string): Promise<Task[]> {
-    return this.tasksRepo.find({
+  async getTasksByProject(
+    projectId: string,
+    orgId: string,
+    page: number = 1,
+    limit: number = 20,
+  ): Promise<PaginatedTaks> {
+    const take = Math.min(limit, 100);
+    const skip = (page - 1) * take;
+
+    const [tasks, total] = await this.tasksRepo.findAndCount({
       where: {
         projectId: projectId,
         organizationId: orgId,
       },
       relations: ['assignedTo', 'assignedBy', 'project'],
       order: { createdAt: 'DESC' },
+      skip,
+      take,
     });
+
+    return {
+      data: tasks,
+      total,
+      page,
+      lastPage: Math.ceil(total / take),
+    };
   }
 
   //Get All tasks "system wide"
   async getAllTasks(
     page: number = 1,
     limit: number = 20,
-  ): Promise<PagintaedTasks> {
+  ): Promise<PaginatedTaks> {
     const take = Math.min(limit, 100);
     const skip = (page - 1) * take;
     const [tasks, total] = await this.tasksRepo.findAndCount({

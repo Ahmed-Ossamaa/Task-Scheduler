@@ -27,6 +27,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { restorationPeriod } from '@/lib/utils';
 export function ActiveTeamList({
   currentUser,
   isManager,
@@ -34,13 +35,23 @@ export function ActiveTeamList({
   currentUser: User;
   isManager: boolean;
 }) {
-  const { data: employees, isLoading } = useOrgEmployees();
-  const { mutateAsync: updateRole, isPending: isUpdating } = useUpdateEmployeeRole();
-  const { mutateAsync: removeEmployee, isPending: isDeleting } = useDeleteEmployee();
+  const [page, setPage] = useState<number>(1);
+  const { data: employees, isLoading } = useOrgEmployees(page, 20);
+  const { mutateAsync: updateRole, isPending: isUpdating } =
+    useUpdateEmployeeRole();
+  const { mutateAsync: removeEmployee, isPending: isDeleting } =
+    useDeleteEmployee();
 
-  const [pendingRole, setPendingRole] = useState<{id: string; name: string; role: string;} | null>(null);
+  const [pendingRole, setPendingRole] = useState<{
+    id: string;
+    name: string;
+    role: string;
+  } | null>(null);
 
-  const [userToDelete, setUserToDelete] = useState<{id: string; name: string;} | null>(null);
+  const [userToDelete, setUserToDelete] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
 
   const handleRoleChange = async (employeeId: string, newRole: string) => {
     try {
@@ -64,7 +75,7 @@ export function ActiveTeamList({
   return (
     <>
       <TeamTable
-        employees={employees}
+        employees={employees?.data}
         isLoading={isLoading}
         currentUserId={currentUser.id}
         isManager={isManager}
@@ -105,6 +116,29 @@ export function ActiveTeamList({
           ) : null
         }
       />
+      {/* Pagination Controls */}
+      <div className="flex items-center justify-end space-x-2 py-4">
+        <Button
+          variant="default"
+          size="sm"
+          onClick={() => setPage((old) => Math.max(old - 1, 1))}
+          disabled={page === 1 || isLoading}
+        >
+          Previous
+        </Button>
+        <div className="text-sm text-muted-foreground font-medium px-2">
+          Page {page} of {employees?.lastPage || 1}
+        </div>
+        <Button
+          variant="default"
+          size="sm"
+          onClick={() => setPage((old) => old + 1)}
+          disabled={!employees || page >= employees.lastPage || isLoading}
+        >
+          Next
+        </Button>
+      </div>
+
       {/* role Change Dialog */}
       <AlertDialog
         open={!!pendingRole}
@@ -150,7 +184,8 @@ export function ActiveTeamList({
             <AlertDialogDescription>
               Are you sure you want to remove{' '}
               <strong>{userToDelete?.name}</strong> from the organization? The
-              user will be Archived with all of their tasks for 30 days before it get permanently deleted.
+              user will be Archived with all of their tasks. it can be restored
+              within {restorationPeriod}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

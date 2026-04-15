@@ -1,6 +1,6 @@
 import { Task } from '../entities/task.entity';
 
-export interface PagintaedTasks {
+export interface PaginatedTaks {
   data: Task[];
   total: number;
   page: number;

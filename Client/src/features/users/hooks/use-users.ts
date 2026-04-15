@@ -7,12 +7,12 @@ import { User, UserRoles } from '@/features/auth/types/user-interface';
 /**
  * - Manager/Emp : Hook to get all employees in the current organization.
  */
-export const useOrgEmployees = () => {
+export const useOrgEmployees = (page:number =1 , limit:number =20) => {
   const user = useAuthStore((state) => state.user);
 
   return useQuery({
-    queryKey: ['users', 'org-employees', user?.organizationId],
-    queryFn: usersApi.getOrgEmployees,
+    queryKey: ['users', 'org-employees', user?.organizationId, page, limit],
+    queryFn: ()=>usersApi.getOrgEmployees(page,limit),
     enabled: !!user?.organizationId,
   });
 };
@@ -62,12 +62,12 @@ export const useDeleteEmployee = () => {
 /**
  * - Manager : Hook to get all archived (soft Deleted) employees in the current organization.
 */
-export const useArchivedEmployees = () => {
+export const useArchivedEmployees = (page: number = 1, limit: number = 20) => {
   const user = useAuthStore((state) => state.user);
 
   return useQuery({
-    queryKey: ['users', 'archived', 'org-employees', user?.organizationId],
-    queryFn: () => usersApi.getArchivedEmployees(),
+    queryKey: ['users', 'archived', 'org-employees', user?.organizationId, pageXOffset, limit],
+    queryFn: () => usersApi.getArchivedEmployees(page, limit),
     enabled: !!user?.organizationId,
   });
 };

@@ -6,8 +6,10 @@ export const projectsApi = {
    * - Manager/Emp : Get all projects by organization
    * @returns An array of projects
    */
-  getOrgProjects: async () => {
-    const { data } = await api.get<Project[]>('/projects/org');
+  getOrgProjects: async (page:number=1 , limit:number=20) => {
+    const { data } = await api.get<PaginatedProject>('/projects/org', {
+      params: { page, limit },
+    });
     return data;
   },
 

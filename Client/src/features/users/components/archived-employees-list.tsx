@@ -23,10 +23,15 @@ export function ArchivedTeamList({
   currentUser: User;
   isManager: boolean;
 }) {
-  const { data: employees, isLoading } = useArchivedEmployees();
-  const { mutateAsync: restoreEmployee, isPending: isRestoring } = useRestoreEmployee();
+  const [page, setPage] = useState<number>(1);
+  const { data: employees, isLoading } = useArchivedEmployees(page, 20);
+  const { mutateAsync: restoreEmployee, isPending: isRestoring } =
+    useRestoreEmployee();
 
-  const [userToRestore, setUserToRestore] = useState<{id: string; name: string;} | null>(null);
+  const [userToRestore, setUserToRestore] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
 
   const handleRestore = async (id: string) => {
     try {
@@ -58,6 +63,28 @@ export function ArchivedTeamList({
           </Button>
         )}
       />
+      {/* Pagination */}
+      <div className="flex items-center justify-end space-x-2 py-4">
+        <Button
+          variant="default"
+          size="sm"
+          onClick={() => setPage((old) => Math.max(old - 1, 1))}
+          disabled={page === 1 || isLoading}
+        >
+          Previous
+        </Button>
+        <div className="text-sm text-muted-foreground font-medium px-2">
+          Page {page} of {employees?.lastPage || 1}
+        </div>
+        <Button
+          variant="default"
+          size="sm"
+          onClick={() => setPage((old) => old + 1)}
+          disabled={!employees || page >= employees.lastPage || isLoading}
+        >
+          Next
+        </Button>
+      </div>
 
       {/*Restore User Dialog */}
       <AlertDialog
@@ -75,9 +102,7 @@ export function ArchivedTeamList({
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              onClick={() =>
-                userToRestore && handleRestore(userToRestore.id)
-              }
+              onClick={() => userToRestore && handleRestore(userToRestore.id)}
               disabled={isRestoring}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >

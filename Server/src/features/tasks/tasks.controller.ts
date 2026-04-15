@@ -38,11 +38,22 @@ export class TasksController {
   })
   @Get('my-tasks')
   @Roles(UserRole.EMP, UserRole.MANAGER)
-  async getMyTasks(@CurrentUser() user: JwtPayload) {
+  async getMyTasks(
+    @CurrentUser() user: JwtPayload,
+    @Query('page', new ParseIntPipe({ optional: true })) page: number = 1,
+    @Query('limit', new ParseIntPipe({ optional: true })) limit: number = 20,
+  ) {
     if (!user.organizationId) {
-      return [];
+      return {
+        message: 'You are not part of any organization',
+      };
     }
-    return this.tasksService.getUserTasks(user.sub, user.organizationId);
+    return this.tasksService.getUserTasks(
+      user.sub,
+      user.organizationId,
+      page,
+      limit,
+    );
   }
 
   @ApiOperation({
@@ -93,12 +104,19 @@ export class TasksController {
   async getUserTasks(
     @CurrentUser() manager: JwtPayload,
     @Param('userId', ParseUUIDPipe) userId: string,
+    @Query('page', new ParseIntPipe({ optional: true })) page: number = 1,
+    @Query('limit', new ParseIntPipe({ optional: true })) limit: number = 20,
   ) {
     if (!manager.organizationId) {
       throw new BadRequestException('You dont belong to any organization');
     }
 
-    return this.tasksService.getUserTasks(userId, manager.organizationId);
+    return this.tasksService.getUserTasks(
+      userId,
+      manager.organizationId,
+      page,
+      limit,
+    );
   }
 
   @ApiOperation({
@@ -108,10 +126,17 @@ export class TasksController {
   async getProjectTasks(
     @CurrentUser() user: JwtPayload,
     @Param('projectId', ParseUUIDPipe) projectId: string,
+    @Query('page', new ParseIntPipe({ optional: true })) page: number = 1,
+    @Query('limit', new ParseIntPipe({ optional: true })) limit: number = 20,
   ) {
     if (!user.organizationId)
       throw new ForbiddenException('You are not part of any organization');
-    return this.tasksService.getTasksByProject(projectId, user.organizationId);
+    return this.tasksService.getTasksByProject(
+      projectId,
+      user.organizationId,
+      page,
+      limit,
+    );
   }
 
   // -------- Static POST Routes --------

@@ -12,10 +12,10 @@ import { CreateTaskDto, Task, Tasks, UpdateTaskDto } from '../types';
 /**
  * Hook to retrieve the tasks assigned to the current user.
  */
-export const useMyTasks = (options?: { enabled?: boolean }): UseQueryResult<Task[]> => {
+export const useMyTasks = (options?: {enabled?: boolean;},page: number =1, limit: number =20): UseQueryResult<Tasks> => {
   return useQuery({
-    queryKey: ['tasks', 'my-tasks'],
-    queryFn: tasksApi.getMyTasks,
+    queryKey: ['tasks', 'my-tasks', page, limit],
+    queryFn:()=> tasksApi.getMyTasks(page, limit),
     enabled: options?.enabled ?? true,
     staleTime: 1000 * 60,
     refetchOnWindowFocus: true,
@@ -39,7 +39,7 @@ export const useOrgTasks = (
  * Hook to retrieve all tasks.
  * @returns {UseQueryResult<Tasks>} - The result of the query.
  * It contains the tasks and methods to handle the query state.
- * @deprecated (Not used Rn, Maybe Later or i will just remove it as admin doesnt need it after  
+ * @deprecated (Not used Rn, Maybe Later or i will just remove it as admin doesnt need it after
  * i have removed the All tasks page for admin)
  */
 export const useAllTasks = (
@@ -53,13 +53,18 @@ export const useAllTasks = (
 };
 
 /**
- * Hook to retrieve the tasks assigned to a specific user.
+ * later hook
+ * - Hook to retrieve the tasks assigned to a specific user.
  */
-export const useUserTasks = (userId: string): UseQueryResult<Task[], Error> => {
+export const useUserTasks = (
+  userId: string,
+  page: number = 1,
+  limit: number = 1,
+): UseQueryResult<Tasks, Error> => {
   return useQuery({
-    queryKey: ['tasks', 'user', userId],
-    queryFn: () => tasksApi.getUserTasks(userId),
-    enabled: !!userId, // Won't fetch until we actually have a userId
+    queryKey: ['tasks', 'user', userId, page , limit],
+    queryFn: () => tasksApi.getUserTasks(userId, page, limit),
+    enabled: !!userId,
   });
 };
 
@@ -150,10 +155,10 @@ export const useDeleteTask = (): UseMutationResult<
 /**
  * Hook to retrieve all tasks for a project.
  */
-export const useProjectTasks = (projectId: string): UseQueryResult<Task[]> => {
+export const useProjectTasks = (projectId: string, page: number =1 , limit: number = 20): UseQueryResult<Tasks> => {
   return useQuery({
-    queryKey: ['tasks', 'project', projectId],
-    queryFn: () => tasksApi.getTasksByProject(projectId),
+    queryKey: ['tasks', 'project', projectId , page , limit],
+    queryFn: () => tasksApi.getTasksByProject(projectId, page, limit),
     enabled: !!projectId,
     staleTime: 1000 * 30,
   });

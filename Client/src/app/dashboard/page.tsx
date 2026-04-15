@@ -17,16 +17,15 @@ import { Loader2 } from 'lucide-react';
 
 export default function DashboardPage() {
   const user = useAuthStore((state) => state.user);
-  const isManagerWithoutOrg = user?.role === UserRoles.MANAGER && !user?.organizationId;
+  const isManagerWithoutOrg =
+    user?.role === UserRoles.MANAGER && !user?.organizationId;
   const isAdmin = user?.role === UserRoles.ADMIN;
   const needsTasks = !!user && !isAdmin && !isManagerWithoutOrg;
-  const { data: tasks, isLoading } = useMyTasks({ enabled: needsTasks });
+  const { data: tasks, isLoading } = useMyTasks({ enabled: needsTasks }, 1, 20);
 
   if (!user) return null;
-    if(isAdmin) {
-    return (
-      <AdminOverview />
-    )
+  if (isAdmin) {
+    return <AdminOverview />;
   }
 
   if (isManagerWithoutOrg) {
@@ -57,14 +56,20 @@ export default function DashboardPage() {
   }
 
   const inProgressTasks =
-    tasks?.filter((t) => t.status !== TaskStatus.DONE && t.status !== TaskStatus.CANCELED) || [];
+    tasks?.data.filter(
+      (t) => t.status !== TaskStatus.DONE && t.status !== TaskStatus.CANCELED,
+    ) || [];
   const completedAndCanceledTasks =
-    tasks?.filter((t) => t.status === TaskStatus.DONE || t.status === TaskStatus.CANCELED) || [];
+    tasks?.data.filter(
+      (t) => t.status === TaskStatus.DONE || t.status === TaskStatus.CANCELED,
+    ) || [];
   return (
+    <>
+      <p className="mb-6 ml-2 font-bold">Recent tasks overview:</p>
       <div className="max-w-200 mx-10 py-4">
         {/*IN PROGRESS SECTION */}
         <div className="mb-12">
-          <h2 className="text-[11px] font-bold tracking-[0.2em] uppercase text-muted-foreground border-b border-border/60 pb-4 mb-6">
+          <h2 className="text-[11px] font-bold tracking-[0.2em] uppercase text-muted-foreground border-b border-border/60 pb-4 mb-4">
             In Progress — {inProgressTasks.length} Task
             {inProgressTasks.length !== 1 && 's'}
           </h2>
@@ -84,7 +89,7 @@ export default function DashboardPage() {
 
         {/* COMPLETED SECTION  */}
         <div>
-          <h2 className="text-[11px] font-bold tracking-[0.2em] uppercase text-muted-foreground border-b border-border/60 pb-4 mb-6">
+          <h2 className="text-[11px] font-bold tracking-[0.2em] uppercase text-muted-foreground border-b border-border/60 pb-4 mb-4">
             Completed This Week — {completedAndCanceledTasks.length} Task
             {completedAndCanceledTasks.length !== 1 && 's'}
           </h2>
@@ -102,5 +107,6 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+    </>
   );
 }
