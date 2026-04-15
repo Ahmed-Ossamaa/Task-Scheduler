@@ -46,4 +46,9 @@ export const validationSchema = Joi.object({
   // GOOGLE
   GOOGLE_CLIENT_ID: Joi.string().required(),
   GOOGLE_CLIENT_SECRET: Joi.string().required(),
+
+  // MAIL (BREVO)
+  BREVO_API_KEY: Joi.string().required(),
+  BREVO_SENDER_EMAIL: Joi.string().email().required(),
+  BREVO_SENDER_NAME: Joi.string().default('Task-Flow'),
 });

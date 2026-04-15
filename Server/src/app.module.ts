@@ -22,6 +22,7 @@ import { AnalyticsModule } from './features/analytics/analytics.module';
 import { ActivityModule } from './features/activity/activity.module';
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
 import { BackgroundJobsModule } from './features/background-jobs/background-jobs.module';
+import mailConfig from './config/mail.config';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { BackgroundJobsModule } from './features/background-jobs/background-jobs
         redisConfig,
         googleAuthConfig,
         cloudinaryConfig,
+        mailConfig,
       ],
     }),
 
