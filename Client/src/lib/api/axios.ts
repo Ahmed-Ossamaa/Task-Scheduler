@@ -55,12 +55,17 @@ api.interceptors.response.use(
         return api(originalRequest);
       } catch (refreshError) {
         clearAuth();
-        if (
-          typeof window !== 'undefined' 
-        ) {
-          const publicPaths = ['/', '/login', '/register'];
+        if (typeof window !== 'undefined') {
+          const publicPaths = [
+            '/',
+            '/login',
+            '/register',
+            '/verify-email',
+            '/resend-verification',
+            '/forgot-password', 
+          ];
           const currentPath = window.location.pathname;
-          
+
           // If the current path is not in the public paths, redirect to the login page
           if (!publicPaths.includes(currentPath)) {
             window.location.href = '/login';
