@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-// import { useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { CheckCircle2, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -15,7 +15,6 @@ import {
   type RegisterFormValues,
 } from '../schemas/auth.schema';
 import { AxiosError } from 'axios';
-import { useRouter } from 'next/router';
 
 export function RegisterForm() {
   const router = useRouter();
