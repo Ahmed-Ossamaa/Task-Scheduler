@@ -90,6 +90,7 @@ export class User {
   @OneToMany(() => Task, (task) => task.assignedBy)
   tasksAssigned: Task[];
 
+  @Index('IDX_USERS_ORGANIZATION')
   @Column({ nullable: true })
   organizationId: string | null;
 
