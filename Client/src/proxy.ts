@@ -6,7 +6,7 @@ export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   
   //public routes
-  const isAuthPage = pathname.startsWith('/login') || pathname.startsWith('/register');
+  const isAuthPage = pathname.startsWith('/login') || pathname.startsWith('/register') || pathname.startsWith('/verify-email') || pathname.startsWith('/forgot-password');
   const isLandingPage = pathname === '/';
   const isPublicRoute = isAuthPage || isLandingPage;
 
