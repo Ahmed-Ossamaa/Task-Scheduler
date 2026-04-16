@@ -59,7 +59,7 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const data = await this.authService.login(loginDto);
-    this.setRefreshTokenCookie(res, data.refreshToken);
+    this.setAuthCookies(res, data.refreshToken);
     return {
       accessToken: data.accessToken,
       user: data.user,
@@ -119,12 +119,16 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     await this.authService.logout(user.sub);
-    res.clearCookie('refreshToken', {
-      httpOnly: true,
+
+    const clearOptions = {
       secure: this.appConfig.nodeEnv === 'production',
-      sameSite: 'lax',
+      sameSite: 'lax' as const,
       path: '/',
-    });
+    };
+
+    res.clearCookie('refreshToken', { ...clearOptions, httpOnly: true });
+    res.clearCookie('hasSession', { ...clearOptions, httpOnly: false });
+
     return { message: `${user.email} logged out successfully` };
   }
 
@@ -152,7 +156,7 @@ export class AuthController {
   ) {
     const refreshToken = req.cookies.refreshToken as string;
     const data = await this.authService.refreshTokens(user.sub, refreshToken);
-    this.setRefreshTokenCookie(res, data.refreshToken);
+    this.setAuthCookies(res, data.refreshToken);
     return {
       accessToken: data.accessToken,
       user: data.user,
@@ -168,21 +172,32 @@ export class AuthController {
   googleAuthCallback(@Req() req: Request, @Res() res: Response) {
     if (req.user) {
       const { refreshToken } = req.user as AuthResponse;
-      this.setRefreshTokenCookie(res, refreshToken);
+      this.setAuthCookies(res, refreshToken);
       const clientUrl = this.appConfig.clientURL;
       return res.redirect(clientUrl);
     }
   }
 
   // Helper method =>  set the refresh token cookie to the response
-  private setRefreshTokenCookie(res: Response, refreshToken: string) {
+  private setAuthCookies(res: Response, refreshToken: string) {
     const days: number = parseInt(this.jwtConfig.refreshExpires, 10) || 7;
-    res.cookie('refreshToken', refreshToken, {
-      httpOnly: true,
+    const cookieOptions = {
       secure: this.appConfig.nodeEnv === 'production',
-      sameSite: 'lax',
+      sameSite: 'lax' as const,
       maxAge: days * 24 * 60 * 60 * 1000,
       path: '/',
+    };
+
+    //send refreshToken in httpOnly cookie
+    res.cookie('refreshToken', refreshToken, {
+      ...cookieOptions,
+      httpOnly: true,
+    });
+
+    //send hasSession flag in non-httpOnly cookie
+    res.cookie('hasSession', 'true', {
+      ...cookieOptions,
+      httpOnly: false,
     });
   }
 }
