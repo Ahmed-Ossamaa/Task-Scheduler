@@ -23,6 +23,7 @@ export const useMyTasks = (options?: {enabled?: boolean;},page: number =1, limit
 };
 
 /**
+ * @deprecated
  * Hook to retrieve the tasks assigned to the current user's organization.
  */
 export const useOrgTasks = (
@@ -53,7 +54,7 @@ export const useAllTasks = (
 };
 
 /**
- * later hook
+ * @deprecated later hook
  * - Hook to retrieve the tasks assigned to a specific user.
  */
 export const useUserTasks = (

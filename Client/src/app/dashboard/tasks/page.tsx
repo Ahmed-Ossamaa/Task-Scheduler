@@ -10,8 +10,9 @@ import { Button } from '@/components/ui/button';
 
 export default function MyTasksPage() {
   const [page, setPage] = useState(1);
-  const { data: myTasks, isLoading } = useMyTasks({ enabled: true }, page, 20);
   const user = useAuthStore((state) => state.user);
+  const hasOrg= !!user?.organizationId
+  const { data: myTasks, isLoading } = useMyTasks({ enabled: hasOrg }, page, 20);
   const isManager = user?.role === UserRoles.MANAGER;
 
   return (

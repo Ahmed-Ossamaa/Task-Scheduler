@@ -96,9 +96,12 @@ export const useDeleteProject = () => {
  * - Manager : Hook to retrieve archived projects.
  */
 export const useArchiveProject = (page: number = 1, limit: number = 20) => {
+    const user = useAuthStore((state) => state.user);
+
   return useQuery({
     queryKey: ['projects', 'archived', page, limit],
     queryFn: () => projectsApi.getArchivedProjects(page, limit),
+    enabled: !!user?.organizationId,
   });
 };
 
