@@ -52,5 +52,5 @@ export class RegisterUserDto {
   @ApiPropertyOptional({ example: 'Alexandria, Egypt' })
   @IsOptional()
   @IsString()
-  adress?: string;
+  address?: string;
 }
