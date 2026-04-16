@@ -23,6 +23,11 @@ import { CreateEmployeeDto } from 'src/features/users/dto/create-employee.dto';
 import { MailService } from 'src/integrations/mail/mail.interface';
 import { User } from '../users/entities/user.entity';
 import appConfig from 'src/config/app.config';
+import {
+  employeeInviteTemplate,
+  managerWelcomeTemplate,
+  resendVerificationTemplate,
+} from 'src/integrations/mail/mail.temp';
 
 type Tokens = { accessToken: string; refreshToken: string };
 
@@ -310,18 +315,7 @@ export class AuthService {
     frontendUrl: string,
   ) {
     const verifyLink = `${frontendUrl}/verify-email?token=${token}`;
-    const html = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <h2>Welcome to the Task-Flow, ${user.name}!</h2>
-        <p>Thank you for setting up your workspace. To get started, please verify your email address.</p>
-        <div style="margin: 30px 0;">
-          <a href="${verifyLink}" style="background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">
-            Verify Email Address
-          </a>
-        </div>
-        <p style="color: #6b7280; font-size: 14px;">This link will expire in 24 hours.</p>
-      </div>
-    `;
+    const html = managerWelcomeTemplate(user.name, verifyLink);
 
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.mailService.sendEmail(
@@ -343,19 +337,7 @@ export class AuthService {
     frontendUrl: string,
   ) {
     const verifyLink = `${frontendUrl}/verify-email?token=${token}`;
-    const html = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; padding: 20px;">
-        <h2>Welcome to the Team, ${user.name}!</h2>
-        <p>Your manager has invited you to join the organization workspace.</p>
-        <p><strong>Your Temporary Password:</strong> ${tempPass}</p>
-        <div style="margin: 30px 0;">
-          <a href="${verifyLink}" style="background-color: #10b981; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">
-            Verify Account
-          </a>
-        </div>
-        <p>Please change your password immediately after logging in.</p>
-      </div>
-    `;
+    const html = employeeInviteTemplate(user.name, tempPass, verifyLink);
 
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.mailService.sendEmail(user.email, user.name, 'You are invited!', html);
@@ -370,18 +352,7 @@ export class AuthService {
     frontendUrl: string,
   ) {
     const verifyLink = `${frontendUrl}/verify-email?token=${token}`;
-    const html = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; padding: 20px;">
-        <h2>Hello ${user.name},</h2>
-        <p>A new email verification link was requested for your account.</p>
-        <div style="margin: 30px 0;">
-          <a href="${verifyLink}" style="background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">
-            Verify Email Address
-          </a>
-        </div>
-        <p style="color: #6b7280; font-size: 14px;">This link will expire in 24 hours.</p>
-      </div>
-    `;
+    const html = resendVerificationTemplate(user.name, verifyLink);
 
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.mailService.sendEmail(
