@@ -22,7 +22,7 @@ export const usersApi = {
    * @returns Newly created employee
    */
   createEmployee: async (payload: CreateEmployeeDto): Promise<User> => {
-    const { data } = await api.post<{ user: User }>(
+    const { data } = await api.post<{ message: string; user: User }>(
       'auth/register/employee',
       payload,
     );

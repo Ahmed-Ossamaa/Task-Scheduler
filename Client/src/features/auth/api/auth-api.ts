@@ -4,11 +4,11 @@ import { LoginDto, RegisterDto } from '../types/auth-dto';
 
 export const authApi = {
   register: async (data: RegisterDto) => {
-    const response = await api.post<{ user: User; accessToken: string }>(
+    const response = await api.post<{ message: string,user: User }>(
       '/auth/register',
       data,
     );
-    return response.data;
+    return response;
   },
 
   login: async (data: LoginDto) => {

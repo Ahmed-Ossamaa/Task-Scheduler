@@ -10,12 +10,15 @@ import { Input } from '@/components/ui/input';
 import { authApi } from '@/features/auth/api/auth-api';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { registerSchema, type RegisterFormValues } from '../schemas/auth.schema';
-
-
+import {
+  registerSchema,
+  type RegisterFormValues,
+} from '../schemas/auth.schema';
+import { AxiosError } from 'axios';
+import { useRouter } from 'next/router';
 
 export function RegisterForm() {
-  // const router = useRouter();
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
   const {
@@ -36,16 +39,19 @@ export function RegisterForm() {
   const onSubmit = async (data: RegisterFormValues) => {
     setIsLoading(true);
     try {
-      await authApi.register({
+      const response = await authApi.register({
         name: data.name,
         email: data.email,
         password: data.password,
       });
-      toast.success('Account created successfully');
-      // router.push('/login');
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Failed to create account');
+      toast.success(response.data.message || 'Account created successfully, please verify your email');
+      router.push('/login');
+    } catch (error) {
+      toast.error(
+        error instanceof AxiosError
+          ? error.response?.data?.message
+          : 'Failed to create account',
+      );
     } finally {
       setIsLoading(false);
     }
