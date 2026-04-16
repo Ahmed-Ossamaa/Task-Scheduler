@@ -173,12 +173,12 @@ export function CreateTaskForm({ onSuccess }: { onSuccess?: () => void }) {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {projects?.length === 0 ? (
+                    {projects?.data?.length === 0 ? (
                       <SelectItem value="empty" disabled>
                         No projects found.
                       </SelectItem>
                     ) : (
-                      projects?.map((project) => (
+                      projects?.data?.map((project) => (
                         <SelectItem key={project.id} value={project.id} className='focus:bg-red-100'>
                           {project.name}
                         </SelectItem>
@@ -215,12 +215,12 @@ export function CreateTaskForm({ onSuccess }: { onSuccess?: () => void }) {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {employees?.length === 0 ? (
+                    {employees?.data?.length === 0 ? (
                       <SelectItem value="empty" disabled>
                         No employees found in organization.
                       </SelectItem>
                     ) : (
-                      employees?.map((employee) => (
+                      employees?.data?.map((employee) => (
                         <SelectItem key={employee.id} value={employee.id} className='focus:bg-red-100'>
                           <div className="flex flex-col items-start truncate text-left w-full">
                             <span className="truncate font-medium">
