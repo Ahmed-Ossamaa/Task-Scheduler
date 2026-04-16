@@ -14,6 +14,8 @@ export class UserMapper {
       address: user.address,
       avatar: user.avatar,
       createdAt: user.createdAt,
+      isEmailVerified: user.isEmailVerified,
+      organizationId: user.organizationId,
     };
   }
 }
