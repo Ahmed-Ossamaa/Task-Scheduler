@@ -40,6 +40,11 @@ export class UserService {
     managerId: string,
     employeeDto: CreateEmployeeDto,
     hashedPassword: string,
+    verificationData: {
+      verificationToken: string;
+      verificationTokenExpires: Date;
+      isEmailVerified: boolean;
+    },
   ): Promise<User> {
     const manager = await this.findUserById(managerId);
 
@@ -58,10 +63,13 @@ export class UserService {
     const newEmployee = this.userRepo.create({
       name: employeeDto.name,
       email: employeeDto.email,
+      gender: employeeDto.gender,
       password: hashedPassword,
       role: UserRole.EMP,
       organizationId: manager.organizationId,
-      isEmailVerified: true,
+      verificationToken: verificationData.verificationToken,
+      verificationTokenExpires: verificationData.verificationTokenExpires,
+      isEmailVerified: verificationData.isEmailVerified,
     });
 
     return this.saveUser(newEmployee);
@@ -580,5 +588,52 @@ export class UserService {
     }
 
     return employee;
+  }
+
+  /**
+   * Finds a user by their verification token.
+   * @param token - The verification token to search for.
+   * @returns The user if found, otherwise null.
+   */
+  async findUserByVerificationToken(token: string): Promise<User | null> {
+    return this.userRepo
+      .createQueryBuilder('user')
+      .addSelect([
+        'user.verificationToken',
+        'user.verificationTokenExpires',
+        'user.isEmailVerified',
+      ])
+      .where('user.verificationToken = :token', { token })
+      .getOne();
+  }
+
+  /**
+   * Marks a user's email as verified and wipes the tokens.
+   * @param userId - The ID of the user to mark as verified.
+   */
+  async markEmailAsVerified(userId: string): Promise<void> {
+    await this.userRepo.update(userId, {
+      isEmailVerified: true,
+      verificationToken: null, // Wipe the token so it cant be reused
+      verificationTokenExpires: null,
+    });
+  }
+
+  /**
+   * Updates the verification token when a user requests a "Resend Link".
+   * @param userId - The ID of the user to update.
+   * @param token - The new verification token.
+   * @param expires - The expiration date of the token.
+   */
+  async updateVerificationToken(
+    userId: string,
+    token: string,
+    expires: Date,
+  ): Promise<void> {
+    await this.userRepo.update(userId, {
+      verificationToken: token,
+      verificationTokenExpires: expires,
+      isEmailVerified: false,
+    });
   }
 }

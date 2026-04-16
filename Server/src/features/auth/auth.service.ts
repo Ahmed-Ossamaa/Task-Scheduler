@@ -6,6 +6,7 @@ import {
   Inject,
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
+import * as crypto from 'crypto';
 import { JwtService } from '@nestjs/jwt';
 import { LoginUserDto } from 'src/features/auth/dto/login-user.dto';
 import { RegisterUserDto } from 'src/features/auth/dto/register-user.dto';
@@ -19,6 +20,9 @@ import { UserRole } from 'src/features/users/enums/user-roles.enum';
 import jwtConfig from 'src/config/jwt.config';
 import { AuthResponse } from './interfaces/auth-response.interface';
 import { CreateEmployeeDto } from 'src/features/users/dto/create-employee.dto';
+import { MailService } from 'src/integrations/mail/mail.interface';
+import { User } from '../users/entities/user.entity';
+import appConfig from 'src/config/app.config';
 
 type Tokens = { accessToken: string; refreshToken: string };
 
@@ -27,13 +31,14 @@ export class AuthService {
   constructor(
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
+    private readonly mailService: MailService,
     @Inject(jwtConfig.KEY)
     private readonly config: ConfigType<typeof jwtConfig>,
+    @Inject(appConfig.KEY)
+    private readonly appEnv: ConfigType<typeof appConfig>,
   ) {}
 
-  async registerManager(
-    registerManagerDto: RegisterUserDto,
-  ): Promise<AuthResponse> {
+  async registerManager(registerManagerDto: RegisterUserDto) {
     const existingUser = await this.userService.findUserByEmail(
       registerManagerDto.email,
     );
@@ -43,21 +48,24 @@ export class AuthService {
     }
 
     const hashedPassword = await bcrypt.hash(registerManagerDto.password, 10);
+    const verificationToken = crypto.randomBytes(32).toString('hex');
+    const tokenExpires = new Date();
+    tokenExpires.setHours(tokenExpires.getHours() + 24); // 24h
     const newUser = await this.userService.createUser({
       ...registerManagerDto,
       password: hashedPassword,
       role: UserRole.MANAGER,
       organizationId: null,
+      verificationToken,
+      verificationTokenExpires: tokenExpires,
+      isEmailVerified: false,
     });
+    const frontendUrl = this.appEnv.clientURL;
+    this.sendManagerWelcomeEmail(newUser, verificationToken, frontendUrl);
 
-    const tokens = await this.issueTokens(
-      newUser.id,
-      newUser.email,
-      UserRole.MANAGER,
-      null,
-    );
     return {
-      ...tokens,
+      message:
+        'User registered successfully, please check your email to verify your account',
       user: UserMapper.fromEntity(newUser),
     };
   }
@@ -76,6 +84,11 @@ export class AuthService {
     if (!matchedPassword) {
       throw new UnauthorizedException('Invalid credentials');
     }
+    if (!user.isEmailVerified) {
+      throw new ForbiddenException(
+        'Please verify your email before logging in.',
+      );
+    }
     const tokens = await this.issueTokens(
       user.id,
       user.email,
@@ -90,12 +103,32 @@ export class AuthService {
 
   async registerEmployee(managerId: string, registerEmpDto: CreateEmployeeDto) {
     const hashedPassword = await bcrypt.hash(registerEmpDto.password, 10);
-    const employee = this.userService.createEmployee(
+    // Generate token
+    const verificationToken = crypto.randomBytes(32).toString('hex');
+    const tokenExpires = new Date();
+    tokenExpires.setHours(tokenExpires.getHours() + 24); // 24h
+    const employee = await this.userService.createEmployee(
       managerId,
       registerEmpDto,
       hashedPassword,
+      {
+        verificationToken,
+        verificationTokenExpires: tokenExpires,
+        isEmailVerified: false,
+      },
     );
-    return employee;
+    const frontendUrl = this.appEnv.clientURL;
+    this.sendEmployeeInviteEmail(
+      employee,
+      verificationToken,
+      registerEmpDto.password,
+      frontendUrl,
+    );
+    return {
+      message:
+        'Employee registered successfully, please ask the user to check their email to verify thier account',
+      user: UserMapper.fromEntity(employee),
+    };
   }
 
   async logout(userId: string): Promise<void> {
@@ -170,6 +203,66 @@ export class AuthService {
     }
   }
 
+  async verifyEmail(token: string): Promise<{ message: string }> {
+    const user = await this.userService.findUserByVerificationToken(token);
+
+    if (!user) {
+      throw new BadRequestException('Invalid verification token');
+    }
+
+    if (user.isEmailVerified) {
+      throw new BadRequestException('Email is already verified');
+    }
+
+    if (
+      user.verificationTokenExpires &&
+      user.verificationTokenExpires < new Date()
+    ) {
+      throw new BadRequestException(
+        'Verification token has expired. Please request a new one.',
+      );
+    }
+
+    //mark email as verified
+    await this.userService.markEmailAsVerified(user.id);
+
+    return { message: 'Email successfully verified. You can now log in.' };
+  }
+
+  async resendVerificationEmail(email: string): Promise<void> {
+    const user = await this.userService.findUserByEmail(email);
+    if (!user) return;
+
+    if (user.isEmailVerified) {
+      throw new BadRequestException('Email is already verified');
+    }
+
+    // Generate token
+    const verificationToken = crypto.randomBytes(32).toString('hex');
+    const tokenExpires = new Date();
+    tokenExpires.setHours(tokenExpires.getHours() + 24);
+
+    await this.userService.updateVerificationToken(
+      user.id,
+      verificationToken,
+      tokenExpires,
+    );
+
+    const frontendUrl = this.appEnv.clientURL;
+
+    //send email to user (manager or employee)
+    if (user.role === UserRole.MANAGER) {
+      this.sendManagerWelcomeEmail(user, verificationToken, frontendUrl);
+    } else {
+      this.resendEmailVerification(user, verificationToken, frontendUrl);
+    }
+  }
+
+  // Helper methods (tokens)
+
+  /**
+   * Issues a new access and refresh tokens
+   */
   private async issueTokens(
     userId: string,
     email: string,
@@ -195,11 +288,107 @@ export class AuthService {
     return { accessToken, refreshToken };
   }
 
+  /**
+   * Store the refresh token in the database (hashed)
+   */
   private async storeRefreshToken(
     userId: string,
     refreshToken: string,
   ): Promise<void> {
     const hashedRT = await bcrypt.hash(refreshToken, 10);
     await this.userService.updateRefreshToken(userId, hashedRT);
+  }
+
+  // Helper methods (emails)
+
+  /**
+   * Sends a welcome email to a manager
+   */
+  private sendManagerWelcomeEmail(
+    user: User,
+    token: string,
+    frontendUrl: string,
+  ) {
+    const verifyLink = `${frontendUrl}/verify-email?token=${token}`;
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <h2>Welcome to the Task-Flow, ${user.name}!</h2>
+        <p>Thank you for setting up your workspace. To get started, please verify your email address.</p>
+        <div style="margin: 30px 0;">
+          <a href="${verifyLink}" style="background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">
+            Verify Email Address
+          </a>
+        </div>
+        <p style="color: #6b7280; font-size: 14px;">This link will expire in 24 hours.</p>
+      </div>
+    `;
+
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    this.mailService.sendEmail(
+      user.email,
+      user.name,
+      'Verify your account',
+      html,
+    );
+  }
+
+  /**
+   * Sends an email to an employee with an invitation to join the organization workspace.
+   * The email includes a temporary password and a link to verify their email address.
+   */
+  private sendEmployeeInviteEmail(
+    user: User,
+    token: string,
+    tempPass: string,
+    frontendUrl: string,
+  ) {
+    const verifyLink = `${frontendUrl}/verify-email?token=${token}`;
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; padding: 20px;">
+        <h2>Welcome to the Team, ${user.name}!</h2>
+        <p>Your manager has invited you to join the organization workspace.</p>
+        <p><strong>Your Temporary Password:</strong> ${tempPass}</p>
+        <div style="margin: 30px 0;">
+          <a href="${verifyLink}" style="background-color: #10b981; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">
+            Verify Account
+          </a>
+        </div>
+        <p>Please change your password immediately after logging in.</p>
+      </div>
+    `;
+
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    this.mailService.sendEmail(user.email, user.name, 'You are invited!', html);
+  }
+
+  /**
+   * Resends an email verification link to the user.
+   */
+  private resendEmailVerification(
+    user: User,
+    token: string,
+    frontendUrl: string,
+  ) {
+    const verifyLink = `${frontendUrl}/verify-email?token=${token}`;
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; padding: 20px;">
+        <h2>Hello ${user.name},</h2>
+        <p>A new email verification link was requested for your account.</p>
+        <div style="margin: 30px 0;">
+          <a href="${verifyLink}" style="background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">
+            Verify Email Address
+          </a>
+        </div>
+        <p style="color: #6b7280; font-size: 14px;">This link will expire in 24 hours.</p>
+      </div>
+    `;
+
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    this.mailService.sendEmail(
+      user.email,
+      user.name,
+      'Verify your email address',
+      html,
+    );
   }
 }

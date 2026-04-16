@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -41,14 +42,10 @@ export class AuthController {
 
   @ApiOperation({ summary: 'Register new user as a manager' })
   @Post('register')
-  async register(
-    @Body() registerDto: RegisterUserDto,
-    @Res({ passthrough: true }) res: Response,
-  ) {
+  async register(@Body() registerDto: RegisterUserDto) {
     const data = await this.authService.registerManager(registerDto);
-    this.setRefreshTokenCookie(res, data.refreshToken);
     return {
-      accessToken: data.accessToken,
+      message: data.message,
       user: data.user,
     };
   }
@@ -85,7 +82,32 @@ export class AuthController {
       registerEmpDto,
     );
     return {
-      user: data,
+      message: data.message,
+      user: data.user,
+    };
+  }
+
+  @ApiOperation({ summary: 'Verify email address using token from email' })
+  @HttpCode(200)
+  @Post('verify-email')
+  async verifyEmail(@Body('token') token: string) {
+    if (!token) {
+      throw new BadRequestException('Verification token is required');
+    }
+    return await this.authService.verifyEmail(token);
+  }
+
+  @ApiOperation({ summary: 'Resend verification email' })
+  @Throttle({ default: { limit: 3, ttl: 3600000 } }) //3 per hour
+  @HttpCode(200)
+  @Post('resend-verification')
+  async resendVerification(@Body('email') email: string) {
+    if (!email) {
+      throw new BadRequestException('Email is required');
+    }
+    await this.authService.resendVerificationEmail(email);
+    return {
+      message: 'A new verification link has been sent.',
     };
   }
 
