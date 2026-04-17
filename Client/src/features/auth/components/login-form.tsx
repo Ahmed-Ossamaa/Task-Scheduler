@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { CheckCircle2, Loader2 } from 'lucide-react';
+import { CheckCircle2, Loader2, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { authApi } from '@/features/auth/api/auth-api';
@@ -17,6 +17,8 @@ import { AxiosError } from 'axios';
 export function LoginForm() {
   const [needsVerification, setNeedsVerification] = useState(false);
   const [failedEmail, setFailedEmail] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+
   const router = useRouter();
   const setAccessToken = useAuthStore((state) => state.setAccessToken);
   const setUser = useAuthStore((state) => state.setUser);
@@ -46,7 +48,7 @@ export function LoginForm() {
     } catch (error) {
       const axiosError = error as AxiosError<{ message: string }>;
       const errorMessage = axiosError.response?.data?.message;
-      
+
       if (errorMessage?.includes('Please verify your email')) {
         setNeedsVerification(true);
         setFailedEmail(data.email);
@@ -92,11 +94,11 @@ export function LoginForm() {
           <Input
             type="email"
             {...register('email')}
-            className={
+            className={`pr-10 h-10 ${
               errors.email
                 ? 'border-destructive focus-visible:ring-destructive'
                 : ''
-            }
+            }`}
             placeholder="you@example.com"
           />
           {errors.email && (
@@ -112,22 +114,38 @@ export function LoginForm() {
               Password
             </label>
             <Link
+              tabIndex={-1}
               href="/forgot-password"
               className="text-[10px] font-bold tracking-[0.05em] text-primary hover:underline"
             >
               Forgot?
             </Link>
           </div>
+
+          <div className="relative">
           <Input
-            type="password"
+            type={showPassword ? 'text' : 'password'}
             {...register('password')}
-            className={
+            className={`pr-10 h-10 ${
               errors.password
                 ? 'border-destructive focus-visible:ring-destructive'
                 : ''
-            }
+            }`}
             placeholder="••••••••"
           />
+          <button
+              type="button"
+              onClick={() => setShowPassword((prev) => !prev)}
+              tabIndex={-1} 
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+            >
+              {showPassword ? (
+                <EyeOff className="h-4 w-4" />
+              ) : (
+                <Eye className="h-4 w-4" />
+              )}
+            </button>
+          </div>
           {errors.password && (
             <p className="text-[10px] text-destructive font-medium">
               {errors.password.message}
@@ -154,7 +172,9 @@ export function LoginForm() {
             <button
               type="button"
               onClick={() =>
-                router.push(`/resend-verification?email=${encodeURIComponent(failedEmail)}`)
+                router.push(
+                  `/resend-verification?email=${encodeURIComponent(failedEmail)}`,
+                )
               }
               className="text-amber-950 font-semibold underline hover:text-blue-600"
             >

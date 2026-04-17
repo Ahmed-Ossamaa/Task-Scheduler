@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { CheckCircle2, Loader2 } from 'lucide-react';
+import { CheckCircle2, Loader2, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { authApi } from '@/features/auth/api/auth-api';
@@ -19,6 +19,7 @@ import { AxiosError } from 'axios';
 export function RegisterForm() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     register,
@@ -58,10 +59,9 @@ export function RegisterForm() {
   };
 
   return (
-    <div className="w-full max-w-120 flex flex-col relative bg-card/60 backdrop-blur-xl border border-border/50 p-8 rounded-3xl shadow-2xl shadow-black/5 dark:shadow-black/40">
-      {' '}
-      <div className="flex flex-col items-center text-center mb-10">
-        <div className="w-12 h-12 flex items-center justify-center mb-6">
+    <div className="w-full max-w-120 flex flex-col relative bg-card/60 backdrop-blur-xl border border-border/50 px-8 py-5  rounded-3xl shadow-2xl shadow-black/5 dark:shadow-black/40">
+      <div className="flex flex-col items-center text-center mb-8">
+        <div className="w-12 h-12 flex items-center justify-center mb-2">
           <Link
             href="/"
             className="flex items-center gap-2 transition-opacity hover:opacity-80"
@@ -80,7 +80,7 @@ export function RegisterForm() {
           Set up your workspace in seconds.
         </p>
       </div>
-      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3">
         <div className="space-y-2">
           <label className="text-[10px] font-bold tracking-[0.15em] uppercase text-muted-foreground">
             Full Name *
@@ -127,16 +127,30 @@ export function RegisterForm() {
           <label className="text-[10px] font-bold tracking-[0.15em] uppercase text-muted-foreground">
             Password *
           </label>
-          <Input
-            type="password"
-            {...register('password')}
-            className={
-              errors.password
-                ? 'border-destructive focus-visible:ring-destructive'
-                : 'border-border/60 focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary'
-            }
-            placeholder="••••••••"
-          />
+          <div className="relative">
+            <Input
+              type={showPassword ? 'text' : 'password'}
+              {...register('password')}
+              className={
+                errors.password
+                  ? 'border-destructive focus-visible:ring-destructive'
+                  : ''
+              }
+              placeholder="••••••••"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((prev) => !prev)}
+              tabIndex={-1}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+            >
+              {showPassword ? (
+                <EyeOff className="h-4 w-4" />
+              ) : (
+                <Eye className="h-4 w-4" />
+              )}
+            </button>
+          </div>
           {errors.password && (
             <p className="text-[10px] text-destructive font-medium leading-tight">
               {errors.password.message}
@@ -148,22 +162,22 @@ export function RegisterForm() {
           <label className="text-[10px] font-bold tracking-[0.15em] uppercase text-muted-foreground">
             Confirm Password *
           </label>
-          <Input
-            type="password"
-            {...register('confirmPassword')}
-            className={
-              errors.confirmPassword
-                ? 'border-destructive focus-visible:ring-destructive'
-                : 'border-border/60 focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary'
-            }
-            placeholder="••••••••"
-          />
-          {errors.confirmPassword && (
-            <p className="text-[10px] text-destructive font-medium">
-              {errors.confirmPassword.message}
-            </p>
-          )}
-        </div>
+            <Input
+              type={showPassword ? 'text' : 'password'}
+              {...register('confirmPassword')}
+              className={
+                errors.confirmPassword
+                  ? 'border-destructive focus-visible:ring-destructive'
+                  : ''
+              }
+              placeholder="••••••••"
+            />
+            {errors.confirmPassword && (
+              <p className="text-[10px] text-destructive font-medium">
+                {errors.confirmPassword.message}
+              </p>
+            )}
+          </div>
 
         <Button
           type="submit"
