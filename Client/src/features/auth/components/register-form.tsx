@@ -43,14 +43,15 @@ export function RegisterForm() {
         email: data.email,
         password: data.password,
       });
-      toast.success(response.data.message || 'Account created successfully, please verify your email');
+      toast.success(
+        response.data.message ||
+          'Account created successfully, please verify your email',
+      );
       router.push('/login');
     } catch (error) {
-      toast.error(
-        error instanceof AxiosError
-          ? error.response?.data?.message
-          : 'Failed to create account',
-      );
+      const axiosError = error as AxiosError<{ message: string }>;
+      const errMessage = axiosError.response?.data?.message;
+      toast.error(errMessage || 'Failed to create account, please try again');
     } finally {
       setIsLoading(false);
     }
@@ -88,10 +89,10 @@ export function RegisterForm() {
             type="text"
             {...register('name')}
             className={
-                errors.name
-                  ? 'border-destructive focus-visible:ring-destructive'
-                  : 'border-border/60 focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary'
-              }
+              errors.name
+                ? 'border-destructive focus-visible:ring-destructive'
+                : 'border-border/60 focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary'
+            }
             placeholder="Your Name"
           />
           {errors.name && (
@@ -109,10 +110,10 @@ export function RegisterForm() {
             type="email"
             {...register('email')}
             className={
-                errors.email
-                  ? 'border-destructive focus-visible:ring-destructive'
-                  : 'border-border/60 focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary'
-             }
+              errors.email
+                ? 'border-destructive focus-visible:ring-destructive'
+                : 'border-border/60 focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary'
+            }
             placeholder="you@example.com"
           />
           {errors.email && (
@@ -130,10 +131,10 @@ export function RegisterForm() {
             type="password"
             {...register('password')}
             className={
-                errors.password
-                  ? 'border-destructive focus-visible:ring-destructive'
-                  : 'border-border/60 focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary'
-              }
+              errors.password
+                ? 'border-destructive focus-visible:ring-destructive'
+                : 'border-border/60 focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary'
+            }
             placeholder="••••••••"
           />
           {errors.password && (
@@ -151,10 +152,10 @@ export function RegisterForm() {
             type="password"
             {...register('confirmPassword')}
             className={
-                errors.confirmPassword
-                  ? 'border-destructive focus-visible:ring-destructive'
-                  : 'border-border/60 focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary'
-              }
+              errors.confirmPassword
+                ? 'border-destructive focus-visible:ring-destructive'
+                : 'border-border/60 focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary'
+            }
             placeholder="••••••••"
           />
           {errors.confirmPassword && (
