@@ -87,13 +87,11 @@ export function RegisterForm() {
           <Input
             type="text"
             {...register('name')}
-            className={`
-              h-11 rounded-sm bg-transparent border-border focus-visible:ring-1 
-              focus-visible:ring-primary focus-visible:border-primary transition-colors ${
+            className={
                 errors.name
                   ? 'border-destructive focus-visible:ring-destructive'
                   : 'border-border/60 focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary'
-              }`}
+              }
             placeholder="Your Name"
           />
           {errors.name && (
@@ -110,13 +108,11 @@ export function RegisterForm() {
           <Input
             type="email"
             {...register('email')}
-            className={`
-              h-11 rounded-sm bg-transparent border-border focus-visible:ring-1 focus-visible:ring-primary 
-              focus-visible:border-primary transition-colors ${
+            className={
                 errors.email
                   ? 'border-destructive focus-visible:ring-destructive'
                   : 'border-border/60 focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary'
-              }`}
+             }
             placeholder="you@example.com"
           />
           {errors.email && (
@@ -133,14 +129,11 @@ export function RegisterForm() {
           <Input
             type="password"
             {...register('password')}
-            className={`
-              h-11 rounded-sm bg-transparent border-border focus-visible:ring-1 focus-visible:ring-primary 
-              focus-visible:border-primary transition-colors
-              ${
+            className={
                 errors.password
                   ? 'border-destructive focus-visible:ring-destructive'
                   : 'border-border/60 focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary'
-              }`}
+              }
             placeholder="••••••••"
           />
           {errors.password && (
@@ -157,14 +150,11 @@ export function RegisterForm() {
           <Input
             type="password"
             {...register('confirmPassword')}
-            className={`
-              h-11 rounded-sm bg-transparent border-border focus-visible:ring-1 focus-visible:ring-primary 
-              focus-visible:border-primary transition-colors
-              ${
+            className={
                 errors.confirmPassword
                   ? 'border-destructive focus-visible:ring-destructive'
                   : 'border-border/60 focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary'
-              }`}
+              }
             placeholder="••••••••"
           />
           {errors.confirmPassword && (
