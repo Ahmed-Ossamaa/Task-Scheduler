@@ -12,9 +12,10 @@ import { useAuthStore } from '@/features/auth/store/auth.store';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { loginSchema, type LoginFormValues } from '../schemas/auth.schema';
-
+import { AxiosError } from 'axios';
 
 export function LoginForm() {
+  const [needsVerification, setNeedsVerification] = useState(false);
   const router = useRouter();
   const setAccessToken = useAuthStore((state) => state.setAccessToken);
   const setUser = useAuthStore((state) => state.setUser);
@@ -32,6 +33,7 @@ export function LoginForm() {
   });
 
   const onSubmit = async (data: LoginFormValues) => {
+    setNeedsVerification(false);
     setIsLoading(true);
     try {
       const response = await authApi.login(data);
@@ -40,9 +42,16 @@ export function LoginForm() {
 
       toast.success('Welcome back!');
       router.push('/dashboard');
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Invalid email or password');
+    } catch (error) {
+      const axiosError = error as AxiosError<{ message: string }>;
+      const errorMessage = axiosError.response?.data?.message;
+      
+      if (errorMessage?.includes('Please verify your email')) {
+        setNeedsVerification(true);
+        toast.error('You need to verify your email first.');
+      } else {
+        toast.error(errorMessage || 'Invalid email or password');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -82,10 +91,10 @@ export function LoginForm() {
             type="email"
             {...register('email')}
             className={
-                errors.email
-                  ? 'border-destructive focus-visible:ring-destructive'
-                  : ''
-              }
+              errors.email
+                ? 'border-destructive focus-visible:ring-destructive'
+                : ''
+            }
             placeholder="you@example.com"
           />
           {errors.email && (
@@ -111,10 +120,10 @@ export function LoginForm() {
             type="password"
             {...register('password')}
             className={
-                errors.password
-                  ? 'border-destructive focus-visible:ring-destructive'
-                  : ''
-              }
+              errors.password
+                ? 'border-destructive focus-visible:ring-destructive'
+                : ''
+            }
             placeholder="••••••••"
           />
           {errors.password && (
@@ -135,6 +144,22 @@ export function LoginForm() {
             'Log In →'
           )}
         </Button>
+        {needsVerification && (
+          <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-md text-sm text-center">
+            <p className="text-amber-800 mb-2">
+              We can&apos;t log you in until you verify your email address.
+            </p>
+            <button
+              type="button"
+              onClick={() =>
+                router.push('/resend-verification')
+              }
+              className="text-amber-950 font-semibold underline hover:text-blue-600"
+            >
+              Click here to resend the verification email
+            </button>
+          </div>
+        )}
       </form>
 
       {/* Footer */}
