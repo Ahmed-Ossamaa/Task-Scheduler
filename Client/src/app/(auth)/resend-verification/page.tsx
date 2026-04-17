@@ -58,18 +58,21 @@ export default function ResendVerificationPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8 border border-gray-100">
+    <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden bg-background selection:bg-primary/20">
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-125 h-125 bg-primary/30 rounded-full blur-[100px] opacity-60" />
+      <div className="absolute inset-0 bg-[radial-gradient(#800020_0.5px,transparent_1px)] dark:bg-[radial-gradient(#1f2937_1px,transparent_1px)] bg-size-[24px_24px] mask-[radial-gradient(ellipse_60%_60%_at_50%_50%,#000_10%,transparent_100%)]" />
+
+    <div className="w-full max-w-md flex flex-col relative bg-card/60 backdrop-blur-xl border border-border/50 p-8 rounded-3xl shadow-2xl shadow-black/5 dark:shadow-black/40">
         {!isSuccess ? (
           <>
             <div className="text-center mb-6">
               <div className="h-12 w-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Mail className="w-6 h-6" />
               </div>
-              <h2 className="text-2xl font-bold text-gray-900">
+              <h2 className="text-2xl font-bold text-foreground">
                 Resend Verification
               </h2>
-              <p className="text-gray-500 mt-2 text-sm">
+              <p className="text-muted-foreground mt-2 text-sm">
                 Enter your email address and we will send you a new link to
                 verify your account.
               </p>
@@ -94,16 +97,17 @@ export default function ResendVerificationPage() {
                           {...field}
                         />
                       </FormControl>
-                      {/* Automatically displays the Zod error message */}
                       <FormMessage />
                     </FormItem>
                   )}
                 />
 
-                <Button type="submit" className="w-full" disabled={isLoading|| !form.formState.isValid}>
-                  {isLoading && (
-                    <Loader2 className="animate-spin h-4 w-4" />
-                  )}
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={isLoading || !form.formState.isValid}
+                >
+                  {isLoading && <Loader2 className="animate-spin h-4 w-4" />}
                   {isLoading ? 'Sending...' : 'Send Verification Link'}
                 </Button>
               </form>
@@ -127,13 +131,14 @@ export default function ResendVerificationPage() {
 
         {/* Back to Login */}
         <div className="mt-6 text-center">
-          <button
+          <Button
+            variant={'link'}
             onClick={() => router.push('/login')}
-            className="inline-flex items-center text-sm text-gray-600 hover:text-blue-600 transition"
+            className=" text-sm text-muted-foreground hover:text-blue-600 transition"
           >
             <ArrowLeft className="w-4 h-4 mr-1" />
             Back to login
-          </button>
+          </Button>
         </div>
       </div>
     </div>
