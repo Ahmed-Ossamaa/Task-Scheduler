@@ -18,9 +18,10 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { resendVerificationSchema, verificationFormValues } from '@/features/auth/schemas/auth.schema';
-
-
+import {
+  resendVerificationSchema,
+  verificationFormValues,
+} from '@/features/auth/schemas/auth.schema';
 
 function ResendVerificationContent() {
   const router = useRouter();
@@ -58,7 +59,7 @@ function ResendVerificationContent() {
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-125 h-125 bg-primary/30 rounded-full blur-[100px] opacity-60" />
       <div className="absolute inset-0 bg-[radial-gradient(#800020_0.5px,transparent_1px)] dark:bg-[radial-gradient(#1f2937_1px,transparent_1px)] bg-size-[24px_24px] mask-[radial-gradient(ellipse_60%_60%_at_50%_50%,#000_10%,transparent_100%)]" />
 
-    <div className="w-full max-w-md flex flex-col relative bg-card/60 backdrop-blur-xl border border-border/50 p-8 rounded-3xl shadow-2xl shadow-black/5 dark:shadow-black/40">
+      <div className="w-full max-w-md flex flex-col relative bg-card/60 backdrop-blur-xl border border-border/50 p-8 rounded-3xl shadow-2xl shadow-black/5 dark:shadow-black/40">
         {!isSuccess ? (
           <>
             <div className="text-center mb-6">
@@ -130,7 +131,7 @@ function ResendVerificationContent() {
           <Button
             variant={'link'}
             onClick={() => router.push('/login')}
-            className=" text-sm text-muted-foreground hover:text-blue-600 transition"
+            className=" text-sm text-muted-foreground hover:text-blue-600"
           >
             <ArrowLeft className="w-4 h-4 mr-1" />
             Back to login
@@ -141,10 +142,15 @@ function ResendVerificationContent() {
   );
 }
 
-
 export default function ResendVerificationPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-gray-50"><Loader2 className="animate-spin h-12 w-12 text-blue-600" /></div>}>
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-background">
+          <Loader2 className="animate-spin h-12 w-12 text-primary" />
+        </div>
+      }
+    >
       <ResendVerificationContent />
     </Suspense>
   );
