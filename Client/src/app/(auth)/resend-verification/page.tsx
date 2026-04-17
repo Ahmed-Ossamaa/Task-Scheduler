@@ -1,12 +1,11 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { Suspense, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 import { authApi } from '@/features/auth/api/auth-api';
 import { AxiosError } from 'axios';
 import { Mail, ArrowLeft, Loader2, CheckCircle2 } from 'lucide-react';
-import * as z from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
@@ -19,31 +18,28 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
+import { resendVerificationSchema, verificationFormValues } from '@/features/auth/schemas/auth.schema';
 
-//form Schema (email field)
-const formSchema = z.object({
-  email: z
-    .email('Please enter a valid email address')
-    .nonempty('Email is required'),
-});
 
-type FormValues = z.infer<typeof formSchema>;
 
-export default function ResendVerificationPage() {
+function ResendVerificationContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [isSuccess, setIsSuccess] = useState(false);
 
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+  const defaultEmail = searchParams.get('email') || '';
+
+  const form = useForm<verificationFormValues>({
+    resolver: zodResolver(resendVerificationSchema),
     defaultValues: {
-      email: '',
+      email: defaultEmail,
     },
   });
 
   const isLoading = form.formState.isSubmitting;
 
   // Submit Handler
-  const onSubmit = async (values: FormValues) => {
+  const onSubmit = async (values: verificationFormValues) => {
     try {
       const response = await authApi.resendVerification(values.email);
       setIsSuccess(true);
@@ -142,5 +138,14 @@ export default function ResendVerificationPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+
+export default function ResendVerificationPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-gray-50"><Loader2 className="animate-spin h-12 w-12 text-blue-600" /></div>}>
+      <ResendVerificationContent />
+    </Suspense>
   );
 }

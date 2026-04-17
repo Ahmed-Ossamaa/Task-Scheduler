@@ -16,6 +16,7 @@ import { AxiosError } from 'axios';
 
 export function LoginForm() {
   const [needsVerification, setNeedsVerification] = useState(false);
+  const [failedEmail, setFailedEmail] = useState('');
   const router = useRouter();
   const setAccessToken = useAuthStore((state) => state.setAccessToken);
   const setUser = useAuthStore((state) => state.setUser);
@@ -48,6 +49,7 @@ export function LoginForm() {
       
       if (errorMessage?.includes('Please verify your email')) {
         setNeedsVerification(true);
+        setFailedEmail(data.email);
         toast.error('You need to verify your email first.');
       } else {
         toast.error(errorMessage || 'Invalid email or password');
@@ -152,7 +154,7 @@ export function LoginForm() {
             <button
               type="button"
               onClick={() =>
-                router.push('/resend-verification')
+                router.push(`/resend-verification?email=${encodeURIComponent(failedEmail)}`)
               }
               className="text-amber-950 font-semibold underline hover:text-blue-600"
             >

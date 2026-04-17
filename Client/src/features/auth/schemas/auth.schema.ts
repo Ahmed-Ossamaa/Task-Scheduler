@@ -27,3 +27,12 @@ export const registerSchema = z.object({
 });
 
 export type RegisterFormValues = z.infer<typeof registerSchema>;
+
+//resend verification
+export const resendVerificationSchema = z.object({
+  email: z
+    .email('Please enter a valid email address')
+    .nonempty('Email is required'),
+});
+
+export type verificationFormValues = z.infer<typeof resendVerificationSchema>;
