@@ -7,7 +7,7 @@ import { toast } from 'sonner';
 import { CheckCircle2, Loader2, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { authApi } from '@/features/auth/api/auth-api';
+import { useRegister } from '../hooks/use-auth';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import {
@@ -18,7 +18,7 @@ import { AxiosError } from 'axios';
 
 export function RegisterForm() {
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
+  const { mutateAsync: registerMutation, isPending: isLoading } = useRegister();
   const [showPassword, setShowPassword] = useState(false);
 
   const {
@@ -37,9 +37,8 @@ export function RegisterForm() {
   });
 
   const onSubmit = async (data: RegisterFormValues) => {
-    setIsLoading(true);
     try {
-      const response = await authApi.register({
+      const response = await await registerMutation({
         name: data.name,
         email: data.email,
         password: data.password,
@@ -53,8 +52,6 @@ export function RegisterForm() {
       const axiosError = error as AxiosError<{ message: string }>;
       const errMessage = axiosError.response?.data?.message;
       toast.error(errMessage || 'Failed to create account, please try again');
-    } finally {
-      setIsLoading(false);
     }
   };
 

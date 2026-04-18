@@ -7,8 +7,7 @@ import { toast } from 'sonner';
 import { CheckCircle2, Loader2, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { authApi } from '@/features/auth/api/auth-api';
-import { useAuthStore } from '@/features/auth/store/auth.store';
+import { useLogin } from '@/features/auth/hooks/use-auth';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { loginSchema, type LoginFormValues } from '../schemas/auth.schema';
@@ -20,10 +19,8 @@ export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
 
   const router = useRouter();
-  const setAccessToken = useAuthStore((state) => state.setAccessToken);
-  const setUser = useAuthStore((state) => state.setUser);
 
-  const [isLoading, setIsLoading] = useState(false);
+  const { mutateAsync: loginMutation, isPending: isLoading } = useLogin();
 
   const {
     register,
@@ -37,11 +34,8 @@ export function LoginForm() {
 
   const onSubmit = async (data: LoginFormValues) => {
     setNeedsVerification(false);
-    setIsLoading(true);
     try {
-      const response = await authApi.login(data);
-      setAccessToken(response.accessToken);
-      setUser(response.user);
+      await loginMutation(data);
 
       toast.success('Welcome back!');
       router.push('/dashboard');
@@ -56,8 +50,6 @@ export function LoginForm() {
       } else {
         toast.error(errorMessage || 'Invalid email or password');
       }
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -123,20 +115,20 @@ export function LoginForm() {
           </div>
 
           <div className="relative">
-          <Input
-            type={showPassword ? 'text' : 'password'}
-            {...register('password')}
-            className={`pr-10 h-10 ${
-              errors.password
-                ? 'border-destructive focus-visible:ring-destructive'
-                : ''
-            }`}
-            placeholder="••••••••"
-          />
-          <button
+            <Input
+              type={showPassword ? 'text' : 'password'}
+              {...register('password')}
+              className={`pr-10 h-10 ${
+                errors.password
+                  ? 'border-destructive focus-visible:ring-destructive'
+                  : ''
+              }`}
+              placeholder="••••••••"
+            />
+            <button
               type="button"
               onClick={() => setShowPassword((prev) => !prev)}
-              tabIndex={-1} 
+              tabIndex={-1}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
             >
               {showPassword ? (
