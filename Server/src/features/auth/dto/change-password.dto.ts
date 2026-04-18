@@ -5,7 +5,7 @@ export class ChangePasswordDto {
   @ApiProperty({ example: '123456@Ab' })
   @IsNotEmpty()
   @IsString()
-  oldPassword: string;
+  oldPassword!: string;
 
   @ApiProperty({
     example: 'Ba@111222',
@@ -19,5 +19,5 @@ export class ChangePasswordDto {
     message:
       'Password must contain uppercase, lowercase, number, and special character',
   })
-  newPassword: string;
+  newPassword!: string;
 }
