@@ -130,6 +130,20 @@ export class UserService {
     return user;
   }
 
+  /**
+   * Finds a user by a given field and value.
+   * @param field The field to search for (e.g. 'id', 'email', etc.)
+   * @param value The value to search for.
+   * @returns The user if found, otherwise null.
+   */
+  async findUserBy(
+    field: keyof User,
+    value: User[keyof User],
+  ): Promise<User | null> {
+    const user = await this.userRepo.findOne({ where: { [field]: value } });
+    return user;
+  }
+
   async findUserWithRefreshToken(userId: string): Promise<User> {
     const user = await this.userRepo
       .createQueryBuilder('user')
