@@ -29,6 +29,8 @@ import jwtConfiguration from 'src/config/jwt.config';
 import { Throttle } from '@nestjs/throttler';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { ApiOperation } from '@nestjs/swagger';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -143,6 +145,19 @@ export class AuthController {
   ): Promise<{ message: string }> {
     await this.authService.changePassword(user.sub, changePasswordDto);
     return { message: 'Password changed successfully, please login again' };
+  }
+  @ApiOperation({ summary: 'Send password reset email' })
+  @HttpCode(200)
+  @Post('forgot-password')
+  async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
+    return await this.authService.forgotPassword(forgotPasswordDto);
+  }
+
+  @ApiOperation({ summary: 'Reset password using token from email' })
+  @HttpCode(200)
+  @Post('reset-password')
+  async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
+    return await this.authService.resetPassword(resetPasswordDto);
   }
 
   @ApiOperation({ summary: 'Refresh the access token (passive)' })

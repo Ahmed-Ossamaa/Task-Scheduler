@@ -28,6 +28,8 @@ import {
   managerWelcomeTemplate,
   resendVerificationTemplate,
 } from 'src/integrations/mail/mail.temp';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 type Tokens = { accessToken: string; refreshToken: string };
 
@@ -189,6 +191,67 @@ export class AuthService {
     const hashedPassword = await bcrypt.hash(changePasswordDto.newPassword, 10);
     await this.userService.updateUserPassword(user, hashedPassword);
     await this.logout(user.id);
+  }
+
+  async forgotPassword(forgotPasswordDto: ForgotPasswordDto) {
+    const user = await this.userService.findUserForLogin(
+      forgotPasswordDto.email,
+    );
+
+    if (!user) {
+      return { message: 'A reset link has been sent, Please check your email' };
+    }
+
+    // reset token
+    const resetToken = crypto.randomBytes(32).toString('hex');
+
+    // expiration (1h)
+    const tokenExpiration = new Date();
+    tokenExpiration.setHours(tokenExpiration.getHours() + 1);
+
+    user.resetPasswordToken = resetToken;
+    user.resetPasswordExpires = tokenExpiration;
+    await this.userService.saveUser(user);
+
+    // Send email
+    const resetLink = `${this.appEnv.clientURL}/reset-password?token=${resetToken}`;
+    await this.mailService.sendEmail(
+      user.email,
+      user.name,
+      'reset password',
+      resetLink,
+    );
+
+    return { message: 'A reset link has been sent, Please check your email' };
+  }
+
+  async resetPassword(resetPasswordDto: ResetPasswordDto) {
+    const user = await this.userService.findUserBy(
+      'resetPasswordToken',
+      resetPasswordDto.token,
+    );
+
+    if (
+      !user ||
+      (user.resetPasswordExpires && user.resetPasswordExpires < new Date())
+    ) {
+      throw new BadRequestException('Invalid or expired password reset token.');
+    }
+
+    // Hashed newPassword
+    const hashedPassword = await bcrypt.hash(resetPasswordDto.newPassword, 10);
+
+    //Update password
+    user.password = hashedPassword;
+    // nullish the  tokens
+    user.resetPasswordToken = null;
+    user.resetPasswordExpires = null;
+
+    await this.userService.saveUser(user);
+
+    return {
+      message: 'Password has been successfully reset. You can now log in.',
+    };
   }
 
   async googleLogin(profile: Profile) {
