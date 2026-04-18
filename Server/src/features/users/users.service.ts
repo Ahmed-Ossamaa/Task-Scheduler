@@ -119,6 +119,8 @@ export class UserService {
       .addSelect([
         'user.password',
         'user.refreshToken',
+        'user.resetPasswordToken',
+        'user.resetPasswordExpires',
         'user.role',
         'user.organizationId',
       ])
