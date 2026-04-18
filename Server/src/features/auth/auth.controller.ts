@@ -142,10 +142,21 @@ export class AuthController {
   async changePassword(
     @CurrentUser() user: JwtPayload,
     @Body() changePasswordDto: ChangePasswordDto,
+    @Res({ passthrough: true }) res: Response,
   ): Promise<{ message: string }> {
     await this.authService.changePassword(user.sub, changePasswordDto);
+    //clear cookies (refreshToken & flag)
+    const clearOptions = {
+      secure: this.appConfig.nodeEnv === 'production',
+      sameSite: 'lax' as const,
+      path: '/',
+    };
+
+    res.clearCookie('refreshToken', { ...clearOptions, httpOnly: true });
+    res.clearCookie('hasSession', { ...clearOptions, httpOnly: false });
     return { message: 'Password changed successfully, please login again' };
   }
+
   @ApiOperation({ summary: 'Send password reset email' })
   @HttpCode(200)
   @Post('forgot-password')
