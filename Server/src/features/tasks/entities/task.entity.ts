@@ -26,8 +26,8 @@ export class Task {
   @Column()
   title: string;
 
-  @Column({ nullable: true })
-  description?: string;
+  @Column({ type: 'text', nullable: true })
+  description: string | null;
 
   @Column({ type: 'enum', enum: TaskPriority, default: TaskPriority.LOW })
   priority: TaskPriority;
@@ -80,5 +80,5 @@ export class Task {
   project: Project;
 
   @Column()
-  projectId: string;
+  projectId: string | null;
 }

@@ -23,7 +23,6 @@ import { RolesGuard } from 'src/features/auth/guards/roles.guard';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { UserRole } from 'src/features/users/enums/user-roles.enum';
 import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
-import { Throttle } from '@nestjs/throttler';
 
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -44,9 +43,7 @@ export class TasksController {
     @Query('limit', new ParseIntPipe({ optional: true })) limit: number = 20,
   ) {
     if (!user.organizationId) {
-      return {
-        message: 'You are not part of any organization',
-      };
+      throw new BadRequestException('You dont belong to any organization');
     }
     return this.tasksService.getUserTasks(
       user.sub,
@@ -78,19 +75,6 @@ export class TasksController {
       limit,
     );
     return tasks;
-  }
-
-  @ApiOperation({
-    summary: 'Get all tasks in the system (Admin Only)',
-  })
-  @Throttle({ default: { limit: 50, ttl: 60000 } })
-  @Get()
-  @Roles(UserRole.ADMIN)
-  async getAllTasks(
-    @Query('page', new ParseIntPipe({ optional: true })) page: number = 1,
-    @Query('limit', new ParseIntPipe({ optional: true })) limit: number = 20,
-  ) {
-    return this.tasksService.getAllTasks(page, limit);
   }
 
   //--------Prefixed Dynamic Routes--------

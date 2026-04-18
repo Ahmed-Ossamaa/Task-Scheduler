@@ -1,6 +1,5 @@
 import {
   BadRequestException,
-  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -10,11 +9,13 @@ import { CreateTaskDTO } from './dto/create-task.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserService } from 'src/features/users/users.service';
 import { UpdateTaskDto } from './dto/update-task.dto';
-import { PaginatedTaks } from './interfaces/task.response';
+import { PaginatedTasksDto } from './dto/paginated-tasks.dto';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { TaskStatus } from './enums/tasks-status.enums';
 import { ProjectsService } from 'src/features/projects/projects.service';
+import { TaskMapper } from './mappers/task.mapper';
+import { TaskResponseDto } from './dto/tasks-response.dto';
 @Injectable()
 export class TasksService {
   constructor(
@@ -30,7 +31,7 @@ export class TasksService {
     taskDto: CreateTaskDTO,
     managerId: string,
     OrganzationId: string,
-  ): Promise<Task> {
+  ): Promise<TaskResponseDto> {
     if (new Date(taskDto.deadLine) <= new Date()) {
       throw new BadRequestException('DeadLine must be in the future');
     }
@@ -60,7 +61,7 @@ export class TasksService {
     );
     task.jobId = job.id;
     await this.tasksRepo.save(task);
-    return task;
+    return TaskMapper.fromEntity(task);
   }
 
   async completeTask(taskId: string, userId: string): Promise<Task> {
@@ -89,7 +90,7 @@ export class TasksService {
     // Mark the task as done
     task.status = TaskStatus.DONE;
     task.completedAt = new Date();
-    task.jobId = undefined;
+    task.jobId = null;
 
     return this.tasksRepo.save(task);
   }
@@ -114,43 +115,36 @@ export class TasksService {
     orgId: string,
     page: number = 1,
     limit: number = 20,
-  ): Promise<PaginatedTaks> {
+  ): Promise<PaginatedTasksDto> {
     const take = Math.min(limit, 100);
     const skip = (page - 1) * take;
-    const [tasks, total] = await this.tasksRepo.findAndCount({
-      where: { assignedToId: userId, organizationId: orgId },
-      relations: ['project', 'assignedTo', 'assignedBy'],
-      order: { createdAt: 'DESC' },
-      skip,
-      take,
-    });
+
+    const [tasks, total] = await this.baseTaskQuery()
+      .where('task.assignedToId = :userId', { userId })
+      .andWhere('task.organizationId = :orgId', { orgId })
+      .orderBy('task.createdAt', 'DESC')
+      .skip(skip)
+      .take(take)
+      .getManyAndCount();
 
     return {
-      data: tasks,
+      data: tasks.map(TaskMapper.fromEntity),
       total,
       page,
       lastPage: Math.ceil(total / take),
     };
   }
 
-  async getTaskById(taskId: string, userOrgId: string): Promise<Task> {
-    const task = await this.tasksRepo.findOne({
-      where: { id: taskId },
-      relations: ['assignedBy', 'assignedTo', 'project'],
-      select: {
-        assignedBy: { id: true, name: true, email: true, avatar: true },
-        assignedTo: { id: true, name: true, email: true, avatar: true },
-      },
-    });
+  async getTaskById(taskId: string, orgId: string): Promise<Task> {
+    const task = await this.baseTaskQuery()
+      .where('task.id = :taskId', { taskId })
+      .andWhere('task.organizationId = :orgId', { orgId })
+      .getOne();
+
     if (!task) {
       throw new NotFoundException('Task not found');
     }
 
-    if (task.organizationId !== userOrgId) {
-      throw new ForbiddenException(
-        'You do not have permission to view this task',
-      );
-    }
     return task;
   }
 
@@ -159,46 +153,20 @@ export class TasksService {
     orgId: string,
     page: number = 1,
     limit: number = 20,
-  ): Promise<PaginatedTaks> {
+  ): Promise<PaginatedTasksDto> {
     const take = Math.min(limit, 100);
     const skip = (page - 1) * take;
 
-    const [tasks, total] = await this.tasksRepo.findAndCount({
-      where: {
-        projectId: projectId,
-        organizationId: orgId,
-      },
-      relations: ['assignedTo', 'assignedBy', 'project'],
-      order: { createdAt: 'DESC' },
-      skip,
-      take,
-    });
+    const [tasks, total] = await this.baseTaskQuery()
+      .where('task.projectId = :projectId', { projectId })
+      .andWhere('task.organizationId = :orgId', { orgId })
+      .orderBy('task.createdAt', 'DESC')
+      .skip(skip)
+      .take(take)
+      .getManyAndCount();
 
     return {
-      data: tasks,
-      total,
-      page,
-      lastPage: Math.ceil(total / take),
-    };
-  }
-
-  //Get All tasks "system wide"
-  async getAllTasks(
-    page: number = 1,
-    limit: number = 20,
-  ): Promise<PaginatedTaks> {
-    const take = Math.min(limit, 100);
-    const skip = (page - 1) * take;
-    const [tasks, total] = await this.tasksRepo.findAndCount({
-      where: {},
-      order: { createdAt: 'DESC' },
-      // relations: ['project', 'assignedTo', 'assignedBy'],
-      skip,
-      take,
-    });
-
-    return {
-      data: tasks,
+      data: tasks.map(TaskMapper.fromEntity),
       total,
       page,
       lastPage: Math.ceil(total / take),
@@ -210,20 +178,12 @@ export class TasksService {
     const take = Math.min(limit, 100);
     const skip = (page - 1) * take;
 
-    const [tasks, total] = await this.tasksRepo.findAndCount({
-      where: { organizationId: orgId },
-      order: { createdAt: 'DESC' },
-      skip,
-      take,
-      relations: ['assignedTo', 'assignedBy', 'project'],
-      select: {
-        assignedTo: {
-          id: true,
-          name: true,
-          avatar: true,
-        },
-      },
-    });
+    const [tasks, total] = await this.baseTaskQuery()
+      .where('task.organizationId = :orgId', { orgId })
+      .orderBy('task.createdAt', 'DESC')
+      .skip(skip)
+      .take(take)
+      .getManyAndCount();
 
     return {
       data: tasks,
@@ -352,5 +312,37 @@ export class TasksService {
 
   async getTasksCount() {
     return this.tasksRepo.count();
+  }
+
+  private baseTaskQuery() {
+    return this.tasksRepo
+      .createQueryBuilder('task')
+      .leftJoin('task.project', 'project')
+      .leftJoin('task.assignedTo', 'assignedTo')
+      .leftJoin('task.assignedBy', 'assignedBy')
+      .select([
+        'task.id',
+        'task.title',
+        'task.description',
+        'task.status',
+        'task.priority',
+        'task.deadLine',
+        'task.completedAt',
+        'task.createdAt',
+        'task.updatedAt',
+        'task.assignedToId',
+        'task.assignedById',
+        'task.projectId',
+        'task.organizationId',
+
+        'project.id',
+        'project.name',
+
+        'assignedTo.id',
+        'assignedTo.name',
+
+        'assignedBy.id',
+        'assignedBy.name',
+      ]);
   }
 }
