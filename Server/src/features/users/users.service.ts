@@ -21,6 +21,7 @@ import { UserRole } from './enums/user-roles.enum';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { Task } from 'src/features/tasks/entities/task.entity';
 import { GrowthInterval } from '../analytics/types/analytics.types';
+import { SensitiveUserFields } from './types/user-sensetive-fields';
 
 @Injectable()
 export class UserService {
@@ -31,11 +32,19 @@ export class UserService {
     private readonly dataSource: DataSource,
   ) {}
 
+  /**
+   * Creates a new user.
+   * @returns The created user.
+   */
   async createUser(userData: Partial<User>): Promise<User> {
     const user = this.userRepo.create(userData);
     return this.saveUser(user);
   }
 
+  /**
+   * Creates a new employee under a manager.
+   * @returns The created employee.
+   */
   async createEmployee(
     managerId: string,
     employeeDto: CreateEmployeeDto,
@@ -75,30 +84,43 @@ export class UserService {
     return this.saveUser(newEmployee);
   }
 
-  async findMyTeam(
-    organizationId: string,
-    page: number = 1,
-    limit: number = 20,
-  ): Promise<PaginatedUsers> {
-    const take = Math.min(limit, 100);
-    const skip = (page - 1) * take;
-    const [employees, total] = await this.userRepo.findAndCount({
-      where: {
-        organizationId,
-      },
-      order: { createdAt: 'DESC' },
-      skip,
-      take,
-    });
+  /**
+   * Finds or creates a user from Google profile.
+   * @returns The found or created user.
+   */
+  async findOrCreateUserFromGoogle(profile: Profile) {
+    if (profile.emails) {
+      const email = profile.emails[0].value;
+      const user = await this.findUserByEmail(email);
+      if (user) {
+        return user;
+      }
 
-    return {
-      data: employees,
-      total,
-      page,
-      lastPage: Math.ceil(total / take),
-    };
+      return this.createUser({
+        email: email,
+        name: profile.displayName,
+        oAuthProvider: 'google',
+        oauthId: profile.id,
+        isEmailVerified: true,
+        avatar: profile?.photos?.[0].value,
+        role: UserRole.MANAGER,
+      });
+    }
   }
 
+  /**
+   * Saves a user to the database.
+   * @returns The saved user.
+   */
+  async saveUser(user: User): Promise<User> {
+    return this.userRepo.save(user);
+  }
+
+  /**
+   * Finds a user by their ID.
+   * @returns The user if found.
+   * @throws NotFoundException if the user is not found.
+   */
   async findUserById(userId: string): Promise<User> {
     const user = await this.userRepo.findOneBy({ id: userId });
 
@@ -108,25 +130,12 @@ export class UserService {
     return user;
   }
 
+  /**
+   * Finds a user by their email.
+   * @returns The user if found, otherwise null.
+   */
   async findUserByEmail(email: string): Promise<User | null> {
     const user = await this.userRepo.findOneBy({ email });
-    return user;
-  }
-
-  async findUserForLogin(email: string): Promise<User | null> {
-    const user = await this.userRepo
-      .createQueryBuilder('user')
-      .addSelect([
-        'user.password',
-        'user.refreshToken',
-        'user.resetPasswordToken',
-        'user.resetPasswordExpires',
-        'user.role',
-        'user.organizationId',
-      ])
-      .where('user.email = :email', { email })
-      .getOne();
-
     return user;
   }
 
@@ -144,34 +153,69 @@ export class UserService {
     return user;
   }
 
-  async findUserWithRefreshToken(userId: string): Promise<User> {
-    const user = await this.userRepo
-      .createQueryBuilder('user')
-      .addSelect('user.refreshToken')
-      .where('user.id = :id', { id: userId })
-      .getOne();
+  /**
+   * Finds a user by their email and returns specific sensitive fields.
+   * @param email The email of the user to find.
+   * @param fields The sensitive user fields to return (addSelect).
+   * @returns The user if found, otherwise null.
+   */
+  async findByEmailWithFields(
+    email: string,
+    fields: SensitiveUserFields[],
+  ): Promise<User | null> {
+    const qb = this.userRepo.createQueryBuilder('user');
 
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
+    fields.forEach((field) => {
+      qb.addSelect(`user.${field}`);
+    });
+
+    return qb.where('user.email = :email', { email }).getOne();
+  }
+
+  /**
+   * Finds a user by their ID and returns specific sensitive fields.
+   * @param userId The ID of the user to find.
+   * @param fields The sensitive user fields to return (addSelect).
+   * @returns The user if found, otherwise null.
+   */
+  async findUserByIdWithFields(
+    userId: string,
+    fields: SensitiveUserFields[],
+  ): Promise<User | null> {
+    const qb = this.userRepo.createQueryBuilder('user');
+
+    fields.forEach((field) => {
+      qb.addSelect(`user.${field}`);
+    });
+
+    const user = await qb.where('user.id = :id', { id: userId }).getOne();
 
     return user;
   }
 
-  async findUserWithPassword(userId: string): Promise<User> {
-    const user = await this.userRepo
+  /**
+   * Finds a user by their verification token.
+   * @returns The user if found, otherwise null.
+   */
+  async findUserByVerificationToken(token: string): Promise<User | null> {
+    return this.userRepo
       .createQueryBuilder('user')
-      .addSelect('user.password')
-      .where('user.id = :id', { id: userId })
+      .addSelect([
+        'user.verificationToken',
+        'user.verificationTokenExpires',
+        'user.isEmailVerified',
+      ])
+      .where('user.verificationToken = :token', { token })
       .getOne();
-
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
-    return user;
   }
 
+  /**
+   * Finds all users (Paginated).
+   * @param page - Page number (Defaults to 1).
+   * @param limit - Number of users per page (Defaults to 20).
+   * @param select - An optional object to specify which fields should be returned.
+   * @returns An object containing the users, total count, page number, and last page number.
+   */
   async findAllUsers(
     page: number = 1,
     limit: number = 20,
@@ -211,19 +255,38 @@ export class UserService {
     };
   }
 
-  async updateUserPassword(user: User, newPassword: string) {
-    user.password = newPassword;
-    user.refreshToken = null;
-    return this.saveUser(user);
+  /**
+   * Finds all users in a specific organization (Paginated).
+   * @returns An object containing the users, total count, page number, and last page number.
+   */
+  async findMyTeam(
+    organizationId: string,
+    page: number = 1,
+    limit: number = 20,
+  ): Promise<PaginatedUsers> {
+    const take = Math.min(limit, 100);
+    const skip = (page - 1) * take;
+    const [employees, total] = await this.userRepo.findAndCount({
+      where: {
+        organizationId,
+      },
+      order: { createdAt: 'DESC' },
+      skip,
+      take,
+    });
+
+    return {
+      data: employees,
+      total,
+      page,
+      lastPage: Math.ceil(total / take),
+    };
   }
 
-  async updateRefreshToken(
-    userId: string,
-    refreshToken: string | null,
-  ): Promise<void> {
-    await this.userRepo.update(userId, { refreshToken });
-  }
-
+  /**
+   * Updates the profile of a user.
+   * @returns The updated user.
+   */
   async updateUserProfile(
     userId: string,
     profile: Partial<User>,
@@ -233,10 +296,30 @@ export class UserService {
     return this.saveUser(user);
   }
 
-  async saveUser(user: User): Promise<User> {
-    return this.userRepo.save(user);
+  /**
+   * Updates the password of a user.
+   * @returns The updated user.
+   */
+  async updateUserPassword(user: User, newPassword: string): Promise<User> {
+    user.password = newPassword;
+    user.refreshToken = null;
+    return this.saveUser(user);
   }
 
+  /**
+   * Updates the refresh token of a user.
+   */
+  async updateRefreshToken(
+    userId: string,
+    refreshToken: string | null,
+  ): Promise<void> {
+    await this.userRepo.update(userId, { refreshToken });
+  }
+
+  /**
+   * Updates the avatar of a user (adding the url in db not uploading the file).
+   * @returns The updated user.
+   */
   async updateAvatar(userId: string, avatarUrl: string): Promise<User> {
     const user = await this.findUserById(userId);
     user.avatar = avatarUrl;
@@ -244,12 +327,20 @@ export class UserService {
     return this.saveUser(user);
   }
 
+  /**
+   * Removes the avatar from a user.
+   * @returns The updated user.
+   */
   async removeAvatar(userId: string): Promise<User> {
     const user = await this.findUserById(userId);
     user.avatar = null;
     return this.saveUser(user);
   }
 
+  /**
+   * Updates the role of an employee in an organization.
+   * @returns The updated employee.
+   */
   async updateEmployeeRole(
     orgId: string,
     employeeId: string,
@@ -272,10 +363,35 @@ export class UserService {
   }
 
   /**
+   * Updates the verification token when a user requests a "Resend Link".
+   */
+  async updateVerificationToken(
+    userId: string,
+    token: string,
+    expires: Date,
+  ): Promise<void> {
+    await this.userRepo.update(userId, {
+      verificationToken: token,
+      verificationTokenExpires: expires,
+      isEmailVerified: false,
+    });
+  }
+
+  /**
+   * Marks a user's email as verified and wipes the tokens.
+   */
+  async markEmailAsVerified(userId: string): Promise<void> {
+    await this.userRepo.update(userId, {
+      isEmailVerified: true,
+      verificationToken: null, // Wipe the token so it cant be reused
+      verificationTokenExpires: null,
+    });
+  }
+
+  /**
    * Deletes any user and their associated tasks (Soft Delete).
    * should be used by Admins only
-   * @param userId - The ID of the user to be deleted.
-   * @returns {Promise<{ message: string }>} - Success Deletion message on Success.
+   * @returns Success Deletion message on Success.
    */
   async deleteUser(userId: string): Promise<{ message: string }> {
     const queryRunner = this.dataSource.createQueryRunner();
@@ -316,6 +432,10 @@ export class UserService {
     }
   }
 
+  /**
+   * Restores a user and their tasks (Admin only).
+   * @returns  Success restoration message on Success.
+   */
   async restoreUser(userId: string): Promise<{ message: string }> {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
@@ -362,9 +482,7 @@ export class UserService {
   /**
    * Delete an employee and all associated tasks (Soft Delete).
    * Only accessible to a manager of the employee's organization.
-   * @param managerOrgId - The ID of the manager's organization.
-   * @param employeeId - The ID of the employee to be deleted.
-   * @returns {Promise<{ message: string }>} - Success Deletion message on Success.
+   * @returns  Success Deletion message on Success.
    */
   async deleteEmployee(
     managerOrgId: string,
@@ -417,8 +535,6 @@ export class UserService {
 
   /**
    * Restore an employee and their tasks (Manager only).
-   * @param employeeId - The ID of the employee to be restored.
-   * @param managerOrgId - The ID of the organization that the manager belongs to.
    * @returns  Success restoration message on Success.
    */
   async restoreEmployee(
@@ -465,6 +581,36 @@ export class UserService {
     }
   }
 
+  /**
+   * Get all  soft deleted users (Paginated)
+   */
+  async getDeletedUsers(page = 1, limit = 20): Promise<PaginatedUsers> {
+    const take = Math.min(limit, 100);
+    const skip = (page - 1) * take;
+
+    const [users, total] = await this.userRepo.findAndCount({
+      where: {
+        deletedAt: Not(IsNull()),
+      },
+      withDeleted: true,
+      order: {
+        deletedAt: 'DESC',
+      },
+      skip,
+      take,
+    });
+
+    return {
+      data: users,
+      total,
+      page,
+      lastPage: Math.ceil(total / take),
+    };
+  }
+
+  /**
+   * Get all  soft deleted employees in an organization (Paginated)
+   */
   async getDeletedEmployees(
     orgId: string,
     page = 1,
@@ -493,30 +639,9 @@ export class UserService {
     };
   }
 
-  async getDeletedUsers(page = 1, limit = 20): Promise<PaginatedUsers> {
-    const take = Math.min(limit, 100);
-    const skip = (page - 1) * take;
-
-    const [users, total] = await this.userRepo.findAndCount({
-      where: {
-        deletedAt: Not(IsNull()),
-      },
-      withDeleted: true,
-      order: {
-        deletedAt: 'DESC',
-      },
-      skip,
-      take,
-    });
-
-    return {
-      data: users,
-      total,
-      page,
-      lastPage: Math.ceil(total / take),
-    };
-  }
-
+  /**
+   * Get the number of users (system wide)
+   */
   async getUsersCount() {
     return this.userRepo.count();
   }
@@ -524,8 +649,7 @@ export class UserService {
   /**
    * Returns the distribution of roles within the organization.
    * An array of objects with the role and its count.
-   *
-   * Example: [{ role: 'admin', count: 2 }, { role: 'manager', count: 4 }, { role: 'employee', count: 10 }]
+   * - Example: [{ role: 'admin', count: 2 }, { role: 'manager', count: 4 }, { role: 'employee', count: 10 }]
    */
   async getRoleDistribution(): Promise<{ role: UserRole; count: number }[]> {
     return this.userRepo
@@ -539,8 +663,7 @@ export class UserService {
   /**
    * Returns the growth of users within the organization for the given interval.
    * An array of objects with the month and its count.
-   *
-   * Example: [{ month: 2026-01, users: 2 }, { month: 2026-02, users: 4 }, { month: 2026-03, users: 10 }]
+   * - Example: [{ month: 2026-01, users: 2 }, { month: 2026-02, users: 4 }, { month: 2026-03, users: 10 }]
    *
    * @param {GrowthInterval} interval - The interval for which to retrieve the user growth.
    * @returns {Promise<{ month: Date; users: number }[]>}
@@ -560,26 +683,6 @@ export class UserService {
       .getRawMany<{ month: Date; users: number }>();
 
     return result;
-  }
-
-  async findOrCreateUserFromGoogle(profile: Profile) {
-    if (profile.emails) {
-      const email = profile.emails[0].value;
-      const user = await this.findUserByEmail(email);
-      if (user) {
-        return user;
-      }
-
-      return this.createUser({
-        email: email,
-        name: profile.displayName,
-        oAuthProvider: 'google',
-        oauthId: profile.id,
-        isEmailVerified: true,
-        avatar: profile?.photos?.[0].value,
-        role: UserRole.MANAGER,
-      });
-    }
   }
 
   /**
@@ -604,52 +707,5 @@ export class UserService {
     }
 
     return employee;
-  }
-
-  /**
-   * Finds a user by their verification token.
-   * @param token - The verification token to search for.
-   * @returns The user if found, otherwise null.
-   */
-  async findUserByVerificationToken(token: string): Promise<User | null> {
-    return this.userRepo
-      .createQueryBuilder('user')
-      .addSelect([
-        'user.verificationToken',
-        'user.verificationTokenExpires',
-        'user.isEmailVerified',
-      ])
-      .where('user.verificationToken = :token', { token })
-      .getOne();
-  }
-
-  /**
-   * Marks a user's email as verified and wipes the tokens.
-   * @param userId - The ID of the user to mark as verified.
-   */
-  async markEmailAsVerified(userId: string): Promise<void> {
-    await this.userRepo.update(userId, {
-      isEmailVerified: true,
-      verificationToken: null, // Wipe the token so it cant be reused
-      verificationTokenExpires: null,
-    });
-  }
-
-  /**
-   * Updates the verification token when a user requests a "Resend Link".
-   * @param userId - The ID of the user to update.
-   * @param token - The new verification token.
-   * @param expires - The expiration date of the token.
-   */
-  async updateVerificationToken(
-    userId: string,
-    token: string,
-    expires: Date,
-  ): Promise<void> {
-    await this.userRepo.update(userId, {
-      verificationToken: token,
-      verificationTokenExpires: expires,
-      isEmailVerified: false,
-    });
   }
 }

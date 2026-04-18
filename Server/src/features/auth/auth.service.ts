@@ -78,7 +78,10 @@ export class AuthService {
   }
 
   async login(loginDto: LoginUserDto): Promise<AuthResponse> {
-    const user = await this.userService.findUserForLogin(loginDto.email);
+    const user = await this.userService.findByEmailWithFields(loginDto.email, [
+      'password',
+      'refreshToken',
+    ]);
 
     if (!user || !user.password) {
       throw new UnauthorizedException('Invalid credentials');
@@ -146,7 +149,9 @@ export class AuthService {
     userId: string,
     refreshToken: string,
   ): Promise<AuthResponse> {
-    const user = await this.userService.findUserWithRefreshToken(userId);
+    const user = await this.userService.findUserByIdWithFields(userId, [
+      'refreshToken',
+    ]);
 
     if (!user || !user.refreshToken) {
       throw new ForbiddenException('Access Denied');
@@ -173,7 +178,12 @@ export class AuthService {
     userId: string,
     changePasswordDto: ChangePasswordDto,
   ): Promise<void> {
-    const user = await this.userService.findUserWithPassword(userId);
+    const user = await this.userService.findUserByIdWithFields(userId, [
+      'password',
+    ]);
+    if (!user) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
 
     if (!user.password) {
       throw new BadRequestException(
@@ -194,8 +204,9 @@ export class AuthService {
   }
 
   async forgotPassword(forgotPasswordDto: ForgotPasswordDto) {
-    const user = await this.userService.findUserForLogin(
+    const user = await this.userService.findByEmailWithFields(
       forgotPasswordDto.email,
+      ['resetPasswordToken', 'resetPasswordExpires'],
     );
 
     if (!user) {
