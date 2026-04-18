@@ -46,18 +46,6 @@ export const tasksApi = {
     return data;
   },
 
-  /**
-   * Admin: Get All Tasks (Paginated)
-   * @param {number} [page=1] - Page number
-   * @param {number} [limit=20] - Number of tasks per page
-   * @returns {Promise<Tasks>} - A promise resolving with an object containing tasks data and pagination metadata.
-   */
-  getAllTasks: async (page: number = 1, limit: number = 20): Promise<Tasks> => {
-    const { data } = await api.get<Tasks>(`/tasks`, {
-      params: { page, limit },
-    });
-    return data;
-  },
 
   /**
    * Manager: Create Task
