@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { authApi } from '@/features/auth/api/auth-api';
 import { AxiosError } from 'axios';
 import { CheckCircle2, Loader2, XCircle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 function VerifyEmailContent() {
   const searchParams = useSearchParams();
@@ -50,8 +51,8 @@ function VerifyEmailContent() {
   }, [token, router]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-      <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8 text-center">
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="w-full max-w-md flex flex-col relative bg-card/60 backdrop-blur-xl border border-border/50 p-8 rounded-3xl shadow-2xl shadow-black/5 dark:shadow-black/40">
         {/* Loading */}
         {status === 'loading' && (
           <div>
@@ -87,12 +88,12 @@ function VerifyEmailContent() {
             <h2 className="text-xl font-semibold mb-2">Verification Failed</h2>
             <p className="text-red-500 mb-6">{errorMessage}</p>
 
-            <button
+            <Button
               onClick={() => router.push('/login')}
-              className="w-full bg-gray-100 text-gray-700 py-2 px-4 rounded hover:bg-gray-200 transition"
+              className="w-full"
             >
               Back to Login
-            </button>
+            </Button>
           </div>
         )}
       </div>

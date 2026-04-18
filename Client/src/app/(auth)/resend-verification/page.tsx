@@ -131,7 +131,7 @@ function ResendVerificationContent() {
           <Button
             variant={'link'}
             onClick={() => router.push('/login')}
-            className=" text-sm text-muted-foreground hover:text-blue-600"
+            className="inline-flex items-center text-[12px] text-muted-foreground hover:text-primary transition-colors hover:underline underline-offset-4"
           >
             <ArrowLeft className="w-4 h-4 mr-1" />
             Back to login
