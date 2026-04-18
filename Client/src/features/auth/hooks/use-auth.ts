@@ -2,11 +2,17 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { authApi } from '../api/auth-api';
 import { useAuthStore } from '../store/auth.store';
-import { LoginDto } from '../types/auth-dto';
-import { AxiosError } from 'axios';
+import { LoginDto, RegisterDto } from '../types/auth-dto';
+import { ChangePasswordValues,  } from '../schemas/auth.schema';
+
+
+export const useRegister = () => {
+  return useMutation({
+    mutationFn: (data: RegisterDto) => authApi.register(data),
+  });
+};
 
 export const useLogin = () => {
-  const router = useRouter();
   const queryClient = useQueryClient();
   const setUser = useAuthStore((state) => state.setUser);
   const setAccessToken = useAuthStore((state) => state.setAccessToken);
@@ -18,16 +24,6 @@ export const useLogin = () => {
       // Updating  Store
       setUser(data.user);
       setAccessToken(data.accessToken);
-
-      //Redirect to Dashboard
-      router.push('/dashboard');
-    },
-    onError: (error: AxiosError<{ message: string }>) => {
-      console.error(
-        'Login Failed:',
-        error.response?.data?.message || error.message,
-      );
-      // will add a toast notification here later
     },
   });
 };
@@ -47,5 +43,35 @@ export const useLogout = () => {
       // Redirect to the login page
       router.push('/login');
     },
+  });
+};
+
+export const useChangePassword = () => {
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  const clearAuth = useAuthStore((state) => state.clearAuth);
+
+  return useMutation({
+    mutationFn: (data: ChangePasswordValues) => authApi.changePassword(data),
+    onSuccess: () => {
+      queryClient.clear();
+      clearAuth();
+      router.push('/login');
+    },
+  });
+};
+
+
+export const useResetPassword = () => {
+  return useMutation({
+    mutationFn: ({ token, newPassword }: { token: string; newPassword: string }) =>
+      authApi.resetPassword(token, newPassword),
+  });
+}
+
+
+export const useForgotPassword = () => {
+  return useMutation({
+    mutationFn: (email: string) => authApi.forgotPassword(email),
   });
 };

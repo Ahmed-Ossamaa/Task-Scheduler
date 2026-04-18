@@ -1,6 +1,7 @@
 import api from '@/lib/api/axios';
 import { User } from '../types/user-interface';
 import { LoginDto, RegisterDto } from '../types/auth-dto';
+import { ChangePasswordValues } from '../schemas/auth.schema';
 
 export const authApi = {
   register: async (data: RegisterDto) => {
@@ -37,5 +38,25 @@ export const authApi = {
   resendVerification: async (email: string) => {
     const response = await api.post<{ message: string }>('/auth/resend-verification', { email });
     return response;
+  },
+
+  changePassword: async ( data:ChangePasswordValues ) => {
+    const response = await api.patch<{ message: string }>('/auth/change-password', data);
+    return response;
+  },
+
+  forgotPassword: async (email: string) => {
+    const response = await api.post<{ message: string }>('/auth/forgot-password', { email });
+    return response;
+  },
+
+  resetPassword: async (token: string, newPassword: string ) => {
+    const response = await api.post<{ message: string }>('/auth/reset-password', {
+      token,
+      newPassword
+    });
+    return response;
   }
+
+
 };
