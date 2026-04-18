@@ -88,7 +88,7 @@ export function RegisterForm() {
             className={
               errors.name
                 ? 'border-destructive focus-visible:ring-destructive'
-                : 'border-border/60 focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary'
+                : ''
             }
             placeholder="Your Name"
           />
@@ -109,7 +109,7 @@ export function RegisterForm() {
             className={
               errors.email
                 ? 'border-destructive focus-visible:ring-destructive'
-                : 'border-border/60 focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary'
+                : ''
             }
             placeholder="you@example.com"
           />
