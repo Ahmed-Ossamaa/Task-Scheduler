@@ -26,6 +26,8 @@ import { Roles } from 'src/common/decorators/roles.decorator';
 import { Throttle } from '@nestjs/throttler';
 import { ApiImageUpload } from 'src/common/decorators/api-image-upload.decorator';
 import { ImageValidationPipe } from 'src/common/pipes/image-validation.pipe';
+import { UserMapper } from './mappers/user.mapper';
+import { UserResponseDto } from './dto/user-response.dto';
 
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
@@ -41,8 +43,11 @@ export class UserController {
 
   @ApiOperation({ summary: 'Get my profile' })
   @Get('me')
-  async getMyProfile(@CurrentUser() user: JwtPayload): Promise<User> {
-    return this.userService.findUserById(user.sub);
+  async getMyProfile(
+    @CurrentUser() user: JwtPayload,
+  ): Promise<UserResponseDto> {
+    const myProfile = await this.userService.findUserById(user.sub);
+    return UserMapper.fromEntity(myProfile);
   }
 
   @ApiOperation({ summary: 'Update my profile' })
@@ -135,6 +140,14 @@ export class UserController {
       page,
       limit,
     );
+  }
+
+  @ApiOperation({ summary: 'get user public profile' })
+  @Get(':userId/profile')
+  async getuserProfile(
+    @Param('userId', ParseUUIDPipe) userId: string,
+  ): Promise<User> {
+    return this.userService.findUserById(userId);
   }
 
   @ApiOperation({ summary: 'Change employee role (Manager only)' })
