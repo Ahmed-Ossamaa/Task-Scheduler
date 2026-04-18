@@ -71,8 +71,14 @@ export class User {
   @Column({ type: 'varchar', nullable: true, select: false })
   verificationToken: string | null = null;
 
-  @Column({ type: 'timestamp', nullable: true, select: false })
+  @Column({ type: 'timestamptz', nullable: true, select: false })
   verificationTokenExpires: Date | null = null;
+
+  @Column({ type: 'varchar', nullable: true, select: false })
+  resetPasswordToken: string | null = null;
+
+  @Column({ type: 'timestamptz', nullable: true, select: false })
+  resetPasswordExpires: Date | null = null;
 
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
