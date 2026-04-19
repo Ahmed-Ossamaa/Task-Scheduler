@@ -131,6 +131,24 @@ export class UserService {
     }
     return user;
   }
+  /**
+   * Finds a user by ID.
+   * @returns The user with org basic details if found.
+   */
+  async getUserPorfile(userId: string): Promise<UserResponseDto> {
+    const user = await this.userRepo
+      .createQueryBuilder('user')
+      .leftJoin('user.organization', 'org')
+      .addSelect(['org.id', 'org.name', 'org.logo'])
+      .where('user.id = :id', { id: userId })
+      .getOne();
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return UserMapper.fromEntity(user);
+  }
 
   /**
    * Finds a user by their email.

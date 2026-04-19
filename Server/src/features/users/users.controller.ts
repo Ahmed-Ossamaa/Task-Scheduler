@@ -48,8 +48,7 @@ export class UserController {
   async getMyProfile(
     @CurrentUser() user: JwtPayload,
   ): Promise<UserResponseDto> {
-    const myProfile = await this.userService.findUserById(user.sub);
-    return UserMapper.fromEntity(myProfile);
+    return await this.userService.getUserPorfile(user.sub);
   }
 
   @ApiOperation({ summary: 'Update my profile' })

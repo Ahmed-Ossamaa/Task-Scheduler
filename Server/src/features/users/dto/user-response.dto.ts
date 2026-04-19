@@ -21,11 +21,13 @@ export class UserResponseDto {
   organizationId: string | null;
 
   @ApiPropertyOptional({
-    example: '{"id":"123e4567-xxxx-xx....","name":"My Org"}',
+    example:
+      '{"id":"123e4567-xxxx-xx....","name":"My Org" ,"logo":"https://cloudinary.com/logo.jpg"}',
   })
   organization: {
     id: string;
     name: string;
+    logo: string | null;
   } | null;
 
   @ApiPropertyOptional({ enum: UserGender })

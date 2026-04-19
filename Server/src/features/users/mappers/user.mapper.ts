@@ -20,6 +20,7 @@ export class UserMapper {
         ? {
             id: user.organization.id,
             name: user.organization.name,
+            logo: user.organization.logo ?? null,
           }
         : null,
     };
