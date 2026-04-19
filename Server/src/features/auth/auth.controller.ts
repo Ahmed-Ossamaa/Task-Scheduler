@@ -31,6 +31,7 @@ import { ChangePasswordDto } from './dto/change-password.dto';
 import { ApiOperation } from '@nestjs/swagger';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { UserResponseDto } from '../users/dto/user-response.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -44,7 +45,10 @@ export class AuthController {
 
   @ApiOperation({ summary: 'Register new user as a manager' })
   @Post('register')
-  async register(@Body() registerDto: RegisterUserDto) {
+  async register(@Body() registerDto: RegisterUserDto): Promise<{
+    message: string;
+    user: UserResponseDto;
+  }> {
     const data = await this.authService.registerManager(registerDto);
     return {
       message: data.message,
@@ -59,7 +63,10 @@ export class AuthController {
   async login(
     @Body() loginDto: LoginUserDto,
     @Res({ passthrough: true }) res: Response,
-  ) {
+  ): Promise<{
+    accessToken: string;
+    user: UserResponseDto;
+  }> {
     const data = await this.authService.login(loginDto);
     this.setAuthCookies(res, data.refreshToken);
     return {
@@ -78,7 +85,10 @@ export class AuthController {
   async registerEmployee(
     @Body() registerEmpDto: CreateEmployeeDto,
     @CurrentUser() manager: JwtPayload,
-  ) {
+  ): Promise<{
+    message: string;
+    user: UserResponseDto;
+  }> {
     const data = await this.authService.registerEmployee(
       manager.sub,
       registerEmpDto,
@@ -179,7 +189,10 @@ export class AuthController {
     @CurrentUser() user: JwtPayload,
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
-  ) {
+  ): Promise<{
+    accessToken: string;
+    user: UserResponseDto;
+  }> {
     const refreshToken = req.cookies.refreshToken as string;
     const data = await this.authService.refreshTokens(user.sub, refreshToken);
     this.setAuthCookies(res, data.refreshToken);
@@ -195,7 +208,7 @@ export class AuthController {
 
   @Get('google/callback')
   @UseGuards(GoogleAuthGuard)
-  googleAuthCallback(@Req() req: Request, @Res() res: Response) {
+  googleAuthCallback(@Req() req: Request, @Res() res: Response): void {
     if (req.user) {
       const { refreshToken } = req.user as AuthResponse;
       this.setAuthCookies(res, refreshToken);
@@ -205,7 +218,7 @@ export class AuthController {
   }
 
   // Helper method =>  set the refresh token cookie to the response
-  private setAuthCookies(res: Response, refreshToken: string) {
+  private setAuthCookies(res: Response, refreshToken: string): void {
     const days: number = parseInt(this.jwtConfig.refreshExpires, 10) || 7;
     const cookieOptions = {
       secure: this.appConfig.nodeEnv === 'production',

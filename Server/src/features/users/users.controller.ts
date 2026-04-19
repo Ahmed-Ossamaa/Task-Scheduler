@@ -20,7 +20,7 @@ import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 import type { JwtPayload } from 'src/features/auth/interfaces/jwt-payload.interface';
 import { User } from './entities/user.entity';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
 import { UserRole } from './enums/user-roles.enum';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { Throttle } from '@nestjs/throttler';
@@ -28,6 +28,7 @@ import { ApiImageUpload } from 'src/common/decorators/api-image-upload.decorator
 import { ImageValidationPipe } from 'src/common/pipes/image-validation.pipe';
 import { UserMapper } from './mappers/user.mapper';
 import { UserResponseDto } from './dto/user-response.dto';
+import { PaginatedUsers } from './types/paginated-users-interface';
 
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
@@ -42,6 +43,7 @@ export class UserController {
   // -------- Static Routes --------
 
   @ApiOperation({ summary: 'Get my profile' })
+  @ApiOkResponse({ type: UserResponseDto })
   @Get('me')
   async getMyProfile(
     @CurrentUser() user: JwtPayload,
@@ -51,17 +53,19 @@ export class UserController {
   }
 
   @ApiOperation({ summary: 'Update my profile' })
+  @ApiOkResponse({ type: UserResponseDto })
   @Patch('me')
   async updateMyProfile(
     @CurrentUser() user: JwtPayload,
     @Body() updateUserDto: UpdateUserDto,
-  ): Promise<User> {
+  ): Promise<UserResponseDto> {
     return this.userService.updateUserProfile(user.sub, updateUserDto);
   }
 
   //-------User's Media Routes -------
 
   @ApiOperation({ summary: 'Upload or update my avatar' })
+  @ApiOkResponse({ type: UserResponseDto })
   @Throttle({ default: { limit: 2, ttl: 60000 } })
   @ApiImageUpload('avatar')
   @Patch('avatar')
@@ -69,7 +73,7 @@ export class UserController {
     @CurrentUser() user: JwtPayload,
     @UploadedFile(ImageValidationPipe)
     file: Express.Multer.File,
-  ): Promise<User> {
+  ): Promise<UserResponseDto> {
     const avatarUrl = await this.storageService.uploadImage(
       file,
       'user_avatars', //folderName
@@ -84,9 +88,12 @@ export class UserController {
   @ApiOperation({
     summary: 'Remove My avatar and delete it from cloud storage',
   })
+  @ApiOkResponse({ type: UserResponseDto })
   @Throttle({ default: { limit: 3, ttl: 60000 } })
   @Delete('avatar')
-  async removeAvatar(@CurrentUser() user: JwtPayload) {
+  async removeAvatar(
+    @CurrentUser() user: JwtPayload,
+  ): Promise<UserResponseDto> {
     try {
       await this.storageService.deleteImage(`user_avatars/${user.sub}`);
     } catch (error) {
@@ -112,7 +119,7 @@ export class UserController {
     @CurrentUser() user: JwtPayload,
     @Query('page', new ParseIntPipe({ optional: true })) page: number,
     @Query('limit', new ParseIntPipe({ optional: true })) limit: number,
-  ) {
+  ): Promise<PaginatedUsers> {
     if (!user.organizationId) {
       throw new ForbiddenException('You are not assigned to an organization.');
     }
@@ -131,7 +138,7 @@ export class UserController {
     @CurrentUser() manager: User,
     @Query('page', new ParseIntPipe({ optional: true })) page: number,
     @Query('limit', new ParseIntPipe({ optional: true })) limit: number,
-  ) {
+  ): Promise<PaginatedUsers> {
     if (!manager.organizationId) {
       throw new ForbiddenException('You are not assigned to an organization.');
     }
@@ -143,21 +150,24 @@ export class UserController {
   }
 
   @ApiOperation({ summary: 'get user public profile' })
+  @ApiOkResponse({ type: UserResponseDto })
   @Get(':userId/profile')
   async getuserProfile(
     @Param('userId', ParseUUIDPipe) userId: string,
-  ): Promise<User> {
-    return this.userService.findUserById(userId);
+  ): Promise<UserResponseDto> {
+    const user = await this.userService.findUserById(userId);
+    return UserMapper.fromEntity(user);
   }
 
   @ApiOperation({ summary: 'Change employee role (Manager only)' })
+  @ApiOkResponse({ type: UserResponseDto })
   @Patch('employee/:userId/role')
   @Roles(UserRole.MANAGER)
   async updateEmployeeRole(
     @CurrentUser() manager: JwtPayload,
     @Param('userId', ParseUUIDPipe) empId: string,
     @Body('role') newRole: UserRole.MANAGER | UserRole.EMP,
-  ) {
+  ): Promise<UserResponseDto> {
     if (!manager.organizationId) {
       throw new ForbiddenException('You are not assigned to an organization.');
     }
@@ -207,7 +217,7 @@ export class UserController {
   async getDeletedUsers(
     @Query('page', new ParseIntPipe({ optional: true })) page: number,
     @Query('limit', new ParseIntPipe({ optional: true })) limit: number,
-  ) {
+  ): Promise<PaginatedUsers> {
     return this.userService.getDeletedUsers(page, limit);
   }
 
@@ -218,7 +228,7 @@ export class UserController {
   async getAllUsers(
     @Query('page', new ParseIntPipe({ optional: true })) page: number,
     @Query('limit', new ParseIntPipe({ optional: true })) limit: number,
-  ) {
+  ): Promise<PaginatedUsers> {
     return this.userService.findAllUsers(page, limit);
   }
 

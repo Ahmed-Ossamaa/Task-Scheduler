@@ -1,7 +1,7 @@
-import { User } from '../entities/user.entity';
+import { UserResponseDto } from '../dto/user-response.dto';
 
 export interface PaginatedUsers {
-  data: User[];
+  data: UserResponseDto[];
   total: number;
   page: number;
   lastPage: number;

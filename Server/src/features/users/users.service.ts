@@ -15,13 +15,15 @@ import {
   Repository,
 } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { PaginatedUsers } from './types/user.responses';
+import { PaginatedUsers } from './types/paginated-users-interface';
 import { Profile } from 'passport-google-oauth20';
 import { UserRole } from './enums/user-roles.enum';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { Task } from 'src/features/tasks/entities/task.entity';
 import { GrowthInterval } from '../analytics/types/analytics.types';
 import { SensitiveUserFields } from './types/user-sensetive-fields';
+import { UserResponseDto } from './dto/user-response.dto';
+import { UserMapper } from './mappers/user.mapper';
 
 @Injectable()
 export class UserService {
@@ -248,7 +250,7 @@ export class UserService {
       take,
     });
     return {
-      data: users,
+      data: users.map(UserMapper.fromEntity),
       total,
       page,
       lastPage: Math.ceil(total / take),
@@ -276,7 +278,7 @@ export class UserService {
     });
 
     return {
-      data: employees,
+      data: employees.map(UserMapper.fromEntity),
       total,
       page,
       lastPage: Math.ceil(total / take),
@@ -290,20 +292,25 @@ export class UserService {
   async updateUserProfile(
     userId: string,
     profile: Partial<User>,
-  ): Promise<User> {
+  ): Promise<UserResponseDto> {
     const user = await this.findUserById(userId);
     Object.assign(user, profile);
-    return this.saveUser(user);
+    const saved = await this.saveUser(user);
+    return UserMapper.fromEntity(saved);
   }
 
   /**
    * Updates the password of a user.
    * @returns The updated user.
    */
-  async updateUserPassword(user: User, newPassword: string): Promise<User> {
+  async updateUserPassword(
+    user: User,
+    newPassword: string,
+  ): Promise<UserResponseDto> {
     user.password = newPassword;
     user.refreshToken = null;
-    return this.saveUser(user);
+    const updated = await this.saveUser(user);
+    return UserMapper.fromEntity(updated);
   }
 
   /**
@@ -320,21 +327,26 @@ export class UserService {
    * Updates the avatar of a user (adding the url in db not uploading the file).
    * @returns The updated user.
    */
-  async updateAvatar(userId: string, avatarUrl: string): Promise<User> {
+  async updateAvatar(
+    userId: string,
+    avatarUrl: string,
+  ): Promise<UserResponseDto> {
     const user = await this.findUserById(userId);
     user.avatar = avatarUrl;
+    const updated = await this.saveUser(user);
 
-    return this.saveUser(user);
+    return UserMapper.fromEntity(updated);
   }
 
   /**
    * Removes the avatar from a user.
    * @returns The updated user.
    */
-  async removeAvatar(userId: string): Promise<User> {
+  async removeAvatar(userId: string): Promise<UserResponseDto> {
     const user = await this.findUserById(userId);
     user.avatar = null;
-    return this.saveUser(user);
+    const updated = await this.saveUser(user);
+    return UserMapper.fromEntity(updated);
   }
 
   /**
@@ -345,7 +357,7 @@ export class UserService {
     orgId: string,
     employeeId: string,
     newRole: UserRole.MANAGER | UserRole.EMP,
-  ): Promise<User> {
+  ) {
     const employee = await this.userRepo.findOne({
       where: {
         id: employeeId,
@@ -359,7 +371,8 @@ export class UserService {
 
     employee.role = newRole;
 
-    return this.saveUser(employee);
+    const updated = await this.saveUser(employee);
+    return UserMapper.fromEntity(updated);
   }
 
   /**
@@ -601,7 +614,7 @@ export class UserService {
     });
 
     return {
-      data: users,
+      data: users.map(UserMapper.fromEntity),
       total,
       page,
       lastPage: Math.ceil(total / take),
@@ -632,7 +645,7 @@ export class UserService {
     });
 
     return {
-      data: employees,
+      data: employees.map(UserMapper.fromEntity),
       total,
       page,
       lastPage: Math.ceil(total / take),

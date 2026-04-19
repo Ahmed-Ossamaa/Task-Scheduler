@@ -17,24 +17,31 @@ export class UserResponseDto {
 
   @ApiPropertyOptional({
     example: '123e4567-e89b-12d3-a456-426614174000',
-    nullable: true,
   })
   organizationId: string | null;
 
+  @ApiPropertyOptional({
+    example: '{"id":"123e4567-xxxx-xx....","name":"My Org"}',
+  })
+  organization: {
+    id: string;
+    name: string;
+  } | null;
+
   @ApiPropertyOptional({ enum: UserGender })
-  gender?: UserGender;
+  gender: UserGender | null;
 
   @ApiPropertyOptional({ example: 25 })
-  age?: number;
+  age: number | null;
 
   @ApiPropertyOptional({ example: '01223456789' })
-  phone?: string;
+  phone: string | null;
 
   @ApiPropertyOptional({ example: 'Egypt' })
-  address?: string;
+  address: string | null;
 
   @ApiPropertyOptional({ example: 'https://cloudinary.com/avatar.jpg' })
-  avatar?: string | null;
+  avatar: string | null;
 
   @ApiProperty({ example: '2026-02-01T00:00:00.000Z' })
   createdAt: Date;
