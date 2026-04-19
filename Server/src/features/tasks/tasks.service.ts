@@ -9,7 +9,7 @@ import { CreateTaskDTO } from './dto/create-task.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserService } from 'src/features/users/users.service';
 import { UpdateTaskDto } from './dto/update-task.dto';
-import { PaginatedTasksDto } from './dto/paginated-tasks.dto';
+import { PaginatedTasks } from './interfaces/paginated-tasks-interface';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { TaskStatus } from './enums/tasks-status.enums';
@@ -115,7 +115,7 @@ export class TasksService {
     orgId: string,
     page: number = 1,
     limit: number = 20,
-  ): Promise<PaginatedTasksDto> {
+  ): Promise<PaginatedTasks> {
     const take = Math.min(limit, 100);
     const skip = (page - 1) * take;
 
@@ -153,7 +153,7 @@ export class TasksService {
     orgId: string,
     page: number = 1,
     limit: number = 20,
-  ): Promise<PaginatedTasksDto> {
+  ): Promise<PaginatedTasks> {
     const take = Math.min(limit, 100);
     const skip = (page - 1) * take;
 
