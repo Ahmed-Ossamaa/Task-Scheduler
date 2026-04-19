@@ -134,7 +134,7 @@ export function AppSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <div className="flex items-center gap-3 px-2 py-1.5 mb-2 group-data-[collapsible=icon]:p-0 group-data-[collapsible=icon]:justify-center">
-             <Avatar className="h-8 w-8 shrink-0">
+              <Avatar className="h-8 w-8 shrink-0">
                 <AvatarImage
                   src={user.avatar as string}
                   alt={user.name || 'User'}
@@ -144,9 +144,9 @@ export function AppSidebar() {
                 </AvatarFallback>
               </Avatar>
               <div className="flex flex-col overflow-hidden group-data-[collapsible=icon]:hidden">
-                <span className="text-sm font-medium truncate">
+                <Link className="text-sm font-medium truncate hover:underline" href="/profile">
                   {user?.name || 'User'}
-                </span>
+                </Link>
                 <span className="text-xs text-muted-foreground truncate">
                   {user?.email}
                 </span>
