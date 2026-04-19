@@ -8,7 +8,9 @@ import {
   User as UserIcon,
   Briefcase,
   Calendar,
-  Loader2,
+  Phone,
+  MapPinHouse,
+  VenusAndMars,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -18,6 +20,8 @@ import { useGetMe } from '@/features/users/hooks/use-users';
 import { formatDateTime, getInitials } from '@/lib/utils';
 import { Navbar } from '@/components/layout/navbar';
 import { ProfileSkeleton } from '@/components/skeleton/profile.skeleton';
+import Link from 'next/link';
+import { Footer } from '@/components/layout/footer';
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -25,13 +29,13 @@ export default function ProfilePage() {
   const { data: user, isPending } = useGetMe();
 
   if (isPending) {
-    return <ProfileSkeleton />
+    return <ProfileSkeleton />;
   }
 
   return (
     <>
       <Navbar />
-      <div className="max-w-6xl mx-auto p-4 md:p-8 w-full mt-10">
+      <div className="max-w-6xl mx-auto p-4 md:p-8 w-full mt-10 mb-10">
         <div className="mb-8 flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold tracking-tight text-foreground">
@@ -54,7 +58,7 @@ export default function ProfilePage() {
           {/* Left: Avatar */}
           <Card className="md:col-span-1 border-border/50 shadow-sm">
             <CardHeader className="flex flex-col items-center text-center pb-4 pt-8">
-              <Avatar className="w-32 h-32 mb-4 border-2 border-secondary shadow-md shadow-primary/20">
+              <Avatar className="w-32 h-32 mb-4 border-2 border-secondary shadow-sm">
                 <AvatarImage
                   src={user?.avatar as string}
                   alt={user?.name}
@@ -73,17 +77,25 @@ export default function ProfilePage() {
               >
                 {user?.role}
               </Badge>
+              {user?.organizationId && (
+                <Link href={`/organizations/${user?.organization?.id}`}>
+                  <span className="text-primary pr-1">@</span>
+                  <span className="text-sm font-medium text-muted-foreground mt-1 hover:text-foreground hover:underline hover:underline-offset-4 pr-1">
+                    {user?.organization?.name}
+                  </span>
+                </Link>
+              )}
             </CardHeader>
           </Card>
 
           {/* Right: Detailed Info */}
-          <Card className="md:col-span-2 border-border/50 shadow-sm">
+          <Card className="md:col-span-2 border-border/50 shadow-sm ">
             <CardHeader>
               <h3 className="text-lg font-semibold text-foreground border-b pb-2">
                 Contact & Details
               </h3>
             </CardHeader>
-            <CardContent className="space-y-6 pt-4">
+            <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 pb-4 ">
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 rounded-full bg-primary/5 flex items-center justify-center text-primary shrink-0">
                   <UserIcon className="w-5 h-5" />
@@ -92,8 +104,36 @@ export default function ProfilePage() {
                   <p className="text-[11px] font-bold tracking-[0.15em] uppercase text-muted-foreground mb-1">
                     Full Name
                   </p>
-                  <p className="text-sm font-medium text-foreground">
-                    {user?.name}
+                  <p className="text-sm font-medium text-foreground capitalize">
+                    {user?.name.toLocaleLowerCase()}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-full bg-primary/5 flex items-center justify-center text-primary shrink-0">
+                  <VenusAndMars className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-[11px] font-bold tracking-[0.15em] uppercase text-muted-foreground mb-1">
+                    Gender
+                  </p>
+                  <p className="text-sm font-medium text-foreground capitalize">
+                    {user?.gender || 'Not set'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-full bg-primary/5 flex items-center justify-center text-primary shrink-0">
+                  <MapPinHouse className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-[11px] font-bold tracking-[0.15em] uppercase text-muted-foreground mb-1">
+                    Address
+                  </p>
+                  <p className="text-sm font-medium text-foreground capitalize">
+                    {user?.address || 'Not set'}
                   </p>
                 </div>
               </div>
@@ -114,17 +154,18 @@ export default function ProfilePage() {
 
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 rounded-full bg-primary/5 flex items-center justify-center text-primary shrink-0">
-                  <Shield className="w-5 h-5" />
+                  <Phone className="w-5 h-5" />
                 </div>
                 <div>
                   <p className="text-[11px] font-bold tracking-[0.15em] uppercase text-muted-foreground mb-1">
-                    Security Level
+                    Phone
                   </p>
-                  <p className="text-sm font-medium text-foreground capitalize">
-                    {user?.role.toLowerCase()} Access
+                  <p className="text-sm font-medium text-foreground">
+                    {user?.phone || 'Not set'}
                   </p>
                 </div>
               </div>
+
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 rounded-full bg-primary/5 flex items-center justify-center text-primary shrink-0">
                   <Briefcase className="w-5 h-5" />
@@ -133,13 +174,12 @@ export default function ProfilePage() {
                   <p className="text-[11px] font-bold tracking-[0.15em] uppercase text-muted-foreground mb-1">
                     Organization
                   </p>
-                  {/* need to load org entity relation on backend ( later: ) */}
                   <p className="text-sm font-medium text-foreground capitalize">
                     {user?.organization?.name}
-                    ISFP
                   </p>
                 </div>
               </div>
+
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 rounded-full bg-primary/5 flex items-center justify-center text-primary shrink-0">
                   <Calendar className="w-5 h-5" />
@@ -153,12 +193,25 @@ export default function ProfilePage() {
                   </p>
                 </div>
               </div>
+
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-full bg-primary/5 flex items-center justify-center text-primary shrink-0">
+                  <Shield className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-[11px] font-bold tracking-[0.15em] uppercase text-muted-foreground mb-1">
+                    Security Level
+                  </p>
+                  <p className="text-sm font-medium text-foreground capitalize">
+                    {user?.role.toLowerCase()} Access
+                  </p>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>
       </div>
+      <Footer/>
     </>
   );
 }
-
-
