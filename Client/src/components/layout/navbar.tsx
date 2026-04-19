@@ -68,13 +68,13 @@ export function Navbar() {
                   variant="ghost"
                   className="h-10 w-10 rounded-full p-0 "
                 >
-                  <Avatar className="h-10 w-10 relative overflow-hidden">
+                  <Avatar className="h-8 w-8 relative overflow-hidden">
                     {user.avatar ? (
                       <Image
                         src={user?.avatar}
                         alt={user.name}
                         fill
-                        sizes="40px"
+                        sizes="32px"
                         className="object-cover"
                       />
                     ) : (
