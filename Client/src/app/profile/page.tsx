@@ -17,6 +17,7 @@ import { Badge } from '@/components/ui/badge';
 import { useGetMe } from '@/features/users/hooks/use-users';
 import { formatDateTime, getInitials } from '@/lib/utils';
 import { Navbar } from '@/components/layout/navbar';
+import { ProfileSkeleton } from '@/components/skeleton/profile.skeleton';
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -24,11 +25,7 @@ export default function ProfilePage() {
   const { data: user, isPending } = useGetMe();
 
   if (isPending) {
-    return (
-      <div className="flex h-[50vh] w-full items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
+    return <ProfileSkeleton />
   }
 
   return (
