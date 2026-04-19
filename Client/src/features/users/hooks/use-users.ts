@@ -7,12 +7,12 @@ import { User, UserRoles } from '@/features/auth/types/user-interface';
 /**
  * - Manager/Emp : Hook to get all employees in the current organization.
  */
-export const useOrgEmployees = (page:number =1 , limit:number =20) => {
+export const useOrgEmployees = (page: number = 1, limit: number = 20) => {
   const user = useAuthStore((state) => state.user);
 
   return useQuery({
     queryKey: ['users', 'org-employees', user?.organizationId, page, limit],
-    queryFn: ()=>usersApi.getOrgEmployees(page,limit),
+    queryFn: () => usersApi.getOrgEmployees(page, limit),
     enabled: !!user?.organizationId,
   });
 };
@@ -44,29 +44,38 @@ export const useDeleteEmployee = () => {
 
   return useMutation({
     mutationFn: usersApi.removeEmployee,
-    onSuccess: (_, employeeId) => {
-      //remove employee from the cashed list
-      queryClient.setQueryData<User[]>(
-        ['users', 'org-employees', user?.organizationId],
-        (old) => old?.filter((emp) => emp.id !== employeeId) || [],
-      );
+    onSuccess: () => {
+      //invalidate active list
+      queryClient.invalidateQueries({
+        queryKey: ['users', 'org-employees', user?.organizationId],
+      });
 
+      //invalidate archived list
+      queryClient.invalidateQueries({
+        queryKey: ['users', 'archived', 'org-employees', user?.organizationId],
+      });
+      
       //invalidate  tasks list (after deleting an employee)
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
-      queryClient.invalidateQueries({ queryKey: ['users', 'archived', 'org-employees', user?.organizationId] });
     },
   });
 };
 
-
 /**
  * - Manager : Hook to get all archived (soft Deleted) employees in the current organization.
-*/
+ */
 export const useArchivedEmployees = (page: number = 1, limit: number = 20) => {
   const user = useAuthStore((state) => state.user);
 
   return useQuery({
-    queryKey: ['users', 'archived', 'org-employees', user?.organizationId, pageXOffset, limit],
+    queryKey: [
+      'users',
+      'archived',
+      'org-employees',
+      user?.organizationId,
+      pageXOffset,
+      limit,
+    ],
     queryFn: () => usersApi.getArchivedEmployees(page, limit),
     enabled: !!user?.organizationId,
   });
