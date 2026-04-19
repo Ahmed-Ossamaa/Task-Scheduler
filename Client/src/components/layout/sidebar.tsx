@@ -1,6 +1,6 @@
 'use client';
 
-import { CheckCircle, Settings, User, LogOut } from 'lucide-react';
+import { CheckCircle, Settings, LogOut } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -16,9 +16,10 @@ import {
 import { useAuthStore } from '@/features/auth/store/auth.store';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import Image from 'next/image';
 import { MENU_ITEMS } from '@/constants/sidebar-menu-items-constant';
 import { useLogout } from '@/features/auth/hooks/use-auth';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { getInitials } from '@/lib/utils';
 
 export function AppSidebar() {
   const user = useAuthStore((state) => state.user);
@@ -133,19 +134,15 @@ export function AppSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <div className="flex items-center gap-3 px-2 py-1.5 mb-2 group-data-[collapsible=icon]:p-0 group-data-[collapsible=icon]:justify-center">
-              <div className="relative h-8 w-8 rounded-full overflow-hidden bg-primary/10 shrink-0">
-                {user.avatar ? (
-                  <Image
-                    src={user.avatar}
-                    alt={user.name || 'User'}
-                    fill
-                    sizes="32px"
-                    className=" object-cover w-auto! h-auto!"
-                  />
-                ) : (
-                  <User className="h-4 w-4" />
-                )}
-              </div>
+             <Avatar className="h-8 w-8 shrink-0">
+                <AvatarImage
+                  src={user.avatar as string}
+                  alt={user.name || 'User'}
+                />
+                <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
+                  {getInitials(user?.name)}
+                </AvatarFallback>
+              </Avatar>
               <div className="flex flex-col overflow-hidden group-data-[collapsible=icon]:hidden">
                 <span className="text-sm font-medium truncate">
                   {user?.name || 'User'}
