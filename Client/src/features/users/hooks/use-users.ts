@@ -4,6 +4,13 @@ import { useAuthStore } from '@/features/auth/store/auth.store';
 import { CreateEmployeeDto } from '../types';
 import { User, UserRoles } from '@/features/auth/types/user-interface';
 
+export const useGetMe = () => {
+  return useQuery({
+    queryKey: ['users', 'me'],
+    queryFn: usersApi.getMyProfile,
+  });
+};
+
 /**
  * - Manager/Emp : Hook to get all employees in the current organization.
  */
@@ -54,7 +61,7 @@ export const useDeleteEmployee = () => {
       queryClient.invalidateQueries({
         queryKey: ['users', 'archived', 'org-employees', user?.organizationId],
       });
-      
+
       //invalidate  tasks list (after deleting an employee)
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
     },

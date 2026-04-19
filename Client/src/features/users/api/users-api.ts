@@ -3,6 +3,12 @@ import { User } from '@/features/auth/types/user-interface';
 import { CreateEmployeeDto, PaginatedUser } from '../types';
 
 export const usersApi = {
+
+  getMyProfile: async()=>{
+    const {data}= await api.get<User>('/user/me');
+    return data
+  },
+
   /**
    * - Admin/Manager/Emp : Get All Employees in Organization
    * @returns An array of all employees in the organization
