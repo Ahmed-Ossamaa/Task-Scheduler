@@ -28,7 +28,6 @@ export function Navbar() {
   const user = useAuthStore((state) => state.user);
   const { mutate: logout, isPending } = useLogout();
 
-
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 bg-nav/70 backdrop-blur-md">
       <div className="container mx-auto flex h-13 items-center justify-between px-4 md:px-8">
@@ -67,23 +66,21 @@ export function Navbar() {
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="relative h-8 w-8 rounded-full"
+                  className="h-10 w-10 rounded-full p-0 "
                 >
-                  <Avatar className="relative h-8 w-8 border border-border overflow-hidden">
+                  <Avatar className="h-10 w-10 relative overflow-hidden">
                     {user.avatar ? (
-                      
-                        <Image
-                          src={user?.avatar}
-                          alt={user.name}
-                          quality={100}
-                          fill
-                          className="object-cover"
-                        />
-                      
-                    ):(
-                    <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
-                      {getInitials(user.name)}
-                    </AvatarFallback>
+                      <Image
+                        src={user?.avatar}
+                        alt={user.name}
+                        fill
+                        sizes="40px"
+                        className="object-cover"
+                      />
+                    ) : (
+                      <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
+                        {getInitials(user.name)}
+                      </AvatarFallback>
                     )}
                   </Avatar>
                 </Button>

@@ -1,11 +1,6 @@
 'use client';
 
-import {
-  CheckCircle,
-  Settings,
-  User,
-  LogOut,
-} from 'lucide-react';
+import { CheckCircle, Settings, User, LogOut } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -25,7 +20,6 @@ import Image from 'next/image';
 import { MENU_ITEMS } from '@/constants/sidebar-menu-items-constant';
 import { useLogout } from '@/features/auth/hooks/use-auth';
 
-
 export function AppSidebar() {
   const user = useAuthStore((state) => state.user);
   const { mutate: logout, isPending } = useLogout();
@@ -36,7 +30,6 @@ export function AppSidebar() {
   const filteredItems = MENU_ITEMS.filter((item) =>
     item.roles.includes(user.role),
   );
-
 
   return (
     <Sidebar collapsible="icon">
@@ -140,14 +133,14 @@ export function AppSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <div className="flex items-center gap-3 px-2 py-1.5 mb-2 group-data-[collapsible=icon]:p-0 group-data-[collapsible=icon]:justify-center">
-              <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden">
+              <div className="relative h-8 w-8 rounded-full overflow-hidden bg-primary/10 shrink-0">
                 {user.avatar ? (
                   <Image
                     src={user.avatar}
                     alt={user.name || 'User'}
-                    width={32}
-                    height={32}
-                    className=" object-cover"
+                    fill
+                    sizes="32px"
+                    className=" object-cover w-auto! h-auto!"
                   />
                 ) : (
                   <User className="h-4 w-4" />
