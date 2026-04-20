@@ -31,21 +31,19 @@ export function ChangePasswordForm() {
 
   const form = useForm<ChangePasswordFormValues>({
     resolver: zodResolver(changePasswordFormSchema),
-    mode: 'onChange',
+    mode: 'onBlur',
     defaultValues: {
       oldPassword: '',
       newPassword: '',
       confirmPassword: '',
     },
   });
-  // console.log('Current Form Errors:', form.formState.errors); // it works fine
   const onSubmit = (data: ChangePasswordFormValues) => {
     changePassword({
       oldPassword: data.oldPassword,
       newPassword: data.newPassword,
     });
   };
-//error message doesnt work
   return (
     <Card>
       <Form {...form}>
@@ -81,11 +79,6 @@ export function ChangePasswordForm() {
                     <Input type="password" {...field} />
                   </FormControl>
                   <FormMessage />
-                  {/* {form.formState.errors && (
-                    <p className="text-red-500 text-sm  my-2">
-                      My error message: {form.formState.errors.newPassword?.message}
-                    </p>
-                  )} */}
                 </FormItem>
               )}
             />

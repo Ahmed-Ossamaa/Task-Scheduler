@@ -9,6 +9,7 @@ import {
   FieldValues,
   FormProvider,
   useFormContext,
+  useFormState,
 } from 'react-hook-form';
 
 import { cn } from '@/lib/utils';
@@ -43,9 +44,13 @@ const FormField = <
 const useFormField = () => {
   const fieldContext = React.useContext(FormFieldContext);
   const itemContext = React.useContext(FormItemContext);
-  const { getFieldState, formState } = useFormContext();
+  const { getFieldState, control } = useFormContext();
 
-  // const fieldError = formState.errors[fieldContext.name];
+  const formState = useFormState({
+    control,
+    name: fieldContext.name,
+  });
+
   const fieldState = getFieldState(fieldContext.name, formState);
 
   if (!fieldContext) {
@@ -53,7 +58,6 @@ const useFormField = () => {
   }
 
   const { id } = itemContext;
-  
 
   return {
     id,
@@ -62,7 +66,6 @@ const useFormField = () => {
     formDescriptionId: `${id}-form-item-description`,
     formMessageId: `${id}-form-item-message`,
     ...fieldState,
-    // error: fieldError || fieldState.error,
   };
 };
 

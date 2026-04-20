@@ -21,16 +21,26 @@ import {
 } from '@/components/ui/select';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { BasicDataValues, userBasicDataSchema } from '@/features/auth/schemas/auth.schema';
-
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import {
+  BasicDataValues,
+  userBasicDataSchema,
+} from '@/features/auth/schemas/auth.schema';
 
 export function BasicDataForm() {
   const user = useAuthStore((state) => state.user);
   const { mutate: editProfile, isPending } = useEditMyProfile();
 
-const form = useForm<BasicDataValues>({
+  const form = useForm<BasicDataValues>({
     resolver: zodResolver(userBasicDataSchema),
+    mode: 'onBlur',
     defaultValues: {
       name: user?.name || '',
       phone: user?.phone || '',
@@ -39,21 +49,22 @@ const form = useForm<BasicDataValues>({
     },
   });
 
-const onSubmit = (data: BasicDataValues) => {
+  const onSubmit = (data: BasicDataValues) => {
     editProfile(data);
   };
 
-return (
+  return (
     <Card>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <CardHeader>
             <CardTitle>Basic Information</CardTitle>
-            <CardDescription>Update your personal details here.</CardDescription>
+            <CardDescription className='mb-4'>
+              Update your personal details here.
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <FormField
                 control={form.control}
                 name="name"
@@ -102,7 +113,10 @@ return (
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Gender</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select gender" />
@@ -117,7 +131,6 @@ return (
                   </FormItem>
                 )}
               />
-
             </div>
           </CardContent>
           <CardFooter className="border-t px-6 py-4">
