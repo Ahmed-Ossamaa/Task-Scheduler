@@ -135,6 +135,22 @@ export const useUpdateEmployeeRole = () => {
 };
 
 /**
+ * - Hook to update the current user's avatar (upload/update).
+ */
+export const useUploadAvatar = () => {
+  const queryClient = useQueryClient();
+  const setUser = useAuthStore((state) => state.setUser);
+
+  return useMutation({
+    mutationFn: usersApi.uploadAvatar,
+    onSuccess: (updatedUser) => {
+      setUser(updatedUser); 
+      queryClient.invalidateQueries({ queryKey: ['users', 'me'] });
+    },
+  });
+};
+
+/**
  * - Hook to update the current user's profile data (excluding email, pass, avatar).
  */
 export const useEditMyProfile = () => {

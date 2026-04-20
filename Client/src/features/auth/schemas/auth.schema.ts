@@ -58,9 +58,29 @@ export const changePasswordSchema = z.object({
     .regex(/[^A-Za-z0-9]/, 'Must contain at least one special character'),
 });
 
+export const changePasswordFormSchema = changePasswordSchema
+  .extend({
+    confirmPassword: z.string().min(1, 'Please confirm your new password'),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ['confirmPassword'],
+  });
+
+export const userBasicDataSchema = z.object({
+  name: z.string().min(1, { message: 'Name is required' }),
+  gender: z.enum(['male', 'female']).optional(),
+  phone: z.string().optional(),
+  address: z.string().optional(),
+});
+
+
+
 export type LoginFormValues = z.infer<typeof loginSchema>;
 export type RegisterFormValues = z.infer<typeof registerSchema>;
 export type verificationFormValues = z.infer<typeof resendVerificationSchema>;
 export type ForgotPasswordValues = z.infer<typeof forgotPasswordSchema>;
 export type ResetPasswordValues = z.infer<typeof resetPasswordSchema>;
 export type ChangePasswordValues = z.infer<typeof changePasswordSchema>;
+export type ChangePasswordFormValues = z.infer<typeof changePasswordFormSchema>;
+export type BasicDataValues = z.infer<typeof userBasicDataSchema>;

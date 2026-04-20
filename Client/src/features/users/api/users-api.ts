@@ -84,10 +84,22 @@ export const usersApi = {
    * - Edit My profile data ( excluding password, email, avatar )
    * @returns {Promise<User>}  The updated user
    */
-  editMyProfile: async (payload: User): Promise<User> => {
+  editMyProfile: async (payload: Partial<User>): Promise<User> => {
     const { data } = await api.patch<User>(`/user/me`, payload);
     return data;
   },
+
+  uploadAvatar: async (file: File): Promise<User> => {
+  const formData = new FormData();
+  formData.append('avatar', file);
+  
+  const { data } = await api.patch<User>('/user/avatar', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return data;
+},
 
   //................Admin APIs................
 
