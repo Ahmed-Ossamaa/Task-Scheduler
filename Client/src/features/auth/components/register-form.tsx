@@ -10,10 +10,7 @@ import { Input } from '@/components/ui/input';
 import { useRegister } from '../hooks/use-auth';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import {
-  registerSchema,
-  type RegisterFormValues,
-} from '../schemas/auth.schema';
+import { RegisterFormValues, registerSchema } from '@/lib/schema/auth.schema';
 import { AxiosError } from 'axios';
 
 export function RegisterForm() {

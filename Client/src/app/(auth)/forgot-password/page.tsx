@@ -9,10 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import {
-  forgotPasswordSchema,
-  type ForgotPasswordValues,
-} from '@/features/auth/schemas/auth.schema';
+import { forgotPasswordSchema, ForgotPasswordValues } from '@/lib/schema/password.schema';
 import { AxiosError } from 'axios';
 
 export default function ForgotPasswordPage() {

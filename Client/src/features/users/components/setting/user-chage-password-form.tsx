@@ -21,10 +21,8 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import {
-  changePasswordFormSchema,
-  ChangePasswordFormValues,
-} from '@/features/auth/schemas/auth.schema';
+import { changePasswordFormSchema, ChangePasswordFormValues } from '@/lib/schema/password.schema';
+
 
 export function ChangePasswordForm() {
   const { mutate: changePassword, isPending } = useChangePassword();

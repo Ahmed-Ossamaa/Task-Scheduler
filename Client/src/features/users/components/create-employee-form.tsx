@@ -2,7 +2,6 @@
 
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
 import { useCreateEmployee } from '../hooks/use-users';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,21 +14,14 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { SelectContent, SelectItem, SelectTrigger, SelectValue, Select } from '@/components/ui/select';
+import { createEmpSchema, FormValues } from '@/lib/schema/auth.schema';
 
-const formSchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters'),
-  gender: z.string().optional(),
-  email: z.email('Invalid email address'),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
-});
-
-type FormValues = z.infer<typeof formSchema>;
 
 export function CreateEmployeeForm({ onSuccess }: { onSuccess?: () => void }) {
   const { mutate: createEmployee, isPending } = useCreateEmployee();
 
   const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(createEmpSchema),
     defaultValues: { name: '', gender: 'male', email: '', password: '' },
   });
 

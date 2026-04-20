@@ -3,7 +3,7 @@ import { useRouter } from 'next/navigation';
 import { authApi } from '../api/auth-api';
 import { useAuthStore } from '../store/auth.store';
 import { LoginDto, RegisterDto } from '../types/auth-dto';
-import { ChangePasswordValues,  } from '../schemas/auth.schema';
+import { ChangePasswordValues } from '@/lib/schema/password.schema';
 
 
 export const useRegister = () => {

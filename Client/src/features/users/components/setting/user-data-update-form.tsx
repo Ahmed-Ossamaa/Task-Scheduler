@@ -29,10 +29,8 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import {
-  BasicDataValues,
-  userBasicDataSchema,
-} from '@/features/auth/schemas/auth.schema';
+import { BasicDataValues, userBasicDataSchema } from '@/lib/schema/user-basic-data.schema';
+
 
 export function BasicDataForm() {
   const user = useAuthStore((state) => state.user);

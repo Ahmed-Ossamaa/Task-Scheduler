@@ -21,7 +21,7 @@ import {
 import {
   resendVerificationSchema,
   verificationFormValues,
-} from '@/features/auth/schemas/auth.schema';
+} from '@/lib/schema/auth.schema';
 
 function ResendVerificationContent() {
   const router = useRouter();

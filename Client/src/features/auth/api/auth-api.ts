@@ -1,7 +1,7 @@
 import api from '@/lib/api/axios';
 import { User } from '../types/user-interface';
 import { LoginDto, RegisterDto } from '../types/auth-dto';
-import { ChangePasswordValues } from '../schemas/auth.schema';
+import { ChangePasswordValues } from '@/lib/schema/password.schema';
 
 export const authApi = {
   register: async (data: RegisterDto) => {

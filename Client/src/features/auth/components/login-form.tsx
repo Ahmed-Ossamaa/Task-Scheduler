@@ -10,8 +10,9 @@ import { Input } from '@/components/ui/input';
 import { useLogin } from '@/features/auth/hooks/use-auth';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { loginSchema, type LoginFormValues } from '../schemas/auth.schema';
+import { LoginFormValues, loginSchema } from '@/lib/schema/auth.schema';
 import { AxiosError } from 'axios';
+
 
 export function LoginForm() {
   const [needsVerification, setNeedsVerification] = useState(false);
