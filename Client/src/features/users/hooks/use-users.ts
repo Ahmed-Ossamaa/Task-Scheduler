@@ -33,11 +33,10 @@ export const useCreateEmployee = () => {
 
   return useMutation({
     mutationFn: (data: CreateEmployeeDto) => usersApi.createEmployee(data),
-    onSuccess: (newUser) => {
-      queryClient.setQueryData<User[]>(
-        ['users', 'org-employees', user?.organizationId],
-        (old) => (old ? [...old, newUser] : [newUser]),
-      );
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['users', 'org-employees', user?.organizationId],
+      });
     },
   });
 };
@@ -80,7 +79,7 @@ export const useArchivedEmployees = (page: number = 1, limit: number = 20) => {
       'archived',
       'org-employees',
       user?.organizationId,
-      pageXOffset,
+      page,
       limit,
     ],
     queryFn: () => usersApi.getArchivedEmployees(page, limit),
@@ -144,7 +143,7 @@ export const useUploadAvatar = () => {
   return useMutation({
     mutationFn: usersApi.uploadAvatar,
     onSuccess: (updatedUser) => {
-      setUser(updatedUser); 
+      setUser(updatedUser);
       queryClient.invalidateQueries({ queryKey: ['users', 'me'] });
     },
   });
