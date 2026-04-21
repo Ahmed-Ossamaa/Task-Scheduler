@@ -63,6 +63,7 @@ api.interceptors.response.use(
             '/verify-email',
             '/resend-verification',
             '/forgot-password', 
+            '/reset-password',
           ];
           const currentPath = window.location.pathname;
 

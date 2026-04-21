@@ -11,6 +11,7 @@ export function proxy(request: NextRequest) {
   || pathname.startsWith('/register') 
   || pathname.startsWith('/verify-email') 
   || pathname.startsWith('/forgot-password')
+  || pathname.startsWith('/reset-password')
   || pathname.startsWith('/resend-verification');
 
   const isLandingPage = pathname === '/';
