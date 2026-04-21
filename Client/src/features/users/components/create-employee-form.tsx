@@ -13,25 +13,53 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { SelectContent, SelectItem, SelectTrigger, SelectValue, Select } from '@/components/ui/select';
-import { createEmpSchema, FormValues } from '@/lib/schema/auth.schema';
-
+import {
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Select,
+} from '@/components/ui/select';
+import { createEmpSchema, CreateEmpValues } from '@/lib/schema/auth.schema';
+import { toast } from 'sonner';
+import { AxiosError } from 'axios';
 
 export function CreateEmployeeForm({ onSuccess }: { onSuccess?: () => void }) {
   const { mutate: createEmployee, isPending } = useCreateEmployee();
 
-  const form = useForm<FormValues>({
+  const form = useForm<CreateEmpValues>({
     resolver: zodResolver(createEmpSchema),
-    defaultValues: { name: '', gender: 'male', email: '', password: '' },
+    mode: 'onTouched',
+    defaultValues: {
+      name: '',
+      gender: 'male',
+      email: '',
+      password: '',
+      confirmPassword: '',
+    },
   });
 
-  function onSubmit(values: FormValues) {
-    createEmployee(values, {
-      onSuccess: () => {
-        form.reset();
-        if (onSuccess) onSuccess();
+  function onSubmit(values: CreateEmpValues) {
+    createEmployee(
+      {
+        name: values.name,
+        gender: values.gender,
+        email: values.email,
+        password: values.password,
       },
-    });
+      {
+        onSuccess: () => {
+          toast.success('Employee created successfully');
+          form.reset();
+          if (onSuccess) onSuccess();
+        },
+        onError: (error) => {
+          const axiosError = error as AxiosError<{ message: string }>;
+          const errMessage = axiosError.response?.data?.message;
+          toast.error(errMessage || 'Failed to create employee');
+        },
+      },
+    );
   }
 
   return (
@@ -47,7 +75,7 @@ export function CreateEmployeeForm({ onSuccess }: { onSuccess?: () => void }) {
               <FormControl>
                 <Input placeholder="Employee Name" {...field} />
               </FormControl>
-              <FormMessage />
+              <FormMessage className="text-[10px] text-destructive font-medium" />
             </FormItem>
           )}
         />
@@ -68,7 +96,7 @@ export function CreateEmployeeForm({ onSuccess }: { onSuccess?: () => void }) {
                   <SelectItem value="female">Female</SelectItem>
                 </SelectContent>
               </Select>
-              <FormMessage />
+              <FormMessage className="text-[10px] text-destructive font-medium" />
             </FormItem>
           )}
         />
@@ -81,7 +109,7 @@ export function CreateEmployeeForm({ onSuccess }: { onSuccess?: () => void }) {
               <FormControl>
                 <Input type="email" placeholder="name@company.com" {...field} />
               </FormControl>
-              <FormMessage />
+              <FormMessage className="text-[10px] text-destructive font-medium" />
             </FormItem>
           )}
         />
@@ -94,7 +122,20 @@ export function CreateEmployeeForm({ onSuccess }: { onSuccess?: () => void }) {
               <FormControl>
                 <Input type="password" placeholder="******" {...field} />
               </FormControl>
-              <FormMessage />
+              <FormMessage className="text-[10px] text-destructive font-medium" />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="confirmPassword"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Confirm Password</FormLabel>
+              <FormControl>
+                <Input type="password" placeholder="******" {...field} />
+              </FormControl>
+              <FormMessage className="text-[10px] text-destructive font-medium" />
             </FormItem>
           )}
         />

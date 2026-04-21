@@ -41,5 +41,5 @@ export const resendVerificationSchema = z.object({
 
 export type LoginFormValues = z.infer<typeof loginSchema>;
 export type RegisterFormValues = z.infer<typeof registerSchema>;
-export type FormValues = z.infer<typeof createEmpSchema>;
+export type CreateEmpValues = z.infer<typeof createEmpSchema>;
 export type verificationFormValues = z.infer<typeof resendVerificationSchema>;
