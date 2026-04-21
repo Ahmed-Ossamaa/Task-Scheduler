@@ -6,7 +6,7 @@ import { ResetPasswordForm } from '@/features/auth/components/reset-password-for
 import Link from 'next/link';
 
 export const metadata = {
-  title: 'Reset Password - Task Flow',
+  title: 'Reset Password | Task Flow',
   description: 'Reset your account password.',
 };
 

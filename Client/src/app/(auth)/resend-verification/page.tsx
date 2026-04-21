@@ -8,7 +8,7 @@ import { buttonVariants } from '@/components/ui/button';
 import { ResendVerificationForm } from '@/features/auth/components/resend-verification-form';
 
 export const metadata = {
-  title: 'Resend Verification - Task Flow',
+  title: 'Resend Verification | Task Flow',
   description: 'Resend verification email.',
 };
 

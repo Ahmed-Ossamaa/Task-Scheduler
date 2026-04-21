@@ -2,7 +2,7 @@ import { LoginForm } from '@/features/auth/components/login-form';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Login - Task Flow',
+  title: 'Login | Task Flow',
   description: 'Login to your account',
 };
 

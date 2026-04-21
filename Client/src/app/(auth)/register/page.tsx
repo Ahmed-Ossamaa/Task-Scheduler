@@ -2,7 +2,7 @@ import { RegisterForm } from '@/features/auth/components/register-form';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Login - Task Flow',
+  title: 'Register | Task Flow',
   description: 'Get started with Task Flow',
 };
 

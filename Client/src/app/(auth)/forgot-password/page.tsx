@@ -5,7 +5,7 @@ import { ForgotPasswordForm } from '@/features/auth/components/forgot-password-f
 
 
 export const metadata = {
-  title: 'Forgot Password - Task Flow',
+  title: 'Forgot Password | Task Flow',
   description: 'Reset your account password.',
 };
 
