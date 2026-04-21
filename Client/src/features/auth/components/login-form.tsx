@@ -31,7 +31,7 @@ export function LoginForm() {
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
-    mode: 'onTouched', 
+    mode: 'onTouched',
     defaultValues: { email: '', password: '' },
   });
 
@@ -154,7 +154,7 @@ export function LoginForm() {
                     </button>
                   </div>
                 </FormControl>
-                <FormMessage/>
+                <FormMessage className="text-[10px] text-destructive font-medium" />
               </FormItem>
             )}
           />
