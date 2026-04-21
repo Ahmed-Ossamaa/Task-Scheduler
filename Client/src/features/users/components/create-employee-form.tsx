@@ -23,9 +23,12 @@ import {
 import { createEmpSchema, CreateEmpValues } from '@/lib/schema/auth.schema';
 import { toast } from 'sonner';
 import { AxiosError } from 'axios';
+import { useState } from 'react';
+import { Eye, EyeOff } from 'lucide-react';
 
 export function CreateEmployeeForm({ onSuccess }: { onSuccess?: () => void }) {
-  const { mutate: createEmployee, isPending } = useCreateEmployee();
+  const { mutateAsync: createEmployee, isPending } = useCreateEmployee();
+  const [showPassword, setShowPassword] = useState(false);
 
   const form = useForm<CreateEmpValues>({
     resolver: zodResolver(createEmpSchema),
@@ -39,28 +42,26 @@ export function CreateEmployeeForm({ onSuccess }: { onSuccess?: () => void }) {
     },
   });
 
-  function onSubmit(values: CreateEmpValues) {
-    createEmployee(
-      {
+  const onSubmit = async (values: CreateEmpValues) => {
+    try {
+      await createEmployee({
         name: values.name,
         gender: values.gender,
         email: values.email,
         password: values.password,
-      },
-      {
-        onSuccess: () => {
-          toast.success('Employee created successfully');
-          form.reset();
-          if (onSuccess) onSuccess();
-        },
-        onError: (error) => {
-          const axiosError = error as AxiosError<{ message: string }>;
-          const errMessage = axiosError.response?.data?.message;
-          toast.error(errMessage || 'Failed to create employee');
-        },
-      },
-    );
-  }
+      });
+
+      toast.success(
+        'Employee created successfully, Please let them check their email.',
+      );
+      form.reset();
+      onSuccess?.();
+    } catch (error) {
+      const axiosError = error as AxiosError<{ message: string }>;
+      const errMessage = axiosError.response?.data?.message;
+      toast.error(errMessage || 'Failed to create employee');
+    }
+  };
 
   return (
     <Form {...form}>
@@ -120,7 +121,25 @@ export function CreateEmployeeForm({ onSuccess }: { onSuccess?: () => void }) {
             <FormItem>
               <FormLabel>Initial Password</FormLabel>
               <FormControl>
-                <Input type="password" placeholder="******" {...field} />
+                <div className="relative">
+                  <Input
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="******"
+                    {...field}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    tabIndex={-1}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
               </FormControl>
               <FormMessage className="text-[10px] text-destructive font-medium" />
             </FormItem>
@@ -133,7 +152,11 @@ export function CreateEmployeeForm({ onSuccess }: { onSuccess?: () => void }) {
             <FormItem>
               <FormLabel>Confirm Password</FormLabel>
               <FormControl>
-                <Input type="password" placeholder="******" {...field} />
+                <Input
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="******"
+                  {...field}
+                />
               </FormControl>
               <FormMessage className="text-[10px] text-destructive font-medium" />
             </FormItem>
