@@ -1,12 +1,4 @@
-import {
-  IsEnum,
-  IsIn,
-  IsInt,
-  IsOptional,
-  Min,
-  Max,
-  IsNumber,
-} from 'class-validator';
+import { IsEnum, IsIn, IsInt, IsOptional, Min, Max } from 'class-validator';
 import { Type } from 'class-transformer';
 import { MessageStatus } from '../interfaces/message-status-enum';
 import { ApiPropertyOptional } from '@nestjs/swagger';
@@ -19,7 +11,6 @@ export class GetAdminMessagesDto {
 
   @ApiPropertyOptional({ example: 'createdAt', enum: ['createdAt', 'status'] })
   @IsOptional()
-  @IsNumber()
   @IsIn(['createdAt', 'status'])
   sortBy?: 'createdAt' | 'status';
 
