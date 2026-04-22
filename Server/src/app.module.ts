@@ -24,6 +24,7 @@ import { GlobalExceptionFilter } from './common/filters/global-exception.filter'
 import { BackgroundJobsModule } from './features/background-jobs/background-jobs.module';
 import mailConfig from './config/mail.config';
 import { MailModule } from './integrations/mail/mail.module';
+import { ContactMessagesModule } from './features/contact-messages/contact-messages.module';
 
 @Module({
   imports: [
@@ -88,6 +89,7 @@ import { MailModule } from './integrations/mail/mail.module';
     ActivityModule,
     BackgroundJobsModule,
     MailModule,
+    ContactMessagesModule,
   ],
   controllers: [AppController],
   providers: [
