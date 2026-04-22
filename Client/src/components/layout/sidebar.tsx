@@ -102,7 +102,7 @@ export function AppSidebar() {
                 <SidebarMenuButton
                   asChild
                   isActive={pathname === '/dashboard/settings'}
-                  tooltip="Settings"
+                  tooltip="Account Settings"
                 >
                   <Link href="/dashboard/settings">
                     <Settings
@@ -119,7 +119,7 @@ export function AppSidebar() {
                           : 'text-muted-foreground'
                       }
                     >
-                      Settings
+                      Account Settings
                     </span>
                   </Link>
                 </SidebarMenuButton>
