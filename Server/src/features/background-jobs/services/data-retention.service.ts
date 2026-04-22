@@ -4,6 +4,7 @@ import { Organization } from 'src/features/organizations/entities/organization.e
 import { User } from 'src/features/users/entities/user.entity';
 import { Task } from 'src/features/tasks/entities/task.entity';
 import { Project } from 'src/features/projects/entities/project.entity';
+import { ContactMessage } from 'src/features/contact-messages/entities/contact-messages.entity';
 
 @Injectable()
 export class DataRetentionService {
@@ -62,12 +63,21 @@ export class DataRetentionService {
         .andWhere('deletedAt <= :date', { date: thirtyDaysAgo })
         .execute();
 
+      const messageResult = await queryRunner.manager
+        .createQueryBuilder()
+        .delete()
+        .from(ContactMessage)
+        .where('deletedAt IS NOT NULL')
+        .andWhere('deletedAt <= :date', { date: thirtyDaysAgo })
+        .execute();
+
       await queryRunner.commitTransaction();
 
       this.logger.log(
         `Cleanup complete. Purged: ${tasksResult.affected || 0} Tasks, ` +
           `${projectsResult.affected || 0} Projects, ${usersResult.affected || 0} Users, ` +
-          `${orgsResult.affected || 0} Orgs.`,
+          `${orgsResult.affected || 0} Orgs.` +
+          `${messageResult.affected || 0} Messages.`,
       );
     } catch (error) {
       await queryRunner.rollbackTransaction();
