@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { toast } from 'sonner';
 import { Loader2, Send } from 'lucide-react';
 import { useForm } from 'react-hook-form';
@@ -16,12 +15,15 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { ContactFormValues, contactSchema } from '@/lib/schema/contact-form-schema';
-
-
+import {
+  ContactFormValues,
+  contactSchema,
+} from '@/lib/schema/contact-form-schema';
+import { useSubmitMessage } from '../hooks/use-contact';
+import { AxiosError } from 'axios';
 
 export function ContactForm() {
-  const [isPending, setIsPending] = useState(false);
+  const { mutateAsync: submitMessage, isPending } = useSubmitMessage();
 
   const form = useForm<ContactFormValues>({
     resolver: zodResolver(contactSchema),
@@ -37,17 +39,16 @@ export function ContactForm() {
   const { isValid } = form.formState;
 
   const onSubmit = async (data: ContactFormValues) => {
-    setIsPending(true);
     try {
-      // till i develop the messaging module in the backend
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      toast.success('Message sent successfully! We will get back to you soon.');
+      const response = await submitMessage(data);
+      toast.success(response.message || 'Message sent successfully!');
       form.reset();
-    } catch {
-      toast.error('Failed to send message. Please try again later.');
-    } finally {
-      setIsPending(false);
+    } catch (error) {
+      const axiosError = error as AxiosError<{ message: string }>;
+      const errorMessage = axiosError.response?.data.message;
+      toast.error(
+        errorMessage || 'Failed to send message. Please try again later.',
+      );
     }
   };
 
