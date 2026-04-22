@@ -1,14 +1,8 @@
 import { ContactFormValues } from '@/lib/schema/contact-form-schema';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { contactApi } from '../api/contact-api';
-import { MessageStatus } from '../types';
-export interface MsgQueryParams {
-  status?: MessageStatus;
-  sortBy?: 'createdAt' | 'status';
-  order?: 'ASC' | 'DESC';
-  page?: number;
-  limit?: number;
-}
+import { MessageStatus, MsgQueryParams } from '../types';
+
 export const useSubmitMessage = () => {
   return useMutation({
     mutationFn: (data: ContactFormValues) => contactApi.submitMessage(data),

@@ -17,3 +17,12 @@ export interface PaginatedMessages {
   page: number;
   lastPage: number;
 }
+
+
+export interface MsgQueryParams {
+  status?: MessageStatus;
+  sortBy?: 'createdAt' | 'status';
+  order?: 'ASC' | 'DESC';
+  page?: number;
+  limit?: number;
+}

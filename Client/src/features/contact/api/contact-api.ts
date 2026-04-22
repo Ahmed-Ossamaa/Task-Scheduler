@@ -1,7 +1,6 @@
 import api from '@/lib/api/axios';
 import { ContactFormValues } from '@/lib/schema/contact-form-schema';
-import { ContactMessage, MessageStatus, PaginatedMessages } from '../types';
-import { MsgQueryParams } from '../hooks/use-contact';
+import { ContactMessage, MessageStatus, MsgQueryParams, PaginatedMessages } from '../types';
 
 
 export const contactApi = {
