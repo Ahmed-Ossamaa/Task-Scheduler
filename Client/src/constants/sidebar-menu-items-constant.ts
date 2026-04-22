@@ -8,6 +8,7 @@ import {
   User,
   Building2,
   BarChart3,
+  MessageSquareMore 
 } from 'lucide-react';
 
 
@@ -52,16 +53,16 @@ export const MENU_ITEMS: MenuItem[] = [
     icon: Building2,
     roles: [UserRoles.ADMIN],
   },
-  // {
-  //   title: 'All Tasks',
-  //   url: '/dashboard/admin/tasks',
-  //   icon: CheckCircle,
-  //   roles: [UserRoles.ADMIN],
-  // },
   {
     title: 'Analytics',
     url: '/dashboard/admin/analytics',
     icon: BarChart3,
+    roles: [UserRoles.ADMIN],
+  },
+  {
+    title: 'Messages',
+    url: '/dashboard/admin/messages',
+    icon: MessageSquareMore ,
     roles: [UserRoles.ADMIN],
   },
 ];
