@@ -3,7 +3,12 @@ import { AvatarUpload } from '@/features/users/components/setting/avatar-upload'
 import { ChangePasswordForm } from '@/features/users/components/setting/user-chage-password-form';
 import { BasicDataForm } from '@/features/users/components/setting/user-data-update-form';
 
-export default function SettingsPage() {
+export const metadata = {
+  title: 'Account Settings | Admin Dashboard',
+  description: 'Manage your account settings and update your profile information.',
+};
+
+export default function AccountSettingsPage() {
   return (
     <div className="flex flex-col space-y-6 w-full h-full">
       {/* Page Header */}
