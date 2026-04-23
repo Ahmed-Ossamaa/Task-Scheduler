@@ -2,7 +2,6 @@
 
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
 import { TaskPriority } from '../types';
 import { useCreateTask } from '../hooks/use-tasks';
 import { useOrgProjects } from '@/features/projects/hooks/use-projects';
@@ -26,26 +25,20 @@ import {
 } from '@/components/ui/select';
 import { useOrgEmployees } from '@/features/users/hooks/use-users';
 import { Loader2 } from 'lucide-react';
+import { creatTaskSchema, CreatTaskValues } from '@/lib/schema/task-creation-schema';
+import { toast } from 'sonner';
+import { AxiosError } from 'axios';
 
-//Schema
-const formSchema = z.object({
-  title: z.string().min(3, 'Title must be at least 3 characters'),
-  description: z.string().optional(),
-  deadline: z.string().min(1, 'Deadline is required'),
-  priority: z.enum(TaskPriority),
-  assignedToId: z.uuid('Must be a valid user ID'),
-  projectId: z.uuid('Please select a project'),
-});
 
-type FormValues = z.infer<typeof formSchema>;
 
 export function CreateTaskForm({ onSuccess }: { onSuccess?: () => void }) {
-  const { mutate: createTask, isPending } = useCreateTask();
+  const { mutateAsync: createTask, isPending } = useCreateTask();
   const { data: employees, isLoading: isLoadingEmployees } = useOrgEmployees();
   const { data: projects, isLoading: isLoadingProjects } = useOrgProjects();
 
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<CreatTaskValues>({
+    resolver: zodResolver(creatTaskSchema),
+    mode: 'onTouched',
     defaultValues: {
       title: '',
       description: '',
@@ -57,19 +50,23 @@ export function CreateTaskForm({ onSuccess }: { onSuccess?: () => void }) {
   });
 
   //Handler
-  function onSubmit(values: FormValues) {
+  function onSubmit(values: CreatTaskValues) {
     const payload = {
       ...values,
       projectId: values.projectId,
       deadLine: new Date(values.deadline).toISOString(),
     };
-
-    createTask(payload, {
-      onSuccess: () => {
-        form.reset();
-        if (onSuccess) onSuccess();
-      },
-    });
+    try{
+      createTask(payload);
+      form.reset();
+      toast.success('Task created successfully');
+      if (onSuccess) onSuccess();
+    }
+    catch(error){
+      const axiosError = error as AxiosError<{ message: string }>;
+      const errMessage = axiosError.response?.data?.message;
+      toast.error(errMessage || 'Failed to create task');
+    }
   }
 
   return (
