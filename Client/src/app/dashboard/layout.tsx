@@ -4,6 +4,11 @@ import { Separator } from '@/components/ui/separator';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import HeaderTitle from '@/components/layout/headerTitle';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
+
+export const metadata = {
+  title: 'Dashboard | Task Flow',
+  description: 'Manage your team\'s project spaces.',
+}
 export default function DashboardLayout({
   children,
 }: {
