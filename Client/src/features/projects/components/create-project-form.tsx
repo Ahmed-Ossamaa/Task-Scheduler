@@ -26,6 +26,7 @@ export function CreateProjectForm({ onSuccess }: { onSuccess?: () => void }) {
 
   const form = useForm<CreateProjectValues>({
     resolver: zodResolver(createProjectSchema),
+    mode: 'onTouched',
     defaultValues: { name: '', description: '' },
   });
 
