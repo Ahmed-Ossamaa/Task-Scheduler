@@ -2,7 +2,6 @@
 
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
 import { useCreateProject } from '../hooks/use-projects';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,29 +14,33 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-
-const formSchema = z.object({
-  name: z.string().min(3, 'Project name must be at least 3 characters'),
-  description: z.string().optional(),
-});
-
-type FormValues = z.infer<typeof formSchema>;
+import {
+  createProjectSchema,
+  CreateProjectValues,
+} from '@/lib/schema/project-creation-schema';
+import { toast } from 'sonner';
+import { AxiosError } from 'axios';
 
 export function CreateProjectForm({ onSuccess }: { onSuccess?: () => void }) {
-  const { mutate: createProject, isPending } = useCreateProject();
+  const { mutateAsync: createProject, isPending } = useCreateProject();
 
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<CreateProjectValues>({
+    resolver: zodResolver(createProjectSchema),
     defaultValues: { name: '', description: '' },
   });
 
-  function onSubmit(values: FormValues) {
-    createProject(values, {
-      onSuccess: () => {
-        form.reset();
-        if (onSuccess) onSuccess();
-      },
-    });
+  async function onSubmit(values: CreateProjectValues) {
+    try{
+      await createProject(values);
+      form.reset();
+      toast.success('Project created successfully');
+      if (onSuccess) onSuccess();
+    }catch(error){
+      const axiosError = error as AxiosError<{ message: string }>;
+      const errMessage = axiosError.response?.data?.message;
+      toast.error(errMessage || 'Failed to create project');
+    }
+
   }
 
   return (
@@ -49,7 +52,9 @@ export function CreateProjectForm({ onSuccess }: { onSuccess?: () => void }) {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Project Name</FormLabel>
-              <FormControl><Input placeholder="E.g., Q3 Marketing..." {...field} /></FormControl>
+              <FormControl>
+                <Input placeholder="E.g., Q3 Marketing..." {...field} />
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}
@@ -60,7 +65,12 @@ export function CreateProjectForm({ onSuccess }: { onSuccess?: () => void }) {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Description (Optional)</FormLabel>
-              <FormControl><Textarea placeholder="What is this project about?" {...field} /></FormControl>
+              <FormControl>
+                <Textarea
+                  placeholder="What is this project about?"
+                  {...field}
+                />
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}
