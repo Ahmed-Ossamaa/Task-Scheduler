@@ -50,7 +50,7 @@ export function CreateTaskForm({ onSuccess }: { onSuccess?: () => void }) {
   });
 
   //Handler
-  function onSubmit(values: CreatTaskValues) {
+  async function onSubmit(values: CreatTaskValues) {
     const payload = {
       ...values,
       projectId: values.projectId,
