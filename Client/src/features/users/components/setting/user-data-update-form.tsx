@@ -30,11 +30,13 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { BasicDataValues, userBasicDataSchema } from '@/lib/schema/user-basic-data.schema';
+import { toast } from 'sonner';
+import { AxiosError } from 'axios';
 
 
 export function BasicDataForm() {
   const user = useAuthStore((state) => state.user);
-  const { mutate: editProfile, isPending } = useEditMyProfile();
+  const { mutateAsync: editProfile, isPending } = useEditMyProfile();
 
   const form = useForm<BasicDataValues>({
     resolver: zodResolver(userBasicDataSchema),
@@ -47,8 +49,15 @@ export function BasicDataForm() {
     },
   });
 
-  const onSubmit = (data: BasicDataValues) => {
-    editProfile(data);
+  const onSubmit = async (data: BasicDataValues) => {
+    try{
+      await editProfile(data);
+      toast.success('Profile updated successfully!');
+    } catch (error) {
+      const axiosError = error as AxiosError<{ message: string }>;
+      const errorMessage = axiosError.response?.data.message;
+      toast.error(errorMessage || 'Failed to update profile');
+    }
   };
 
   return (
@@ -131,7 +140,7 @@ export function BasicDataForm() {
               />
             </div>
           </CardContent>
-          <CardFooter className="border-t px-6 py-4">
+          <CardFooter className="border-t px-6 py-2">
             <Button type="submit" disabled={isPending}>
               {isPending ? 'Saving...' : 'Save Changes'}
             </Button>
