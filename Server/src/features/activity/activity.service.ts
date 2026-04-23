@@ -63,4 +63,18 @@ export class ActivityService {
       lastPage: Math.ceil(total / take) || 1,
     };
   }
+
+  /**
+   * Deletes all activity logs from the database (TRUNCATE).
+   */
+  async DeleteAllActivityLogs() {
+    await this.activityRepo.clear();
+  }
+
+  /**
+   * Deletes all error logs from the database (TRUNCATE).
+   */
+  async DeleteAllErrorLogs() {
+    await this.errorRepo.clear();
+  }
 }

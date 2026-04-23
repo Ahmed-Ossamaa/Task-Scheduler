@@ -1,5 +1,6 @@
 import {
   Controller,
+  Delete,
   Get,
   ParseIntPipe,
   Query,
@@ -36,6 +37,18 @@ export class ActivityController {
     @Query('limit', new ParseIntPipe({ optional: true })) limit: number = 5,
   ) {
     return this.activityService.getSystemErrors(page, limit);
+  }
+
+  @ApiOperation({ summary: 'Delete all activity logs (truncate)' })
+  @Delete('activity-logs')
+  async deleteActivityLogs() {
+    return this.activityService.DeleteAllActivityLogs();
+  }
+
+  @ApiOperation({ summary: 'Delete all system error logs (truncate)' })
+  @Delete('error-logs')
+  async deleteErrorLogs() {
+    return this.activityService.DeleteAllErrorLogs();
   }
 
   // @Get('test-crash')
