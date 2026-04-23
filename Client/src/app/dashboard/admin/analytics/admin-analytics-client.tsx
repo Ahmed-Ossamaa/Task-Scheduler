@@ -23,7 +23,7 @@ import { GrowthInterval, RoleCount } from '@/features/analytics/types';
 import { UsersGrowthChart } from '@/features/analytics/components/Users-growth-chart';
 import { OrgGrowthChart } from '@/features/analytics/components/org-growth-chart';
 
-export function AnalyticsClient() {
+export function AdminAnalyticsClient() {
   const [userInterval, setUserInterval] = useState<GrowthInterval>(
     GrowthInterval.SIX_MONTHS,
   );

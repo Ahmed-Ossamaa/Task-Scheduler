@@ -1,4 +1,4 @@
-import { AnalyticsClient } from './analytics-client';
+import { AdminAnalyticsClient } from './admin-analytics-client';
 
 export const metadata = {
   title: 'Platform Analytics | Admin Dashboard',
@@ -14,7 +14,7 @@ export default function AdminAnalyticsPage() {
         </p>
       </div>
 
-      <AnalyticsClient />
+      <AdminAnalyticsClient />
     </div>
   );
 }
