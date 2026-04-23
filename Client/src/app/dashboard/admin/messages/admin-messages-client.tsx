@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ActiveMessagesList } from '@/features/contact/components/active-messages-list';
 import { ArchivedMessagesList } from '@/features/contact/components/archived-messages-list';
 
-export function MessagesClient() {
+export function AdminMessagesClient() {
   return (
     <div className="flex flex-col space-y-6 w-full h-full">
 
