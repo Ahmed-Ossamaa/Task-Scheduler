@@ -57,7 +57,7 @@ export function CreateTaskForm({ onSuccess }: { onSuccess?: () => void }) {
       deadLine: new Date(values.deadline).toISOString(),
     };
     try{
-      createTask(payload);
+      await createTask(payload);
       form.reset();
       toast.success('Task created successfully');
       if (onSuccess) onSuccess();
