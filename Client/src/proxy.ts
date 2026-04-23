@@ -12,11 +12,17 @@ export function proxy(request: NextRequest) {
   || pathname.startsWith('/verify-email') 
   || pathname.startsWith('/forgot-password')
   || pathname.startsWith('/reset-password')
-  || pathname.startsWith('/resend-verification')
-  || pathname.startsWith('/contact');
+  || pathname.startsWith('/resend-verification');
 
-  const isLandingPage = pathname === '/';
-  const isPublicRoute = isAuthPage || isLandingPage;
+  const isGuestRoute = pathname.startsWith('/contact')
+  || pathname.startsWith('/about')
+  || pathname.startsWith('/privacy')
+  || pathname.startsWith('/terms')
+  || pathname.startsWith('/blog')
+  || pathname === '/';
+
+  // const isLandingPage = pathname === '/';
+  const isPublicRoute = isAuthPage || isGuestRoute;
 
   // User is Logged In 
   if (refreshToken) {
