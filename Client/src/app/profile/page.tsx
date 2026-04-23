@@ -175,7 +175,7 @@ export default function ProfilePage() {
                     Organization
                   </p>
                   <p className="text-sm font-medium text-foreground capitalize">
-                    {user?.organization?.name}
+                    {user?.organization?.name|| 'Not set'}
                   </p>
                 </div>
               </div>
