@@ -9,7 +9,7 @@ import {
   useAdminRestoreUser,
 } from '@/features/users/hooks/use-users';
 import { UsersTable } from './users-table';
-import { UserProfileDialog } from './user-profile-dialog';
+import { UserDetailsDialog } from './user-deatils-dialog';
 import { Button } from '@/components/ui/button';
 import {
   AlertDialog,
@@ -102,7 +102,7 @@ export function ArchivedUsersList() {
       </div>
 
       {/* Dialogs */}
-      <UserProfileDialog
+      <UserDetailsDialog
         user={userToView}
         isOpen={!!userToView}
         onClose={() => setUserToView(null)}

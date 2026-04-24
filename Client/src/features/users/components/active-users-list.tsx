@@ -6,7 +6,7 @@ import { Eye, Trash2 } from 'lucide-react';
 import { User } from '@/features/auth/types/user-interface';
 import { UsersTable } from './users-table';
 import { useAllUsers, useAdminDeleteUser } from '@/features/users/hooks/use-users';
-import { UserProfileDialog } from './user-profile-dialog';
+import { UserDetailsDialog } from './user-deatils-dialog';
 import { Button } from '@/components/ui/button';
 import {
   AlertDialog,
@@ -93,7 +93,7 @@ export function ActiveUsersList() {
       </div>
 
       {/* Dialogs */}
-      <UserProfileDialog
+      <UserDetailsDialog
         user={userToView}
         isOpen={!!userToView}
         onClose={() => setUserToView(null)}

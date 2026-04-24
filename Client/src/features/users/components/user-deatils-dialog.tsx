@@ -25,7 +25,7 @@ interface UserProfileDialogProps {
   onClose: () => void;
 }
 
-export function UserProfileDialog({
+export function UserDetailsDialog({
   user,
   isOpen,
   onClose,
