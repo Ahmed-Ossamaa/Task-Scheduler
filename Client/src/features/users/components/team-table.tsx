@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, Mail, User as UserIcon } from 'lucide-react';
+import Link from 'next/link';
 
 interface TeamTableProps {
   employees: User[] | undefined;
@@ -66,6 +67,10 @@ export function TeamTable({
             employees.map((employee) => (
               <TableRow key={employee.id}>
                 <TableCell className="font-medium pl-5">
+                  <Link
+                    href={`/dashboard/team/${employee.id}`}
+                    className="flex items-center gap-2 hover:underline   -ml-2  transition-colors group"
+                  >
                   <div className="flex items-center gap-2">
                     <div className="h-8 w-8 rounded-full bg-secondary flex items-center justify-center">
                       <UserIcon className="h-4 w-4 text-muted-foreground" />
@@ -77,10 +82,14 @@ export function TeamTable({
                       </span>
                     )}
                   </div>
+                  </Link>
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2 text-muted-foreground">
-                    <Mail className="h-4 w-4" /> {employee.email}
+                    <Mail className="h-4 w-4" /> 
+                    <Link 
+                    className="hover:underline"
+                    href={`mailto:${employee.email}`}>{employee.email}</Link>
                   </div>
                 </TableCell>
 
