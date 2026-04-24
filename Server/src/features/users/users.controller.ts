@@ -26,7 +26,6 @@ import { Roles } from 'src/common/decorators/roles.decorator';
 import { Throttle } from '@nestjs/throttler';
 import { ApiImageUpload } from 'src/common/decorators/api-image-upload.decorator';
 import { ImageValidationPipe } from 'src/common/pipes/image-validation.pipe';
-import { UserMapper } from './mappers/user.mapper';
 import { UserResponseDto } from './dto/user-response.dto';
 import { PaginatedUsers } from './types/paginated-users-interface';
 
@@ -148,14 +147,14 @@ export class UserController {
     );
   }
 
-  @ApiOperation({ summary: 'get user public profile' })
+  @ApiOperation({ summary: 'Get user public profile by ID (Same Org)' })
   @ApiOkResponse({ type: UserResponseDto })
   @Get(':userId/profile')
-  async getuserProfile(
-    @Param('userId', ParseUUIDPipe) userId: string,
+  async getUserById(
+    @Param('userId') targetUserId: string,
+    @CurrentUser() requester: JwtPayload,
   ): Promise<UserResponseDto> {
-    const user = await this.userService.findUserById(userId);
-    return UserMapper.fromEntity(user);
+    return await this.userService.getUserPorfile(targetUserId, requester);
   }
 
   @ApiOperation({ summary: 'Change employee role (Manager only)' })

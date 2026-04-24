@@ -24,6 +24,7 @@ import { GrowthInterval } from '../analytics/types/analytics.types';
 import { SensitiveUserFields } from './types/user-sensetive-fields';
 import { UserResponseDto } from './dto/user-response.dto';
 import { UserMapper } from './mappers/user.mapper';
+import { JwtPayload } from '../auth/interfaces/jwt-payload.interface';
 
 @Injectable()
 export class UserService {
@@ -135,18 +136,28 @@ export class UserService {
    * Finds a user by ID.
    * @returns The user with org basic details if found.
    */
-  async getUserPorfile(userId: string): Promise<UserResponseDto> {
+  async getUserPorfile(
+    targetUserId: string,
+    requester?: JwtPayload,
+  ): Promise<UserResponseDto> {
     const user = await this.userRepo
       .createQueryBuilder('user')
       .leftJoin('user.organization', 'org')
       .addSelect(['org.id', 'org.name', 'org.logo'])
-      .where('user.id = :id', { id: userId })
+      .where('user.id = :id', { id: targetUserId })
       .getOne();
 
     if (!user) {
       throw new NotFoundException('User not found');
     }
+    if (requester) {
+      const isSelf = requester.sub === targetUserId;
+      const isSameOrg = requester.organizationId === user.organization?.id;
 
+      if (!isSelf && !isSameOrg) {
+        throw new ForbiddenException('Access denied');
+      }
+    }
     return UserMapper.fromEntity(user);
   }
 
