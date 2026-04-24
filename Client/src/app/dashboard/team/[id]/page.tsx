@@ -1,4 +1,4 @@
-import { ProfileClient } from "@/app/profile/profile-client";
+import { ProfileClient } from "@/features/users/components/user-profile";
 
 export const metadata = {
     title: "Team Member | Task Flow",

@@ -1,5 +1,5 @@
 import { Navbar } from '@/components/layout/navbar';
-import { ProfileClient } from './profile-client';
+import { ProfileClient } from '../../features/users/components/user-profile';
 import { Footer } from '@/components/layout/footer';
 
 export const metadata = {
