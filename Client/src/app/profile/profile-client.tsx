@@ -16,35 +16,54 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { useGetMe } from '@/features/users/hooks/use-users';
+import { useGetMe, useUserProfile } from '@/features/users/hooks/use-users';
 import { formatDateTime, getInitials } from '@/lib/utils';
-import { Navbar } from '@/components/layout/navbar';
+// import { Navbar } from '@/components/layout/navbar';
 import { ProfileSkeleton } from '@/components/skeleton/profile.skeleton';
 import Link from 'next/link';
-import { Footer } from '@/components/layout/footer';
+// import { Footer } from '@/components/layout/footer';
+import { useAuthStore } from '@/features/auth/store/auth.store';
 
-export function ProfileClient() {
+interface ProfileClientProps {
+  userId?: string;
+}
+export function ProfileClient({ userId }: ProfileClientProps) {
   const router = useRouter();
+  const currentUser = useAuthStore((state) => state.user);
 
-  const { data: user, isPending } = useGetMe();
+  const isOwnProfile = !userId || currentUser?.id === userId;
 
+  const { data: myData, isPending: isMePending } = useGetMe({ enabled: isOwnProfile });
+  const { data: otherData, isPending: isOtherPending } = useUserProfile(userId as string, { enabled: !isOwnProfile });
+  const user = isOwnProfile ? myData : otherData;
+  const isPending = isOwnProfile ? isMePending : isOtherPending;
+  
   if (isPending) {
     return <ProfileSkeleton />;
   }
 
+  if (!user) {
+    return (
+      <div className="flex h-[50vh] w-full items-center justify-center">
+        <h2 className="text-xl text-muted-foreground">User not found or access denied.</h2>
+      </div>
+    );
+  }
+
   return (
     <>
-      <Navbar />
-      <div className="max-w-6xl mx-auto p-4 md:p-8 w-full mt-10 mb-10">
         <div className="mb-8 flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-foreground">
-              My Profile
+            <h1 className="text-2xl font-bold tracking-tight ">
+              {isOwnProfile ? 'My Profile' : `${user.name}'s Profile`}
             </h1>
             <p className="text-sm text-muted-foreground mt-1">
-              View and manage your public identity.
+              {isOwnProfile 
+                ? 'View and manage your public identity.' 
+                : ''}
             </p>
           </div>
+          {isOwnProfile && (
           <Button
             onClick={() => router.push('/dashboard/settings')}
             className="gap-2"
@@ -52,6 +71,7 @@ export function ProfileClient() {
             <Edit2 className="w-4 h-4" />
             Edit Settings
           </Button>
+          )}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -175,7 +195,7 @@ export function ProfileClient() {
                     Organization
                   </p>
                   <p className="text-sm font-medium text-foreground capitalize">
-                    {user?.organization?.name|| 'Not set'}
+                    {user?.organization?.name || 'Not set'}
                   </p>
                 </div>
               </div>
@@ -210,8 +230,6 @@ export function ProfileClient() {
             </CardContent>
           </Card>
         </div>
-      </div>
-      <Footer/>
     </>
   );
 }
