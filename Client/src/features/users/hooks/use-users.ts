@@ -4,10 +4,24 @@ import { useAuthStore } from '@/features/auth/store/auth.store';
 import { CreateEmployeeDto } from '../types';
 import { User, UserRoles } from '@/features/auth/types/user-interface';
 
-export const useGetMe = () => {
+export const useGetMe = (options?: { enabled?: boolean }) => {
   return useQuery({
     queryKey: ['users', 'me'],
     queryFn: usersApi.getMyProfile,
+    ...options,
+  });
+};
+
+/**
+ * Get a team member profile
+ * @param userId - targeted user
+ * @param  options - query options (enabled: boolean)
+ */
+export const useUserProfile = (userId: string, options?: { enabled?: boolean }) => {
+  return useQuery({
+    queryKey: ['users', 'profile', userId],
+    queryFn: () => usersApi.getUserProfile(userId),
+    ...options,
   });
 };
 

@@ -4,9 +4,20 @@ import { CreateEmployeeDto, PaginatedUser } from '../types';
 
 export const usersApi = {
 
+  /**
+   * Get My own profile (currently logged in user)
+   */
   getMyProfile: async()=>{
     const {data}= await api.get<User>('/user/me');
     return data
+  },
+
+/**
+ * - Manager/Emp : Get a team member profile (must be within the same organization)
+ */
+  getUserProfile: async (userId: string): Promise<User> => {
+    const { data } = await api.get<User>(`/user/${userId}/profile`);
+    return data;
   },
 
   /**
