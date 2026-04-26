@@ -1,58 +1,100 @@
-import {
-  Injectable,
-  OnModuleInit,
-  NotFoundException,
-  Logger,
-} from '@nestjs/common';
+import { Injectable, OnModuleInit, Logger, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import type { Cache } from 'cache-manager';
 import { SystemSettings } from './entities/system-settings.entity';
 import { UpdateSystemSettingsDto } from './dto/update-system-settings.dto';
 
 @Injectable()
 export class SystemSettingsService implements OnModuleInit {
   private readonly logger = new Logger(SystemSettingsService.name);
+
+  private readonly SETTINGS_ID = 1;
+  private readonly CACHE_KEY = 'system_settings';
+
   constructor(
     @InjectRepository(SystemSettings)
     private readonly settingsRepo: Repository<SystemSettings>,
+
+    @Inject(CACHE_MANAGER)
+    private readonly cacheManager: Cache,
   ) {}
 
   async onModuleInit() {
-    const settingsExist = await this.settingsRepo.findOne({ where: { id: 1 } });
-
-    if (!settingsExist) {
-      this.logger.log('Initializing default system settings...');
-      const defaultSettings = this.settingsRepo.create({ id: 1 });
-      await this.settingsRepo.save(defaultSettings);
-    }
+    await this.ensureSettingsExist();
+    await this.warmupCache();
   }
 
   async getSettings(): Promise<SystemSettings> {
-    const settings = await this.settingsRepo.findOne({ where: { id: 1 } });
+    // Try cache first
+    const cached = await this.cacheManager.get<SystemSettings>(this.CACHE_KEY);
 
-    if (!settings) {
-      throw new NotFoundException('System settings not found.');
+    if (cached) {
+      return cached;
     }
+
+    //Fallback to DB if no cash yet
+    const settings = await this.ensureSettingsExist();
+
+    //Cache the new settings
+    await this.cacheManager.set(this.CACHE_KEY, settings);
 
     return settings;
   }
 
   async updateSettings(dto: UpdateSystemSettingsDto): Promise<SystemSettings> {
-    const settings = await this.settingsRepo.findOne({ where: { id: 1 } });
-
-    if (!settings) {
-      // recreate the settings
-      const newSettings = this.settingsRepo.create({ id: 1, ...dto });
-      return await this.settingsRepo.save(newSettings);
-    }
+    const settings = await this.ensureSettingsExist();
 
     Object.assign(settings, dto);
 
-    return await this.settingsRepo.save(settings);
+    const updated = await this.settingsRepo.save(settings);
+
+    // set the new cash with the updated settings
+    await this.cacheManager.set(this.CACHE_KEY, updated);
+
+    return updated;
   }
 
   async restoreDefaultSettings(): Promise<SystemSettings> {
-    const defaultSettings = this.settingsRepo.create({ id: 1 });
-    return await this.settingsRepo.save(defaultSettings);
+    const defaultSettings = this.settingsRepo.create({
+      id: this.SETTINGS_ID,
+    });
+
+    const saved = await this.settingsRepo.save(defaultSettings);
+
+    //Invalidate cache
+    await this.cacheManager.del(this.CACHE_KEY);
+
+    return saved;
+  }
+
+  // ........ HELPER METHODS .........
+
+  /**
+   * Ensure the settings exist in the database.
+   * if not, create a new one with default values
+   * @returns SystemSettings
+   */
+  private async ensureSettingsExist(): Promise<SystemSettings> {
+    let settings = await this.settingsRepo.findOne({
+      where: { id: this.SETTINGS_ID },
+    });
+
+    if (!settings) {
+      this.logger.log('Initializing default system settings...');
+      settings = this.settingsRepo.create({ id: this.SETTINGS_ID });
+      settings = await this.settingsRepo.save(settings);
+    }
+
+    return settings;
+  }
+
+  /**
+   * set the cache with the current settings
+   */
+  private async warmupCache() {
+    const settings = await this.ensureSettingsExist();
+    await this.cacheManager.set(this.CACHE_KEY, settings);
   }
 }

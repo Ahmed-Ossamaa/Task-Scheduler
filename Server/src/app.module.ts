@@ -26,6 +26,8 @@ import mailConfig from './config/mail.config';
 import { MailModule } from './integrations/mail/mail.module';
 import { ContactMessagesModule } from './features/contact-messages/contact-messages.module';
 import { SystemSettingsModule } from './features/system-settings/system-settings.module';
+import { CacheModule } from '@nestjs/cache-manager';
+import { redisStore } from 'cache-manager-ioredis-yet';
 
 @Module({
   imports: [
@@ -81,6 +83,15 @@ import { SystemSettingsModule } from './features/system-settings/system-settings
         limit: 20,
       },
     ]),
+    CacheModule.registerAsync({
+      isGlobal: true,
+      inject: [redisConfig.KEY],
+      useFactory: async (redis: ReturnType<typeof redisConfig>) => ({
+        store: await redisStore({
+          ...redis.connection,
+        }),
+      }),
+    }),
     UserModule,
     TasksModule,
     AuthModule,
