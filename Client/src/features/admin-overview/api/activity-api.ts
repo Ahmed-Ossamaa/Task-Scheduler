@@ -12,5 +12,11 @@ export const activityApi = {
     return data;
   },
 
-
+  /**
+   * Deletes all activity logs (hard delete).
+   */
+  deleteActivityLogs: async (): Promise<void> => {
+    await api.delete<void>('/activity/activity-logs');
+   
+  }
 };

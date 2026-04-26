@@ -15,7 +15,7 @@ export class UpdateSystemSettingsDto {
   @ApiPropertyOptional({ example: '+0125550123' })
   @IsOptional()
   @IsString()
-  @MaxLength(15)
+  @MaxLength(20)
   contactPhone?: string;
 
   @ApiPropertyOptional({ example: 'Alexandria, Egypt' })

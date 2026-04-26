@@ -1,6 +1,5 @@
-import api from "@/lib/api/axios";
-import { ErrorLog, PaginatedResponse } from "../types";
-
+import api from '@/lib/api/axios';
+import { ErrorLog, PaginatedResponse } from '../types';
 
 export const errorLogsApi = {
   getSystemErrors: async (page: number = 1, limit: number = 5) => {
@@ -11,5 +10,12 @@ export const errorLogsApi = {
       },
     );
     return data;
+  },
+
+  /**
+   * Deletes all system errors (hard delete).
+   */
+  deleteErrorLogs: async (): Promise<void> => {
+    await api.delete<void>('/activity/error-logs');
   },
 };

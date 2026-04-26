@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { activityApi } from '../api/activity-api';
 
 export const useActivityLogs = (page: number = 1, limit: number = 20) => {
@@ -7,4 +7,14 @@ export const useActivityLogs = (page: number = 1, limit: number = 20) => {
     queryFn: () => activityApi.getActivityLogs(page, limit),
     placeholderData: (previousData) => previousData, 
   });
+};
+
+export const useDeleteActivityLogs = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => activityApi.deleteActivityLogs(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'activity'] });
+    },
+  })
 };
