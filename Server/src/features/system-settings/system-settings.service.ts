@@ -56,6 +56,28 @@ export class SystemSettingsService implements OnModuleInit {
     return updated;
   }
 
+  async updateLogo(logoUrl: string): Promise<SystemSettings> {
+    const settings = await this.ensureSettingsExist();
+    settings.logo = logoUrl;
+
+    const updated = await this.settingsRepo.save(settings);
+
+    // set the new cash with the updated settings
+    await this.cacheManager.set(this.CACHE_KEY, updated);
+    return updated;
+  }
+
+  async updateLandingImage(landingImageUrl: string): Promise<SystemSettings> {
+    const settings = await this.ensureSettingsExist();
+    settings.landingPageImage = landingImageUrl;
+
+    const updated = await this.settingsRepo.save(settings);
+
+    // set the new cash with the updated settings
+    await this.cacheManager.set(this.CACHE_KEY, updated);
+    return updated;
+  }
+
   async restoreDefaultSettings(): Promise<SystemSettings> {
     const defaultSettings = this.settingsRepo.create({
       id: this.SETTINGS_ID,
@@ -63,9 +85,8 @@ export class SystemSettingsService implements OnModuleInit {
 
     const saved = await this.settingsRepo.save(defaultSettings);
 
-    //Invalidate cache
-    await this.cacheManager.del(this.CACHE_KEY);
-
+    //upadte cash
+    await this.cacheManager.set(this.CACHE_KEY, saved);
     return saved;
   }
 
@@ -91,7 +112,7 @@ export class SystemSettingsService implements OnModuleInit {
   }
 
   /**
-   * set the cache with the current settings
+   * set the cache with the current system-settings
    */
   private async warmupCache() {
     const settings = await this.ensureSettingsExist();
