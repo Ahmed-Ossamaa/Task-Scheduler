@@ -25,6 +25,7 @@ import { BackgroundJobsModule } from './features/background-jobs/background-jobs
 import mailConfig from './config/mail.config';
 import { MailModule } from './integrations/mail/mail.module';
 import { ContactMessagesModule } from './features/contact-messages/contact-messages.module';
+import { SystemSettingsModule } from './features/system-settings/system-settings.module';
 
 @Module({
   imports: [
@@ -90,6 +91,7 @@ import { ContactMessagesModule } from './features/contact-messages/contact-messa
     BackgroundJobsModule,
     MailModule,
     ContactMessagesModule,
+    SystemSettingsModule,
   ],
   controllers: [AppController],
   providers: [
