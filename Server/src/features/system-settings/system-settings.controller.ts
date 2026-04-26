@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Patch, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Patch, Post, UseGuards } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -35,5 +35,15 @@ export class SystemSettingsController {
     @Body() updateDto: UpdateSystemSettingsDto,
   ): Promise<SystemSettings> {
     return await this.settingsService.updateSettings(updateDto);
+  }
+
+  @ApiOperation({ summary: 'Restore system settings to default (Admin Only)' })
+  @ApiResponse({ status: 201, type: SystemSettings })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  @Post('restore-defaults')
+  async restoreDefaults(): Promise<SystemSettings> {
+    return await this.settingsService.restoreDefaultSettings();
   }
 }
