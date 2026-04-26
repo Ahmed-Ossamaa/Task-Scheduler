@@ -8,9 +8,9 @@ import {
   User,
   Building2,
   BarChart3,
-  MessageSquareMore 
+  MessageSquareMore,
+  Settings,
 } from 'lucide-react';
-
 
 export const MENU_ITEMS: MenuItem[] = [
   // Shared
@@ -62,14 +62,20 @@ export const MENU_ITEMS: MenuItem[] = [
   {
     title: 'Messages',
     url: '/dashboard/admin/messages',
-    icon: MessageSquareMore ,
+    icon: MessageSquareMore,
+    roles: [UserRoles.ADMIN],
+  },
+  {
+    title: 'System Settings',
+    url: '/dashboard/admin/system-settings',
+    icon: Settings,
     roles: [UserRoles.ADMIN],
   },
 ];
 
 // Sort menu items (longest)
 export const SORTED_MENU_ITEMS = [...MENU_ITEMS].sort(
-  (a, b) => b.url.length - a.url.length
+  (a, b) => b.url.length - a.url.length,
 );
 
 /**
@@ -78,11 +84,7 @@ export const SORTED_MENU_ITEMS = [...MENU_ITEMS].sort(
  * @returns {string} The title of the page
  */
 export function getPageTitle(pathname: string): string {
-
-  const match = SORTED_MENU_ITEMS.find((item) =>
-    pathname.startsWith(item.url)
-  );
-
+  const match = SORTED_MENU_ITEMS.find((item) => pathname.startsWith(item.url));
 
   return match?.title || 'Dashboard';
 }
