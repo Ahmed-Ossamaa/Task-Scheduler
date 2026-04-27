@@ -1,7 +1,7 @@
 import { MyTeamClient } from './my-team-cleint';
 
 export const metadata = {
-  title: 'My Team | Task Flow',
+  title: 'My Team | Schedio',
   description: 'View your team members.',
 };
 

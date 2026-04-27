@@ -15,16 +15,21 @@ import {
 } from '@/components/ui/sidebar';
 import { useAuthStore } from '@/features/auth/store/auth.store';
 import { usePathname } from 'next/navigation';
+import { useGetSystemSettings } from '@/features/system-settings/hooks/use-system-settings';
 import Link from 'next/link';
 import { MENU_ITEMS } from '@/constants/sidebar-menu-items-constant';
 import { useLogout } from '@/features/auth/hooks/use-auth';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { getInitials } from '@/lib/utils';
+import Image from 'next/image';
 
 export function AppSidebar() {
   const user = useAuthStore((state) => state.user);
   const { mutate: logout, isPending } = useLogout();
   const pathname = usePathname();
+
+  const { data: settings } = useGetSystemSettings();
+  const appName = settings?.appName || 'Schedio';
 
   if (!user) return null;
 
@@ -35,16 +40,30 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon">
       {/*Header with Logo */}
-      <SidebarHeader className="h-12 flex items-center justify-center border-b border-sidebar-border  px-4">
+      <SidebarHeader className="h-12 flex items-center justify-center border-b border-sidebar-border  px-4 group-data-[collapsible=icon]:pl-1 group-data-[collapsible=icon]:pr-3!">
         <Link
           href="/"
           className="flex items-center gap-2 w-full overflow-hidden"
         >
-          {/* Logo (icon for now)*/}
-          <CheckCircle className="h-4 w-4 text-red-500 shrink-0" />
-          <span className="text-sm font-bold tracking-widest uppercase truncate group-data-[collapsible=icon]:hidden">
-            Task<span className="text-primary">Flow</span>
-          </span>
+          {settings?.logo ? (
+            <div className="relative h-10 w-30 shrink-0">
+              <Image
+                src={settings.logo}
+                alt={`${appName} logo`}
+                fill
+                sizes="24px"
+                loading="eager"
+                className="object-contain"
+              />
+            </div>
+          ) : (
+            <div className="flex gap-2  items-center justify-center">
+              <CheckCircle className="h-4 w-5 text-red-500 shrink-0 group-data-[collapsible=icon]:pl-1!" />
+              <span className="text-sm font-bold tracking-widest uppercase truncate group-data-[collapsible=icon]:hidden">
+                {appName}
+              </span>
+            </div>
+          )}
         </Link>
       </SidebarHeader>
 
@@ -144,7 +163,10 @@ export function AppSidebar() {
                 </AvatarFallback>
               </Avatar>
               <div className="flex flex-col overflow-hidden group-data-[collapsible=icon]:hidden">
-                <Link className="text-sm font-medium truncate hover:underline" href="/profile">
+                <Link
+                  className="text-sm font-medium truncate hover:underline"
+                  href="/profile"
+                >
                   {user?.name || 'User'}
                 </Link>
                 <span className="text-xs text-muted-foreground truncate">

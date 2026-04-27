@@ -1,7 +1,7 @@
 import { ProjectsClient } from './projects-client';
 
 export const metadata = {
-  title: 'Projects | Task Flow',
+  title: 'Projects | Schedio',
   description: 'Manage and view your organization\'s project spaces.',
 };
 

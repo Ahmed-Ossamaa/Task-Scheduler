@@ -167,7 +167,7 @@ export function SystemSettingsForm() {
                     <FormItem>
                       <FormLabel>Application Name</FormLabel>
                       <FormControl>
-                        <Input placeholder="Task Flow App.." {...field} />
+                        <Input placeholder="Schedio App.." {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

@@ -6,7 +6,7 @@ import HeaderTitle from '@/components/layout/headerTitle';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 
 export const metadata = {
-  title: 'Dashboard | Task Flow',
+  title: 'Dashboard | Schedio',
   description: 'Manage your team\'s project spaces.',
 }
 export default function DashboardLayout({

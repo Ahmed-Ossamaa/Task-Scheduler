@@ -1,7 +1,7 @@
 import { Card, CardContent } from '@/components/ui/card';
 
 export const metadata = {
-  title: 'Terms of Service | Task Flow',
+  title: 'Terms of Service | Schedio',
   description: 'Read our terms of service and user agreements.',
 };
 
@@ -26,7 +26,7 @@ export default function TermsPage() {
                 1. Acceptance of Terms
               </h2>
               <p className="mb-6">
-                By accessing and using Task Flow, you accept and agree to be
+                By accessing and using Schedio, you accept and agree to be
                 bound by the terms and provision of this agreement. In addition,
                 when using these particular services, you shall be subject to
                 any posted guidelines or rules applicable to such services.
@@ -70,7 +70,7 @@ export default function TermsPage() {
               </h2>
               <p className="mb-6">
                 The service and its original content, features, and
-                functionality are owned by Task Flow. You may not copy, modify,
+                functionality are owned by Schedio. You may not copy, modify,
                 distribute, or use any part of the service without our prior
                 written consent.
               </p>
@@ -79,7 +79,7 @@ export default function TermsPage() {
                 5. Limitation of Liability
               </h2>
               <p className="mb-6">
-                In no event shall Task Flow, nor its directors, employees,
+                In no event shall Schedio, nor its directors, employees,
                 partners, agents, suppliers, or affiliates, be liable for any
                 indirect, incidental, special, consequential or punitive
                 damages, including without limitation, loss of profits, data,

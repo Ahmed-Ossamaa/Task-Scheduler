@@ -4,7 +4,7 @@ import { ChangePasswordForm } from '@/features/users/components/setting/user-cha
 import { BasicDataForm } from '@/features/users/components/setting/user-data-update-form';
 
 export const metadata = {
-  title: 'Account Settings | Task Flow',
+  title: 'Account Settings | Schedio',
   description: 'Manage your account settings and update your profile information.',
 };
 

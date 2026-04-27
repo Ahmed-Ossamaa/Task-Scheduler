@@ -2,8 +2,8 @@ import { RegisterForm } from '@/features/auth/components/register-form';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Register | Task Flow',
-  description: 'Get started with Task Flow',
+  title: 'Register | Schedio',
+  description: 'Get started with Schedio',
 };
 
 

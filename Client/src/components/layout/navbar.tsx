@@ -24,23 +24,41 @@ import { getInitials } from '@/lib/utils';
 import Image from 'next/image';
 import { useLogout } from '@/features/auth/hooks/use-auth';
 
-export function Navbar() {
+interface NavbarProps {
+  appName: string;
+  logo: string | null;
+}
+export function Navbar({ appName, logo }: NavbarProps) {
   const user = useAuthStore((state) => state.user);
   const { mutate: logout, isPending } = useLogout();
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 bg-nav/70 backdrop-blur-md">
+    <nav className="fixed top-0 left-0 right-0 z-100 border-b border-border/50 bg-nav!">
       <div className="container mx-auto flex h-13 items-center justify-between px-4 md:px-8">
-        {/* Logo (icon for now)*/}
         <Link
           href="/"
           className="flex items-center gap-2 transition-opacity hover:opacity-80"
         >
-          <CheckCircle2 className="h-6 w-6 text-red-500" />
-          <span className="text-xl font-bold tracking-tight">Task</span>
-          <span className="text-xl font-bold tracking-tight">Flow</span>
+          {logo ? (
+            <div className="relative h-13 w-30 ">
+              <Image
+                src={logo}
+                alt={`${appName} logo`}
+                fill
+                sizes="100px"
+                loading='eager'
+                className="object-contain"
+              />
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+            <CheckCircle2 className="h-6 w-6 text-red-500" />
+            <span className="font-bold text-foreground">Schedio</span>
+          </div>
+          )}
         </Link>
 
+        {/* navigation links */}
         <div className="hidden md:flex items-center gap-6 text-sm font-bold uppercase text-primary">
           <Link
             href="/#features"
@@ -64,10 +82,7 @@ export function Navbar() {
           {user ? (
             <DropdownMenu modal={false}>
               <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="h-10 w-10 rounded-full p-0 "
-                >
+                <Button variant="ghost" className="h-10 w-10 rounded-full p-0 ">
                   <Avatar className="h-8 w-8 relative overflow-hidden">
                     {user.avatar ? (
                       <Image

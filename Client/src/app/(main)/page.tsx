@@ -1,6 +1,5 @@
 'use client';
 
-import { Navbar } from '@/components/layout/navbar';
 import {
   MARQUEE_ITEMS,
   STATS,
@@ -9,16 +8,12 @@ import {
   DONE_TASKS,
 } from '@/constants/landing-constatnts';
 import { AccentDot, BtnGhost, BtnPrimary } from '@/components/ui/landing-ui';
-import { Footer } from '@/components/layout/footer';
 
 
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-background text-foreground selection:bg-primary/20">
-      {/* NAV  */}
-      <Navbar />
-
-      <main className="pt-16">
+      <main>
         {' '}
         {/*  Hero section */}
         <section className="max-w-300uto px-6 md:px-12 pt-24 pb-20 border-b border-border">
@@ -215,7 +210,6 @@ export default function LandingPage() {
         </div>
       </main>
 
-      <Footer />
     </div>
   );
 }

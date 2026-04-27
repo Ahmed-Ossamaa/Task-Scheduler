@@ -1,19 +1,26 @@
 import { Mail, Phone, MapPin, MessageSquare } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ContactForm } from '@/features/contact/components/contact-form';
+import { systemSettingsApi } from '@/features/system-settings/api/system-settings.api';
 
 export const metadata = {
-  title: 'Contact Us | Task Flow',
+  title: 'Contact Us | Schedio',
   description: 'Get in touch with our team for support or inquiries.',
 };
-//will move it to another file to make the admin eligible to change it later
-export const APP_EMAIL = 'support@taskflow.com';
-export const APP_PHONE = '+20 155 458 0561';
-export const APP_CITY_ADDRESS = 'Alexandria, Egypt';
-export const APP_STREET_ADDRESS = '123 Innovation Drive';
 
-export default function ContactPage() {
-    
+
+export default async function ContactPage() {
+  let settings = null;
+  try {
+    settings = await systemSettingsApi.getSettings();
+  } catch (error) {
+    console.error(error,'Failed to load settings for contact page');
+  }    
+//fallbacks
+  const email = settings?.contactEmail || 'support@Schedio.com';
+  const phone = settings?.contactPhone || '+20 155 458 0561';
+  const city = settings?.contactCityAddress || 'Alexandria, Egypt';
+  const street = settings?.contactStreetAddress || '23 Fawzy Moaz St., Smouha';
   return (
     <div className="min-h-screen bg-background pt-10 pb-25 px-4 md:px-8">
       <div className="max-w-6xl mx-auto space-y-12">
@@ -45,7 +52,7 @@ export default function ContactPage() {
                     href="mailto:support@taskflow.com"
                     className="text-sm font-medium text-primary hover:underline"
                   >
-                    {APP_EMAIL}
+                    {email}
                   </a>
                 </div>
               </CardContent>
@@ -62,9 +69,9 @@ export default function ContactPage() {
                     Come say hello at our headquarters.
                   </p>
                   <p className="text-sm font-medium text-foreground">
-                    {APP_STREET_ADDRESS}
+                    {street}
                     <br />
-                    {APP_CITY_ADDRESS}
+                    {city}
                   </p>
                 </div>
               </CardContent>
@@ -84,7 +91,7 @@ export default function ContactPage() {
                     href="tel:+971501234567"
                     className="text-sm font-medium text-primary hover:underline"
                   >
-                    {APP_PHONE}
+                    {phone}
                   </a>
                 </div>
               </CardContent>

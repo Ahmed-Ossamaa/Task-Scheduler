@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Task Flow',
+  title: 'Schedio',
   description: 'Manage your team\'\s project spaces.',
 };
 

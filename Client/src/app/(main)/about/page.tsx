@@ -3,14 +3,13 @@ import { Card, CardContent } from '@/components/ui/card';
 
 
 export const metadata = {
-  title: 'About Us | Task Flow',
-  description: 'Learn more about our mission and the team behind Task Flow.',
+  title: 'About Us | Schedio',
+  description: 'Learn more about our mission and the team behind Schedio.',
 };
 
 export default function AboutPage() {
   return (
-    <>
-      <div className="relative min-h-screen w-full pt-10 pb-25 px-4 overflow-hidden bg-background selection:bg-primary/20">
+      <div className="relative  w-full pt-10 pb-25 px-4  bg-background selection:bg-primary/20">
         {/* Background */}
         <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-200 h-200 bg-primary/20 rounded-full blur-[120px] opacity-50 pointer-events-none" />
         <div className="fixed inset-0 bg-[radial-gradient(#800020_0.5px,transparent_1px)] dark:bg-[radial-gradient(#1f2937_1px,transparent_1px)] bg-size-[24px_24px] mask-[radial-gradient(ellipse_60%_60%_at_50%_50%,#000_10%,transparent_100%)] pointer-events-none" />
@@ -21,7 +20,7 @@ export default function AboutPage() {
               Empowering teams to do their best work
             </h1>
             <p className="text-lg text-muted-foreground leading-relaxed">
-              Task Flow was built with a simple mission: to eliminate the chaos
+              Schedio was built with a simple mission: to eliminate the chaos
               of modern work and replace it with clarity, focus, and seamless
               collaboration.
             </p>
@@ -87,7 +86,7 @@ export default function AboutPage() {
                   Built for Teams
                 </h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  Work doesn&apos;t happen in a vacuum. We built Task Flow from
+                  Work doesn&apos;t happen in a vacuum. We built Schedio from
                   the ground up to support massive organizations, custom roles,
                   and cross-team visibility.
                 </p>
@@ -96,6 +95,5 @@ export default function AboutPage() {
           </div>
         </div>
       </div>
-    </>
   );
 }

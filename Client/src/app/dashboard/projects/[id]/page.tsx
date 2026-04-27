@@ -1,7 +1,7 @@
 import { ProjectDetailsClient } from './project-details-client';
 
 export const metadata = {
-  title: 'Project Details | Task Flow',
+  title: 'Project Details | Schedio',
   description: 'View and manage project details.',
 };
 
