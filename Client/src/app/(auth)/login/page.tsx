@@ -1,4 +1,5 @@
 import { LoginForm } from '@/features/auth/components/login-form';
+import { getCachedSystemSettings } from '@/features/system-settings/api/get-cached-settings';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -6,7 +7,12 @@ export const metadata: Metadata = {
   description: 'Login to your account',
 };
 
-export default function LoginPage() {
+export default async function LoginPage() {
+
+  const settings = await getCachedSystemSettings();
+  const logo = settings.logo as string || undefined;
+  const appName = settings.appName as string;
+
   return (
     <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden bg-background selection:bg-primary/20">
       
@@ -18,7 +24,7 @@ export default function LoginPage() {
 
       {/* Form Container */}
       <div className="relative z-10 w-full px-4 flex justify-center">
-        <LoginForm />
+        <LoginForm logo= {logo} appName={appName} />
       </div>
 
     </div>

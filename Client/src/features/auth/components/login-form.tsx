@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { CheckCircle2, Loader2, Eye, EyeOff } from 'lucide-react';
@@ -21,7 +22,12 @@ import { useForm } from 'react-hook-form';
 import { LoginFormValues, loginSchema } from '@/lib/schema/auth.schema';
 import { AxiosError } from 'axios';
 
-export function LoginForm() {
+interface LoginFormProps {
+  logo: string | undefined;
+  appName: string;
+}
+
+export function LoginForm({ logo, appName }: LoginFormProps) {
   const [needsVerification, setNeedsVerification] = useState(false);
   const [failedEmail, setFailedEmail] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -56,20 +62,34 @@ export function LoginForm() {
       }
     }
   };
+  console.log("Logo", logo)
 
   return (
     <div className="w-full max-w-110 flex flex-col relative bg-card/60 backdrop-blur-xl border border-border/50 p-8 rounded-3xl shadow-2xl shadow-black/5 dark:shadow-black/40">
       <div className="flex flex-col items-center text-center mb-10">
-        <div className="w-12 h-12 flex items-center justify-center mb-6">
+        <div className="w-60 h-10 flex items-center justify-center mb-2">
           <Link
             href="/"
-            className="flex items-center gap-2 transition-opacity hover:opacity-80"
+            className="flex items-center gap-2 transition-opacity hover:opacity-90"
           >
-            <CheckCircle2 className="h-6 w-6 text-red-500" />
-            <span className="text-xl font-bold tracking-tight">Task</span>
-            <span className="text-xl font-bold tracking-tight text-primary">
-              Flow
-            </span>
+            {logo ? (
+              <div className="relative h-15 w-60 shrink-0">
+                <Image 
+                  src={logo} 
+                  alt={`${appName} logo`} 
+                  fill 
+                  sizes="240px"
+                  priority
+                  className="object-contain" 
+                />
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="h-8 w-8 text-red-500 shrink-0" />
+                <span className="text-2xl font-bold text-primary ">{appName}</span>
+              </div>
+              
+            )}
           </Link>
         </div>
         <h1 className="text-2xl font-medium tracking-tight text-foreground mb-2">
@@ -89,24 +109,24 @@ export function LoginForm() {
           <FormField
             control={form.control}
             name="email"
-            render={({ field, fieldState }) => (
+            render={({ field}) => (
               <FormItem className="space-y-2">
-                <FormLabel className="text-[11px] font-bold tracking-[0.15em] uppercase text-muted-foreground">
+                <FormLabel 
+                htmlFor={field.name}
+                className="text-[11px] font-bold tracking-[0.15em] uppercase text-muted-foreground">
                   Email Address
                 </FormLabel>
                 <FormControl>
                   <Input
+                    id={field.name}
+                    autoComplete="on"
                     type="email"
                     placeholder="you@example.com"
                     {...field}
-                    className={`pr-10 h-10 ${
-                      fieldState.error
-                        ? 'border-destructive focus-visible:ring-1 focus-visible:ring-offset-0 focus-visible:ring-destructive'
-                        : ''
-                    }`}
+ 
                   />
                 </FormControl>
-                <FormMessage className="text-[10px] text-destructive font-medium" />
+                <FormMessage className="text-[12px] text-destructive font-medium" />
               </FormItem>
             )}
           />
@@ -114,10 +134,12 @@ export function LoginForm() {
           <FormField
             control={form.control}
             name="password"
-            render={({ field, fieldState }) => (
+            render={({ field }) => (
               <FormItem className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <FormLabel className="text-[11px] font-bold tracking-[0.15em] uppercase text-muted-foreground">
+                  <FormLabel
+                  htmlFor={field.name}
+                   className="text-[11px] font-bold tracking-[0.15em] uppercase text-muted-foreground">
                     Password
                   </FormLabel>
                   <Link
@@ -131,14 +153,10 @@ export function LoginForm() {
                 <FormControl>
                   <div className="relative">
                     <Input
+                      id={field.name}
                       type={showPassword ? 'text' : 'password'}
                       placeholder="••••••••"
                       {...field}
-                      className={`pr-10 h-10 ${
-                        fieldState.error
-                          ? 'border-destructive focus-visible:ring-1 focus-visible:ring-offset-0 focus-visible:ring-destructive'
-                          : ''
-                      }`}
                     />
                     <button
                       type="button"
@@ -154,7 +172,7 @@ export function LoginForm() {
                     </button>
                   </div>
                 </FormControl>
-                <FormMessage className="text-[10px] text-destructive font-medium" />
+                <FormMessage className="text-[12px] text-destructive font-medium" />
               </FormItem>
             )}
           />

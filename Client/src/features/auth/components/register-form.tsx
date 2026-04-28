@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { CheckCircle2, Loader2, Eye, EyeOff } from 'lucide-react';
@@ -21,7 +22,12 @@ import { useForm } from 'react-hook-form';
 import { RegisterFormValues, registerSchema } from '@/lib/schema/auth.schema';
 import { AxiosError } from 'axios';
 
-export function RegisterForm() {
+
+interface RegisterFormProps {
+  logo: string | undefined;
+  appName: string
+}
+export function RegisterForm({ logo, appName }: RegisterFormProps) {
   const router = useRouter();
   const { mutateAsync: registerMutation, isPending: isLoading } = useRegister();
   const [showPassword, setShowPassword] = useState(false);
@@ -60,16 +66,30 @@ export function RegisterForm() {
   return (
     <div className="w-full max-w-120 flex flex-col relative bg-card/60 backdrop-blur-xl border border-border/50 px-8 py-5 rounded-3xl shadow-2xl shadow-black/5 dark:shadow-black/40">
       <div className="flex flex-col items-center text-center mb-8">
-        <div className="w-12 h-12 flex items-center justify-center mb-2">
+        <div className="w-60 h-10 flex items-center justify-center mb-2">
           <Link
             href="/"
             className="flex items-center gap-2 transition-opacity hover:opacity-80"
           >
-            <CheckCircle2 className="h-6 w-6 text-red-500" />
-            <span className="text-xl font-bold tracking-tight">Task</span>
-            <span className="text-xl font-bold tracking-tight text-primary">
-              Flow
-            </span>
+            {logo ? (
+              <div className="relative h-15 w-60 shrink-0 ">
+                <Image
+                  src={logo}
+                  alt={`${appName} logo`}
+                  fill
+                  sizes="160px"
+                  priority
+                  className="object-contain"
+                />
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="h-8 w-8 text-red-500 shrink-0" />
+                <span className="text-2xl font-bold text-primary ">
+                  {appName}
+                </span>
+              </div>
+            )}
           </Link>
         </div>
         <h1 className="text-2xl font-medium tracking-tight text-foreground mb-2">
@@ -81,25 +101,23 @@ export function RegisterForm() {
       </div>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} noValidate className="flex flex-col gap-3">
-          
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          noValidate
+          className="flex flex-col gap-3"
+        >
           <FormField
             control={form.control}
             name="name"
-            render={({ field, fieldState }) => (
+            render={({ field }) => (
               <FormItem className="space-y-2">
                 <FormLabel className="text-[10px] font-bold tracking-[0.15em] uppercase text-muted-foreground">
                   Full Name *
                 </FormLabel>
                 <FormControl>
-                  <Input
-                    type="text"
-                    placeholder="Your Name"
-                    {...field}
-                    className={fieldState.error ? 'border-destructive focus-visible:ring-1 focus-visible:ring-offset-0 focus-visible:ring-destructive' : ''}
-                  />
+                  <Input type="text" placeholder="Your Name" {...field} />
                 </FormControl>
-                <FormMessage className="text-[10px] text-destructive font-medium" />
+                <FormMessage className="text-[12px] text-destructive font-medium" />
               </FormItem>
             )}
           />
@@ -107,7 +125,7 @@ export function RegisterForm() {
           <FormField
             control={form.control}
             name="email"
-            render={({ field, fieldState }) => (
+            render={({ field }) => (
               <FormItem className="space-y-2">
                 <FormLabel className="text-[10px] font-bold tracking-[0.15em] uppercase text-muted-foreground">
                   Email Address *
@@ -117,10 +135,9 @@ export function RegisterForm() {
                     type="email"
                     placeholder="you@example.com"
                     {...field}
-                    className={fieldState.error ? 'border-destructive focus-visible:ring-1 focus-visible:ring-offset-0 focus-visible:ring-destructive' : ''}
                   />
                 </FormControl>
-                <FormMessage className="text-[10px] text-destructive font-medium" />
+                <FormMessage className="text-[12px] text-destructive font-medium" />
               </FormItem>
             )}
           />
@@ -128,7 +145,7 @@ export function RegisterForm() {
           <FormField
             control={form.control}
             name="password"
-            render={({ field, fieldState }) => (
+            render={({ field }) => (
               <FormItem className="space-y-2">
                 <FormLabel className="text-[10px] font-bold tracking-[0.15em] uppercase text-muted-foreground">
                   Password *
@@ -139,7 +156,6 @@ export function RegisterForm() {
                       type={showPassword ? 'text' : 'password'}
                       placeholder="••••••••"
                       {...field}
-                    className={fieldState.error ? 'border-destructive focus-visible:ring-1 focus-visible:ring-offset-0 focus-visible:ring-destructive' : ''}
                     />
                     <button
                       type="button"
@@ -147,11 +163,15 @@ export function RegisterForm() {
                       tabIndex={-1}
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                     >
-                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
                     </button>
                   </div>
                 </FormControl>
-                <FormMessage className="text-[10px] text-destructive font-medium" />
+                <FormMessage className="text-[12px] text-destructive font-medium" />
               </FormItem>
             )}
           />
@@ -159,7 +179,7 @@ export function RegisterForm() {
           <FormField
             control={form.control}
             name="confirmPassword"
-            render={({ field, fieldState }) => (
+            render={({ field }) => (
               <FormItem className="space-y-2">
                 <FormLabel className="text-[10px] font-bold tracking-[0.15em] uppercase text-muted-foreground">
                   Confirm Password *
@@ -169,10 +189,9 @@ export function RegisterForm() {
                     type={showPassword ? 'text' : 'password'}
                     placeholder="••••••••"
                     {...field}
-                    className={fieldState.error ? 'border-destructive focus-visible:ring-1 focus-visible:ring-offset-0 focus-visible:ring-destructive' : ''}
                   />
                 </FormControl>
-                <FormMessage className="text-[10px] text-destructive font-medium" />
+                <FormMessage className="text-[12px] text-destructive font-medium" />
               </FormItem>
             )}
           />
@@ -182,7 +201,11 @@ export function RegisterForm() {
             disabled={isLoading || !isValid}
             className="h-11 mt-2 w-full rounded-sm text-[11px] font-bold tracking-[0.12em] uppercase transition-all"
           >
-            {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Sign Up →'}
+            {isLoading ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              'Sign Up →'
+            )}
           </Button>
         </form>
       </Form>
