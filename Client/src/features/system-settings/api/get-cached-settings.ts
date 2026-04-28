@@ -8,8 +8,8 @@ export const DEFAULT_SETTINGS: SystemSettingsValues = {
   contactPhone: '+20 155 458 0561',
   contactCityAddress: 'Alexandria, Egypt',
   contactStreetAddress: '23 Fawzy Moaz St., Smouha',
-  logo: undefined,
-  landingPageImage: undefined,
+  logo: '',
+  landingPageImage: '',
   banner: '',
   facebookUrl: '',
   twitterUrl: '',
@@ -28,23 +28,19 @@ export const getCachedSystemSettings = cache(async () => {
     // If the database is completely empty, return the defaults
     if (!dbSettings) return DEFAULT_SETTINGS;
 
-    // Convert null values to undefined
-    const sanitizedDbSettings = Object.fromEntries(
+    // Convert null and empty string values to undefined
+    const safeSettings = Object.fromEntries(
       Object.entries(dbSettings).map(([key, value]) => [
         key,
-        value === null ? undefined : value, 
+        value === null || value === '' ? undefined : value,
       ]),
     );
 
-    // Filter out undefined and empty string"" then overwrite the defaults
+    // Merge the maped settings with the defaults
     return {
       ...DEFAULT_SETTINGS,
-      ...Object.fromEntries(
-        Object.entries(sanitizedDbSettings).filter(
-          ([_, v]) => v !== undefined && v !== '',
-        ),
-      ),
-    } as SystemSettingsValues;
+      ...safeSettings,
+    };
   } catch (error) {
     console.error(error, 'Failed to fetch settings, falling back to defaults');
 
