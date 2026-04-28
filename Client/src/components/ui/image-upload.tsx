@@ -34,10 +34,10 @@ export function ImageUpload({ value, onChange, disabled }: ImageUploadProps) {
   if (previewUrl) {
     return (
       <div className="relative w-full h-40 rounded-lg overflow-hidden border bg-muted">
-        <Image src={previewUrl} alt="Preview" fill className="object-contain" />
+        <Image src={previewUrl} alt="Preview" fill priority className="object-contain" />
         <Button
           type="button"
-          onClick={() => onChange(undefined)}
+          onClick={() => onChange('')}
           variant="destructive"
           size="icon"
           className="absolute top-2 right-2 h-8 w-8"
