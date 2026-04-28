@@ -5,73 +5,73 @@ export class UpdateSystemSettingsDto {
   @ApiPropertyOptional({ example: 'Alexandria, Egypt' })
   @IsOptional()
   @IsString()
-  appName?: string;
+  appName?: string | null;
 
   @ApiPropertyOptional({ example: 'support@taskflow.com' })
   @IsOptional()
   @IsEmail()
-  contactEmail?: string;
+  contactEmail?: string | null;
 
   @ApiPropertyOptional({ example: '+0125550123' })
   @IsOptional()
   @IsString()
   @MaxLength(20)
-  contactPhone?: string;
+  contactPhone?: string | null;
 
   @ApiPropertyOptional({ example: 'Alexandria, Egypt' })
   @IsOptional()
   @IsString()
-  contactCityAddress?: string;
+  contactCityAddress?: string | null;
 
   @ApiPropertyOptional({ example: '123 street-name St., district name' })
   @IsOptional()
   @IsString()
-  contactStreetAddress?: string;
+  contactStreetAddress?: string | null;
 
   @ApiPropertyOptional({ description: 'URL string for the uploaded logo' })
   @IsOptional()
   @IsString()
-  logo?: string;
+  logo?: string | null;
 
   @ApiPropertyOptional({
     description: 'URL string for the landing page hero image',
   })
   @IsOptional()
   @IsString()
-  landingPageImage?: string;
+  landingPageImage?: string | null;
 
   @ApiPropertyOptional({ description: 'URL string for the dashboard banner' })
   @IsOptional()
   @IsString()
-  banner?: string;
+  banner?: string | null;
 
   @ApiPropertyOptional({ example: 'https://www.facebook.com/xx' })
   @IsOptional()
   @IsString()
-  facebookUrl?: string;
+  facebookUrl?: string | null;
 
   @ApiPropertyOptional({ example: 'https://www.twitter.com/xx' })
   @IsOptional()
   @IsString()
-  twitterUrl?: string;
+  twitterUrl?: string | null;
 
   @ApiPropertyOptional({ example: 'https://www.instagram.com/xx' })
   @IsOptional()
   @IsString()
-  instagramUrl?: string;
+  instagramUrl?: string | null;
 
   @ApiPropertyOptional({ example: 'https://www.youtube.com/xx' })
   @IsOptional()
   @IsString()
-  youtubeUrl?: string;
+  youtubeUrl?: string | null;
 
   @ApiPropertyOptional({ example: 'https://www.ticktok.com/xx' })
   @IsOptional()
   @IsString()
-  ticktokUrl?: string;
+  ticktokUrl?: string | null;
 
   @ApiPropertyOptional({ example: 'https://www.linkedin.com/xx' })
   @IsOptional()
   @IsString()
-  linkedinUrl?: string;
+  linkedinUrl?: string | null;
 }

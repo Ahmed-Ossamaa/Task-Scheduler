@@ -46,7 +46,18 @@ export class SystemSettingsService implements OnModuleInit {
   async updateSettings(dto: UpdateSystemSettingsDto): Promise<SystemSettings> {
     const settings = await this.ensureSettingsExist();
 
-    Object.assign(settings, dto);
+    //destruct  logo and landingPageImage to remove them
+    const { logo, landingPageImage, ...textPayload } = dto;
+
+    // remove any  'undefined' value from txtPayload
+    const cleanPayload = Object.fromEntries(
+      Object.entries(textPayload).filter(([, val]) => val !== undefined),
+    );
+
+    if (logo === '') cleanPayload.logo = '';
+    if (landingPageImage === '') cleanPayload.landingPageImage = '';
+
+    Object.assign(settings, cleanPayload);
 
     const updated = await this.settingsRepo.save(settings);
 

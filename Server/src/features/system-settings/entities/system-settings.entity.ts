@@ -13,48 +13,48 @@ export class SystemSettings {
   @PrimaryColumn({ default: 1 })
   id!: number;
 
-  @Column({ default: 'Task Flow' })
-  appName?: string;
+  @Column({ default: 'Schedio' })
+  appName!: string;
 
   @Column({ default: 'support@taskflow.com' })
-  contactEmail?: string;
+  contactEmail!: string;
 
   @Column({ default: '+201554580561' })
-  contactPhone?: string;
+  contactPhone!: string;
 
   @Column({ default: 'Alexandria, Egypt' })
-  contactCityAddress?: string;
+  contactCityAddress!: string;
 
   @Column({ default: '23 Fawzy Moaz St., Smouha' })
-  contactStreetAddress?: string;
+  contactStreetAddress!: string;
 
-  @Column({ nullable: true })
-  logo?: string;
+  @Column({ type: 'varchar', nullable: true })
+  logo!: string | null;
 
-  @Column({ nullable: true })
-  landingPageImage?: string;
+  @Column({ type: 'varchar', nullable: true })
+  landingPageImage!: string | null;
 
-  @Column({ nullable: true })
-  banner?: string;
+  @Column({ type: 'varchar', nullable: true })
+  banner!: string | null;
 
   // social links
-  @Column({ nullable: true })
-  facebookUrl?: string;
+  @Column({ type: 'varchar', nullable: true })
+  facebookUrl!: string | null;
 
-  @Column({ nullable: true })
-  twitterUrl?: string;
+  @Column({ type: 'varchar', nullable: true })
+  twitterUrl!: string | null;
 
-  @Column({ nullable: true })
-  instagramUrl?: string;
+  @Column({ type: 'varchar', nullable: true })
+  instagramUrl!: string | null;
 
-  @Column({ nullable: true })
-  youtubeUrl?: string;
+  @Column({ type: 'varchar', nullable: true })
+  youtubeUrl!: string | null;
 
-  @Column({ nullable: true })
-  ticktokUrl?: string;
+  @Column({ type: 'varchar', nullable: true })
+  ticktokUrl!: string | null;
 
-  @Column({ nullable: true })
-  linkedinUrl?: string;
+  @Column({ type: 'varchar', nullable: true })
+  linkedinUrl!: string | null;
   //..
 
   @Column({ default: false })
