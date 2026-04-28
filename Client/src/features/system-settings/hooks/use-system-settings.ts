@@ -37,26 +37,14 @@ export const useRestoreSystemSettings = () => {
 };
 
 export const useUploadLogo = () => {
-  const queryClient = useQueryClient();
-  const router = useRouter();
   return useMutation({
     mutationFn: systemSettingsApi.uploadLogo,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['system-settings'] });
-      router.refresh();
-    },
+
   });
 };
 
 export const useUploadLandingImage = () => {
-  const queryClient = useQueryClient();
-  const router = useRouter();
-
   return useMutation({
     mutationFn: systemSettingsApi.uploadLandingImage,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['system-settings'] });
-      router.refresh();
-    },
   });
 };
