@@ -3,8 +3,8 @@ import { getCachedSystemSettings } from '@/features/system-settings/api/get-cach
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Register | Schedio',
-  description: 'Get started with Schedio',
+  title: 'Sign Up',
+  description: 'Create your account to manage tasks, track progress, and stay organized.',
 };
 
 export default async function RegisterPage() {

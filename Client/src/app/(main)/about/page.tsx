@@ -4,7 +4,7 @@ import { getCachedSystemSettings } from '@/features/system-settings/api/get-cach
 
 
 export const metadata = {
-  title: 'About Us | Schedio',
+  title: 'About Us',
   description: 'Learn more about our mission and the team behind Schedio.',
 };
 

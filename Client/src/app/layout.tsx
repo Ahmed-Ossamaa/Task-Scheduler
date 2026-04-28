@@ -4,6 +4,31 @@ import './globals.css';
 import Providers from './providers';
 import { Toaster } from 'sonner';
 import { ThemeProvider } from '@/components/theme/theme-provider';
+import { getCachedSystemSettings } from '@/features/system-settings/api/get-cached-settings';
+
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getCachedSystemSettings();
+  const appName = settings.appName || 'Schedio';
+  const img =
+    (settings.landingPageImage as string | undefined) || '';
+
+  return {
+    title: {
+      default: appName,
+      template: `%s | ${appName}`,
+    },
+    description:'Manage your team\'s project spaces.',
+
+    openGraph: {
+      title: appName,
+      images: [
+        {
+          url: img,
+        },
+      ],
+    },
+  };
+}
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -15,10 +40,6 @@ const geistMono = Geist_Mono({
   subsets: ['latin'],
 });
 
-export const metadata: Metadata = {
-  title: 'Schedio',
-  description: 'Manage your team\'\s project spaces.',
-};
 
 export default function RootLayout({
   children,

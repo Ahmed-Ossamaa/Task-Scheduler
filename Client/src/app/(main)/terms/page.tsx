@@ -2,7 +2,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { getCachedSystemSettings } from '@/features/system-settings/api/get-cached-settings';
 
 export const metadata = {
-  title: 'Terms of Service | {appName}',
+  title: 'Terms of Service',
   description: 'Read our terms of service and user agreements.',
 };
 

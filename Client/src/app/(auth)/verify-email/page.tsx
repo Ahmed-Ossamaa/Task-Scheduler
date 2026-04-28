@@ -3,7 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { VerifyEmailContent } from '@/features/auth/components/verify-email-content';
 
 export const metadata = {
-  title: 'Verify Email | Schedio',
+  title: 'Verify Email',
   description: 'Securely verify your email address.',
 };
 

@@ -3,7 +3,7 @@ import { getCachedSystemSettings } from '@/features/system-settings/api/get-cach
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Login | Schedio',
+  title: 'Login',
   description: 'Login to your account',
 };
 

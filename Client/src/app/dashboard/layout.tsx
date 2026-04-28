@@ -7,7 +7,7 @@ import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { getCachedSystemSettings } from '@/features/system-settings/api/get-cached-settings';
 
 export const metadata = {
-  title: 'Dashboard | Schedio',
+  title: 'Dashboard',
   description: 'Manage your team\'s project spaces.',
 }
 export default async function DashboardLayout({

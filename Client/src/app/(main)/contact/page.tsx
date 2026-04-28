@@ -4,7 +4,7 @@ import { ContactForm } from '@/features/contact/components/contact-form';
 import { getCachedSystemSettings } from '@/features/system-settings/api/get-cached-settings';
 
 export const metadata = {
-  title: 'Contact Us | Schedio',
+  title: 'Contact Us',
   description: 'Get in touch with our team for support or inquiries.',
 };
 

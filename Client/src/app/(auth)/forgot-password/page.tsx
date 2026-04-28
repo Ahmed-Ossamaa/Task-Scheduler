@@ -5,7 +5,7 @@ import { ForgotPasswordForm } from '@/features/auth/components/forgot-password-f
 
 
 export const metadata = {
-  title: 'Forgot Password | Schedio',
+  title: 'Forgot Password',
   description: 'Reset your account password.',
 };
 

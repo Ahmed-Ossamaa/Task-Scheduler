@@ -1,7 +1,7 @@
 import { ProfileClient } from '../../../features/users/components/user-profile';
 
 export const metadata = {
-  title: 'Profile | Schedio',
+  title: 'Profile',
   description: 'User profile page.',
 };
 
