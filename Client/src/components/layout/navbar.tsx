@@ -53,7 +53,7 @@ export function Navbar({ appName, logo }: NavbarProps) {
           ) : (
             <div className="flex items-center gap-2">
             <CheckCircle2 className="h-6 w-6 text-red-500" />
-            <span className="font-bold text-foreground">Schedio</span>
+            <span className="font-bold text-foreground">{appName}</span>
           </div>
           )}
         </Link>
