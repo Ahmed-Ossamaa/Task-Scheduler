@@ -9,7 +9,7 @@ export default async function MainLayout({
 }) {
   const settings = await getCachedSystemSettings();
   const appName = settings.appName as string;
-  const logo = settings.logo;
+  const logo = settings.logo as string || undefined;
 
   return (
     <div className="flex flex-col min-h-screen">
