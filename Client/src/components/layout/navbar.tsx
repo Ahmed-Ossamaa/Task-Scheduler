@@ -26,7 +26,7 @@ import { useLogout } from '@/features/auth/hooks/use-auth';
 
 interface NavbarProps {
   appName: string;
-  logo: string | null;
+  logo: string | undefined;
 }
 export function Navbar({ appName, logo }: NavbarProps) {
   const user = useAuthStore((state) => state.user);

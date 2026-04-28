@@ -1,5 +1,6 @@
 import { Target, Zap, Shield, Users } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
+import { getCachedSystemSettings } from '@/features/system-settings/api/get-cached-settings';
 
 
 export const metadata = {
@@ -7,7 +8,10 @@ export const metadata = {
   description: 'Learn more about our mission and the team behind Schedio.',
 };
 
-export default function AboutPage() {
+export default async function AboutPage() {
+    const settings = await getCachedSystemSettings();
+    const appName = settings.appName as string;
+  
   return (
       <div className="relative  w-full pt-10 pb-25 px-4  bg-background selection:bg-primary/20">
         {/* Background */}
@@ -20,7 +24,7 @@ export default function AboutPage() {
               Empowering teams to do their best work
             </h1>
             <p className="text-lg text-muted-foreground leading-relaxed">
-              Schedio was built with a simple mission: to eliminate the chaos
+              {appName} was built with a simple mission: to eliminate the chaos
               of modern work and replace it with clarity, focus, and seamless
               collaboration.
             </p>
@@ -86,7 +90,7 @@ export default function AboutPage() {
                   Built for Teams
                 </h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  Work doesn&apos;t happen in a vacuum. We built Schedio from
+                  Work doesn&apos;t happen in a vacuum. We built {appName} from
                   the ground up to support massive organizations, custom roles,
                   and cross-team visibility.
                 </p>

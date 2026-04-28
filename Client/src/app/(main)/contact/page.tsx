@@ -1,7 +1,7 @@
 import { Mail, Phone, MapPin, MessageSquare } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ContactForm } from '@/features/contact/components/contact-form';
-import { systemSettingsApi } from '@/features/system-settings/api/system-settings.api';
+import { getCachedSystemSettings } from '@/features/system-settings/api/get-cached-settings';
 
 export const metadata = {
   title: 'Contact Us | Schedio',
@@ -10,17 +10,12 @@ export const metadata = {
 
 
 export default async function ContactPage() {
-  let settings = null;
-  try {
-    settings = await systemSettingsApi.getSettings();
-  } catch (error) {
-    console.error(error,'Failed to load settings for contact page');
-  }    
-//fallbacks
-  const email = settings?.contactEmail || 'support@Schedio.com';
-  const phone = settings?.contactPhone || '+20 155 458 0561';
-  const city = settings?.contactCityAddress || 'Alexandria, Egypt';
-  const street = settings?.contactStreetAddress || '23 Fawzy Moaz St., Smouha';
+  const settings = await getCachedSystemSettings();
+
+  const email = settings?.contactEmail;
+  const phone = settings?.contactPhone;
+  const city = settings?.contactCityAddress;
+  const street = settings?.contactStreetAddress;
   return (
     <div className="min-h-screen bg-background pt-10 pb-25 px-4 md:px-8">
       <div className="max-w-6xl mx-auto space-y-12">

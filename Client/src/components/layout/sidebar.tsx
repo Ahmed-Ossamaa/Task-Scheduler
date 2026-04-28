@@ -15,7 +15,6 @@ import {
 } from '@/components/ui/sidebar';
 import { useAuthStore } from '@/features/auth/store/auth.store';
 import { usePathname } from 'next/navigation';
-import { useGetSystemSettings } from '@/features/system-settings/hooks/use-system-settings';
 import Link from 'next/link';
 import { MENU_ITEMS } from '@/constants/sidebar-menu-items-constant';
 import { useLogout } from '@/features/auth/hooks/use-auth';
@@ -23,13 +22,15 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { getInitials } from '@/lib/utils';
 import Image from 'next/image';
 
-export function AppSidebar() {
+
+interface AppSidebarProps {
+  appName: string;
+  logo: string | undefined;
+}
+export function AppSidebar({ appName, logo }: AppSidebarProps) {
   const user = useAuthStore((state) => state.user);
   const { mutate: logout, isPending } = useLogout();
   const pathname = usePathname();
-
-  const { data: settings } = useGetSystemSettings();
-  const appName = settings?.appName || 'Schedio';
 
   if (!user) return null;
 
@@ -45,14 +46,14 @@ export function AppSidebar() {
           href="/"
           className="flex items-center gap-2 w-full overflow-hidden"
         >
-          {settings?.logo ? (
+          {logo ? (
             <div className="relative h-10 w-30 shrink-0">
               <Image
-                src={settings.logo}
+                src={logo}
                 alt={`${appName} logo`}
                 fill
-                sizes="24px"
-                loading="eager"
+                sizes="120px"
+                priority
                 className="object-contain"
               />
             </div>
