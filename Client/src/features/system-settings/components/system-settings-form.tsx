@@ -84,12 +84,12 @@ export function SystemSettingsForm() {
   });
 
   useEffect(() => {
-    if (settings) {
+    if (settings && !isSaving) {
       form.reset({
         ...settings,
       });
     }
-  }, [settings, form]);
+  }, [settings, form, isSaving]);
 
   const onSubmit = async (data: SystemSettingsValues) => {
     try {
@@ -102,14 +102,14 @@ export function SystemSettingsForm() {
         await uploadLanding(data.landingPageImage);
       }
 
-      // remove the (files) from the text payload.
-      const textPayload: SystemSettingsValues = { ...data };
+      // extract the (files) from the text payload.
+      const { logo, landingPageImage, ...textfields } = data;
+      const textPayload: SystemSettingsValues = { ...textfields };
 
-      if (textPayload.logo instanceof File) delete textPayload.logo;
-      if (textPayload.landingPageImage instanceof File)
-        delete textPayload.landingPageImage;
+      //if deleteing the current logo or landingPageImage ->inject empty string to the txt payload
+      if (logo === '') textPayload.logo = '';
+      if (landingPageImage === '') textPayload.landingPageImage = '';
 
-      //the normal text fields
       await updateSettings(textPayload);
 
       toast.success('System settings saved successfully');
@@ -289,7 +289,10 @@ export function SystemSettingsForm() {
                     <FormItem>
                       <FormLabel>Street Address</FormLabel>
                       <FormControl>
-                        <Input placeholder="123 Main St., district" {...field} />
+                        <Input
+                          placeholder="123 Main St., district"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
