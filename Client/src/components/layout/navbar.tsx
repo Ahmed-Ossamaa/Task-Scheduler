@@ -34,7 +34,7 @@ export function Navbar({ appName, logo }: NavbarProps) {
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-100 border-b border-border/50 bg-nav!">
-      <div className="container mx-auto flex h-13 items-center justify-between px-4 md:px-8">
+      <div className="container mx-auto flex h-13 items-center justify-between px-4">
         <Link
           href="/"
           className="flex items-center gap-2 transition-opacity hover:opacity-80"
