@@ -33,7 +33,7 @@ export function BtnGhost({
   href?: string;
 }) {
   const className =
-    'text-[11px] font-bold tracking-[0.12em] uppercase text-foreground bg-transparent border border-border px-7 py-3.25 cursor-pointer rounded-sm text-center inline-block transition-colors hover:bg-muted whitespace-nowrap';
+    'text-[11px] font-bold tracking-[0.12em] uppercase text-foreground bg-background/ border border-border px-7 py-3.25 cursor-pointer rounded-sm text-center inline-block transition-colors hover:bg-muted whitespace-nowrap shadow-sm shadow-primary/20';
   if (href)
     return (
       <Link href={href} className={className}>

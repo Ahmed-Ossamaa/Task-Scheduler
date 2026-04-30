@@ -106,7 +106,7 @@
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.205 0 0);
   --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.80 0 0);
+  --primary: oklch(0.8 0 0);
   --primary-foreground: oklch(0.205 0 0);
   --secondary: oklch(0.269 0 0);
   --secondary-foreground: oklch(0.985 0 0);
@@ -131,7 +131,7 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
-  --footer: oklch(0.2 0 0); 
+  --footer: oklch(0.2 0 0);
   --footer-foreground: oklch(0.985 0 0);
   --nav: oklch(0.145 0 0);
   --nav-foreground: oklch(0.985 0 0);
@@ -154,4 +154,32 @@
   button:disabled {
     @apply cursor-not-allowed;
   }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 1s ease forwards;
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 1s ease forwards;
 }

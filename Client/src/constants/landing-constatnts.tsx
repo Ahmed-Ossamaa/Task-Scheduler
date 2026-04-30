@@ -23,7 +23,7 @@ export const FEATURES = [
   {
     num: '02',
     title: 'Instant Updates',
-    desc: 'When a task is done, the whole team sees it. No refreshing. No chasing status in Slack.',
+    desc: 'When a task is done, the whole team sees it. No chasing status in Slack.',
     icon: <Zap className="w-5 h-5 text-primary" />,
   },
   {
