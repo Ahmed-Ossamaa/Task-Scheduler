@@ -22,6 +22,19 @@ api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   }
   return config;
 });
+
+let isRefreshing = false;
+let refreshSubscribers: ((token: string) => void)[] = [];
+
+//  Push the request to the queue
+function queueRequest(cb: (token: string) => void) {
+  refreshSubscribers.push(cb);
+}
+
+function onRefreshed(token: string) {
+  refreshSubscribers.forEach((cb) => cb(token));
+  refreshSubscribers = [];
+}
 interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {
   _retry?: boolean;
 }
@@ -35,12 +48,23 @@ api.interceptors.response.use(
     if (error.response?.status === 401 && !originalRequest._retry) {
       const isAuthEndpoint =
         originalRequest.url?.includes('/auth/login') ||
-        originalRequest.url?.includes('/auth/register');
+        originalRequest.url?.includes('/auth/register') ||
+        originalRequest.url?.includes('/auth/refresh') ||
+        originalRequest.url?.includes('/auth/logout');
 
       if (isAuthEndpoint) {
         return Promise.reject(error);
       }
+      if (isRefreshing) {
+        return new Promise((resolve) => {
+          queueRequest((token: string) => {
+            originalRequest.headers['Authorization'] = `Bearer ${token}`;
+            resolve(api(originalRequest));
+          });
+        });
+      }
       originalRequest._retry = true;
+      isRefreshing = true;
       try {
         const refreshResponse = await axios.post(
           `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/auth/refresh`,
@@ -51,35 +75,19 @@ api.interceptors.response.use(
         const newAccessToken = refreshResponse.data.accessToken;
         setAccessToken(newAccessToken);
 
+        onRefreshed(newAccessToken);
+
         originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
         return api(originalRequest);
       } catch (refreshError) {
         clearAuth();
-        if (typeof window !== 'undefined') {
-          const publicPaths = [
-            '/',
-            '/login',
-            '/register',
-            '/verify-email',
-            '/resend-verification',
-            '/forgot-password', 
-            '/reset-password',
-            '/contact',
-            '/about',
-            '/privacy',
-            '/terms',
-            '/blog',
-          ];
-          const currentPath = window.location.pathname;
 
-          // If the current path is not in the public paths, redirect to the login page
-          if (!publicPaths.includes(currentPath)) {
-            window.location.href = '/login';
-          }
-        }
         return Promise.reject(refreshError);
+      } finally {
+        isRefreshing = false;
       }
     }
+
     return Promise.reject(error);
   },
 );

@@ -1,39 +1,28 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { AUTH_ROUTES, PUBLIC_ROUTES } from './constants/routes-config';
 
 export function proxy(request: NextRequest) {
   const refreshToken = request.cookies.get('refreshToken');
   const { pathname } = request.nextUrl;
-  
-  //public routes
-  const isAuthPage = 
-  pathname.startsWith('/login') 
-  || pathname.startsWith('/register') 
-  || pathname.startsWith('/verify-email') 
-  || pathname.startsWith('/forgot-password')
-  || pathname.startsWith('/reset-password')
-  || pathname.startsWith('/resend-verification');
 
-  const isGuestRoute = pathname.startsWith('/contact')
-  || pathname.startsWith('/about')
-  || pathname.startsWith('/privacy')
-  || pathname.startsWith('/terms')
-  || pathname.startsWith('/blog')
-  || pathname === '/';
+  const isAuthPage = AUTH_ROUTES.some((route) => pathname.startsWith(route));
 
-  // const isLandingPage = pathname === '/';
-  const isPublicRoute = isAuthPage || isGuestRoute;
+  const isPublicPage = PUBLIC_ROUTES.some(
+    (route) => pathname === route || pathname.startsWith(route),
+  );
 
-  // User is Logged In 
+  const isPublicRoute = isAuthPage || isPublicPage;
+
+  // User is Logged In
   if (refreshToken) {
     // If logged in user tried to go to any of the auth pages
     if (isAuthPage) {
       return NextResponse.redirect(new URL('/dashboard', request.url));
     }
-    // Otherwise go wherever 
+    // Otherwise go wherever
     return NextResponse.next();
   }
-  
 
   // User is Guest (No Cookie)
   // Allow them to go to public routes
