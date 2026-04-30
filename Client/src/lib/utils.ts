@@ -136,4 +136,4 @@ export const getTaskStatusInfo = (deadline: string | Date, status: string) => {
 };
 
 
-export const restorationPeriod = '30 days'; 
+export const restorationPeriod = ' 30 days'; 

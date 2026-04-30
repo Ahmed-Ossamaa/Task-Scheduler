@@ -184,8 +184,8 @@ export function ActiveTeamList({
             <AlertDialogDescription>
               Are you sure you want to remove{' '}
               <strong>{userToDelete?.name}</strong> from the organization? The
-              user will be Archived with all of their tasks. it can be restored
-              within {restorationPeriod}
+              user will be Archived with all of their tasks. but their data will be retained
+              and can be restored within {restorationPeriod}.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

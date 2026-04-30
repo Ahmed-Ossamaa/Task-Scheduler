@@ -123,7 +123,7 @@ export function ActiveProjectsList({ isManager }: ActiveProjectsListProps) {
             <AlertDialogDescription>
               Are you sure you want to archive{' '}
               <strong>{projectToDelete?.name}</strong>? This will archive the
-              project and its tasks, it can be restored later within{' '}
+              project and its tasks, it can be restored later within
               {restorationPeriod}.
             </AlertDialogDescription>
           </AlertDialogHeader>

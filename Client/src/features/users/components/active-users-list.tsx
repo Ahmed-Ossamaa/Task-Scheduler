@@ -18,6 +18,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { restorationPeriod } from '@/lib/utils';
 
 
 
@@ -105,7 +106,8 @@ export function ActiveUsersList() {
             <AlertDialogTitle>Suspend User?</AlertDialogTitle>
             <AlertDialogDescription>
               Are you sure you want to suspend <strong>{userToDelete?.name}</strong>? 
-              They will be moved to the archives and lose platform access, but their data will be retained.
+              They will be moved to the archives and lose platform access, but their data will be retained
+              and can be restored within {restorationPeriod}.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
