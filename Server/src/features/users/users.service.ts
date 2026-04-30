@@ -635,6 +635,7 @@ export class UserService {
         deletedAt: Not(IsNull()),
       },
       withDeleted: true,
+      relations: ['organization'],
       order: {
         deletedAt: 'DESC',
       },
