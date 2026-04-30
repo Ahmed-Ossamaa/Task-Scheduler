@@ -12,7 +12,7 @@ export default async function TermsPage() {
   return (
     <div className="relative min-h-screen w-full pt-10 pb-20 px-4 overflow-hidden bg-background selection:bg-primary/20">
       {/* Background */}
-      <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-200 h-200 bg-primary/20 rounded-full blur-[120px] opacity-50 pointer-events-none" />
+      <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-50 h-50 bg-primary/20 rounded-full blur-[120px] opacity-50 pointer-events-none" />
       <div className="fixed inset-0 bg-[radial-gradient(#800020_0.5px,transparent_1px)] dark:bg-[radial-gradient(#1f2937_1px,transparent_1px)] bg-size-[24px_24px] mask-[radial-gradient(ellipse_60%_60%_at_50%_50%,#000_10%,transparent_100%)] pointer-events-none" />
 
       <div className="relative max-w-4xl mx-auto space-y-8">
