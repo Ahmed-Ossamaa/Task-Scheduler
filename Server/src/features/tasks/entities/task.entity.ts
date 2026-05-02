@@ -52,22 +52,21 @@ export class Task {
 
   //.....Relations.....
 
-  @Column({ nullable: true })
-  assignedById!: string;
+  @Column({ type: 'varchar', nullable: true })
+  assignedById!: string | null;
 
   @ManyToOne(() => User, (user) => user.tasksAssigned, {
     onDelete: 'SET NULL',
     nullable: true,
   })
   @JoinColumn({ name: 'assignedById' })
-  assignedBy!: User;
+  assignedBy!: User | null;
 
-  @Column({ nullable: true })
+  @Column()
   assignedToId!: string;
 
   @ManyToOne(() => User, (user) => user.tasksToDo, {
     onDelete: 'CASCADE',
-    nullable: true,
   })
   @JoinColumn({ name: 'assignedToId' })
   assignedTo!: User;

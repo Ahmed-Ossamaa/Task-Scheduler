@@ -12,7 +12,7 @@ export class TaskResponseDto {
   createdAt!: Date;
   updatedAt!: Date;
   assignedToId!: string;
-  assignedById!: string;
+  assignedById!: string | null;
   projectId!: string | null;
   organizationId!: string;
 
