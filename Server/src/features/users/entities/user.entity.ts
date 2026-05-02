@@ -102,7 +102,7 @@ export class User {
   organizationId!: string | null;
 
   @ManyToOne(() => Organization, (org) => org.users, {
-    onDelete: 'SET NULL',
+    onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'organizationId' })
   organization!: Organization | null;
