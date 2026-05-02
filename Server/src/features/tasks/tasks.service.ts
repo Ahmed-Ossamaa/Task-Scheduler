@@ -135,7 +135,7 @@ export class TasksService {
     };
   }
 
-  async getTaskById(taskId: string, orgId: string): Promise<Task> {
+  async getTaskById(taskId: string, orgId: string): Promise<TaskResponseDto> {
     const task = await this.baseTaskQuery()
       .where('task.id = :taskId', { taskId })
       .andWhere('task.organizationId = :orgId', { orgId })
@@ -145,7 +145,7 @@ export class TasksService {
       throw new NotFoundException('Task not found');
     }
 
-    return task;
+    return TaskMapper.fromEntity(task);
   }
 
   async getTasksByProject(
