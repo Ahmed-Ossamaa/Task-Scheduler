@@ -13,26 +13,26 @@ import {
 @Entity('organizations')
 export class Organization {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id!: string;
 
   @Column()
-  name: string;
+  name!: string;
 
-  @Column({ nullable: true })
-  logo?: string;
+  @Column({ type: 'varchar', nullable: true })
+  logo!: string | null;
 
   @CreateDateColumn({ type: 'timestamptz' })
-  createdAt: Date;
+  createdAt!: Date;
 
   @UpdateDateColumn({ type: 'timestamptz' })
-  updatedAt: Date;
+  updatedAt!: Date;
 
-  @DeleteDateColumn({ type: 'timestamptz' })
-  deletedAt?: Date;
+  @DeleteDateColumn({ type: 'timestamptz', nullable: true })
+  deletedAt!: Date | null;
 
   @OneToMany(() => User, (user) => user.organization)
-  users: User[];
+  users!: User[];
 
   @OneToMany(() => Project, (project) => project.organization)
-  projects: Project[];
+  projects!: Project[];
 }

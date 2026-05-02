@@ -59,7 +59,7 @@ export class TasksService {
       { taskId: task.id },
       { delay },
     );
-    task.jobId = job.id;
+    task.jobId = job.id ?? null;
     await this.tasksRepo.save(task);
     return TaskMapper.fromEntity(task);
   }
@@ -106,7 +106,7 @@ export class TasksService {
     if (!task || task.status === TaskStatus.DONE) return;
 
     task.status = TaskStatus.OVERDUE;
-    task.jobId = undefined;
+    task.jobId = null;
     await this.tasksRepo.save(task);
   }
 
@@ -305,7 +305,7 @@ export class TasksService {
           { taskId: task.id },
           { delay },
         );
-        task.jobId = newJob.id;
+        task.jobId = newJob.id ?? null;
       }
     }
   }

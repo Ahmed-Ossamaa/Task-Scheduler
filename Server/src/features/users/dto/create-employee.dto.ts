@@ -14,7 +14,7 @@ export class CreateEmployeeDto {
   @ApiProperty({ example: 'Ahmed Ossama' })
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name!: string;
 
   @ApiPropertyOptional({ enum: UserGender })
   @IsEnum(UserGender)
@@ -24,7 +24,7 @@ export class CreateEmployeeDto {
   @ApiProperty({ example: 'employee@gmail.com' })
   @IsEmail()
   @IsNotEmpty()
-  email: string;
+  email!: string;
 
   @ApiProperty({ example: '123456@Ab' })
   @IsString()
@@ -34,5 +34,5 @@ export class CreateEmployeeDto {
     message:
       'Password must contain uppercase, lowercase, number, and special character',
   })
-  password: string;
+  password!: string;
 }

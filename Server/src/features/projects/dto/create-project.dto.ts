@@ -13,11 +13,11 @@ export class CreateProjectDto {
   @IsNotEmpty()
   @MinLength(3)
   @MaxLength(50)
-  name: string;
+  name!: string;
 
   @ApiPropertyOptional({ example: 'Skill Up Project: Learning platform' })
   @IsString()
   @MaxLength(300)
   @IsOptional()
-  description?: string;
+  description!: string | null;
 }

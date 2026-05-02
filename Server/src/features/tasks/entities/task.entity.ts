@@ -18,67 +18,67 @@ import { Project } from '../../projects/entities/project.entity';
 @Index(['status', 'deadLine'])
 export class Task {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id!: string;
 
   @Column({ type: 'varchar', nullable: true })
-  jobId?: string | null;
+  jobId!: string | null;
 
   @Column()
-  title: string;
+  title!: string;
 
   @Column({ type: 'text', nullable: true })
-  description: string | null;
+  description!: string | null;
 
   @Column({ type: 'enum', enum: TaskPriority, default: TaskPriority.LOW })
-  priority: TaskPriority;
+  priority!: TaskPriority;
 
   @Column({ type: 'enum', enum: TaskStatus, default: TaskStatus.PENDING })
-  status: TaskStatus;
+  status!: TaskStatus;
 
   @Column({ type: 'timestamptz' })
-  deadLine: Date;
+  deadLine!: Date;
 
   @Column({ type: 'timestamptz', nullable: true })
-  completedAt?: Date | null;
+  completedAt!: Date | null;
 
   @CreateDateColumn({ type: 'timestamptz' })
-  createdAt: Date;
+  createdAt!: Date;
 
   @UpdateDateColumn({ type: 'timestamptz' })
-  updatedAt: Date;
+  updatedAt!: Date;
 
-  @DeleteDateColumn({ type: 'timestamptz' })
-  deletedAt?: Date;
+  @DeleteDateColumn({ type: 'timestamptz', nullable: true })
+  deletedAt!: Date | null;
 
   //.....Relations.....
 
   @Column({ nullable: true })
-  assignedById: string;
+  assignedById!: string;
 
   @ManyToOne(() => User, (user) => user.tasksAssigned, {
     onDelete: 'SET NULL',
     nullable: true,
   })
   @JoinColumn({ name: 'assignedById' })
-  assignedBy: User;
+  assignedBy!: User;
 
   @Column({ nullable: true })
-  assignedToId: string;
+  assignedToId!: string;
 
   @ManyToOne(() => User, (user) => user.tasksToDo, {
     onDelete: 'CASCADE',
     nullable: true,
   })
   @JoinColumn({ name: 'assignedToId' })
-  assignedTo: User;
+  assignedTo!: User;
 
   @Column()
-  organizationId: string;
+  organizationId!: string;
 
   @ManyToOne(() => Project, (project) => project.tasks, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'projectId' })
-  project: Project;
+  project!: Project;
 
   @Column()
-  projectId: string | null;
+  projectId!: string;
 }

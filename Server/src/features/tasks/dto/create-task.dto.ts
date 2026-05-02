@@ -18,17 +18,17 @@ export class CreateTaskDTO {
   @IsNotEmpty()
   @MinLength(2)
   @MaxLength(50)
-  title: string;
+  title!: string;
 
   @ApiPropertyOptional({ example: 'Complete BullMQ integration' })
   @IsString()
   @IsOptional()
   @MaxLength(300)
-  description?: string;
+  description?: string | null;
 
   @IsUUID()
   @IsNotEmpty()
-  projectId: string;
+  projectId!: string;
 
   @ApiProperty({
     example: '123e4567-e89b-12d3-a456-426614174000',
@@ -36,7 +36,7 @@ export class CreateTaskDTO {
   })
   @IsUUID()
   @IsNotEmpty()
-  assignedToId: string;
+  assignedToId!: string;
 
   @ApiPropertyOptional({ example: 'high', enum: TaskPriority })
   @IsOptional()
@@ -50,5 +50,5 @@ export class CreateTaskDTO {
   })
   @Type(() => Date)
   @IsDate()
-  deadLine: Date; // timestamptz
+  deadLine!: Date; // timestamptz
 }

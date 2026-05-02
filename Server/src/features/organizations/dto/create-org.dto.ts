@@ -12,10 +12,10 @@ export class CreateOrgDto {
   @IsString()
   @IsNotEmpty()
   @MaxLength(50)
-  name: string;
+  name!: string;
 
   @ApiPropertyOptional({ example: 'https://cloudinary.com/logo.jpg' })
   @IsOptional()
   @IsUrl()
-  logo?: string;
+  logo?: string | null;
 }

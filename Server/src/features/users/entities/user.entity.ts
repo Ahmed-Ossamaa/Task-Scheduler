@@ -18,55 +18,56 @@ import { Organization } from 'src/features/organizations/entities/organization.e
 @Entity('users')
 export class User {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id!: string;
 
   @Column()
-  name: string;
+  name!: string;
 
   @Index('IDX_USERS_EMAIL', { unique: true, where: '"deletedAt" IS NULL' })
   @Column()
-  email: string;
+  email!: string;
 
   @Column({ nullable: true, select: false })
-  password?: string;
+  password!: string;
 
-  @Column({ nullable: true })
-  oAuthProvider?: string;
+  @Column({ type: 'varchar', nullable: true })
+  oAuthProvider?: string | null;
 
-  @Column({ nullable: true })
-  oauthId?: string;
+  @Column({ type: 'varchar', nullable: true })
+  oauthId?: string | null;
 
   @Column({ type: 'enum', enum: UserGender, nullable: true })
-  gender?: UserGender;
+  gender!: UserGender | null;
 
   @Column({
     type: 'enum',
     enum: UserRole,
     default: UserRole.EMP,
   })
-  role: UserRole;
+  role!: UserRole;
 
+  //will be changed later to birthdate : Date | null
   @Column({ nullable: true })
-  age?: number;
-
-  @Column({ nullable: true })
-  phone?: string;
-
-  @Column({ nullable: true })
-  address?: string;
+  age!: number;
 
   @Column({ type: 'varchar', nullable: true })
-  avatar?: string | null;
+  phone!: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  address!: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  avatar!: string | null;
 
   @Index('IDX_USERS_REFRESH_TOKEN')
   @Column({ type: 'text', nullable: true, select: false })
-  refreshToken?: string | null;
+  refreshToken!: string | null;
 
   @Column({ default: true })
-  isActive: boolean;
+  isActive!: boolean;
 
   @Column({ default: false })
-  isEmailVerified: boolean;
+  isEmailVerified!: boolean;
 
   @Column({ type: 'varchar', nullable: true, select: false })
   verificationToken: string | null = null;
@@ -81,28 +82,28 @@ export class User {
   resetPasswordExpires: Date | null = null;
 
   @CreateDateColumn({ type: 'timestamptz' })
-  createdAt: Date;
+  createdAt!: Date;
 
   @UpdateDateColumn({ type: 'timestamptz' })
-  updatedAt: Date;
+  updatedAt!: Date;
 
   @Index('IDX_USERS_DELETED_AT', { where: '("deletedAt" IS NOT NULL)' })
-  @DeleteDateColumn({ type: 'timestamptz' })
-  deletedAt: Date; //partial index on deletedAt (idx is only on the deleted rows)
+  @DeleteDateColumn({ type: 'timestamptz', nullable: true })
+  deletedAt!: Date | null; //partial index on deletedAt (idx is only on the deleted rows)
 
   @OneToMany(() => Task, (task) => task.assignedTo)
-  tasksToDo: Task[];
+  tasksToDo!: Task[];
 
   @OneToMany(() => Task, (task) => task.assignedBy)
-  tasksAssigned: Task[];
+  tasksAssigned!: Task[];
 
   @Index('IDX_USERS_ORGANIZATION')
-  @Column({ nullable: true })
-  organizationId: string | null;
+  @Column({ type: 'varchar', nullable: true })
+  organizationId!: string | null;
 
   @ManyToOne(() => Organization, (org) => org.users, {
     onDelete: 'SET NULL',
   })
   @JoinColumn({ name: 'organizationId' })
-  organization: Organization;
+  organization!: Organization | null;
 }

@@ -15,34 +15,34 @@ import { Task } from '../../tasks/entities/task.entity';
 @Entity('projects')
 export class Project {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id!: string;
 
   @Column()
-  name: string;
+  name!: string;
 
   @Column({ type: 'text', nullable: true })
-  description?: string;
+  description!: string | null;
 
   // --- Relations ---
 
   //a Project belongs to an Org
   @ManyToOne(() => Organization, (org) => org.projects, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'organizationId' })
-  organization: Organization;
+  organization!: Organization;
 
   @Column()
-  organizationId: string;
+  organizationId!: string;
 
   // a Project has many Tasks
   @OneToMany(() => Task, (task) => task.project)
-  tasks: Task[];
+  tasks!: Task[];
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt!: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updatedAt!: Date;
 
-  @DeleteDateColumn()
-  deletedAt?: Date;
+  @DeleteDateColumn({ type: 'timestamptz', nullable: true })
+  deletedAt!: Date | null;
 }
