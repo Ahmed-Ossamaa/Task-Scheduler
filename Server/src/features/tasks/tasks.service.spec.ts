@@ -22,6 +22,7 @@ describe('TasksService', () => {
 
   beforeEach(() => {
     repoMock = {
+      findOne: jest.fn(),
       findOneBy: jest.fn(),
       create: jest.fn(),
       save: jest.fn(),
@@ -37,6 +38,7 @@ describe('TasksService', () => {
 
     queueMock = {
       add: jest.fn(),
+      getJob: jest.fn(),
     } as any;
 
     service = new TasksService(
@@ -202,6 +204,192 @@ describe('TasksService', () => {
           jobId: null,
         }),
       );
+    });
+  });
+
+  /*--------------- completeTask -------------------*/
+  describe('completeTask', () => {
+    it('should throw if task not found', async () => {
+      repoMock.findOne.mockResolvedValue(null);
+
+      await expect(service.completeTask('task-1', 'user-1')).rejects.toThrow();
+    });
+
+    it('should throw if task is OVERDUE', async () => {
+      const task = {
+        id: 'task-1',
+        status: TaskStatus.OVERDUE,
+      } as Task;
+
+      repoMock.findOne.mockResolvedValue(task);
+
+      await expect(service.completeTask('task-1', 'user-1')).rejects.toThrow();
+    });
+
+    it('should do nothing and return task if already DONE', async () => {
+      const task = {
+        id: 'task-1',
+        status: TaskStatus.DONE,
+      } as Task;
+
+      repoMock.findOne.mockResolvedValue(task);
+
+      const result = await service.completeTask('task-1', 'user-1');
+
+      expect(result).toBe(task);
+    });
+
+    it('should remove job from queue and mark task as DONE', async () => {
+      const removeMock = jest.fn();
+
+      const jobMock = {
+        remove: removeMock,
+      };
+
+      const task = {
+        id: 'task-1',
+        status: TaskStatus.PENDING,
+        jobId: 'job-1',
+      } as Task;
+      repoMock.findOne.mockResolvedValue(task);
+      //get the job from the queue
+      queueMock.getJob = jest.fn().mockResolvedValue(jobMock);
+      expect(task.jobId).toBe('job-1'); // job id is there
+      repoMock.save.mockResolvedValue(task);
+
+      const result = await service.completeTask('task-1', 'user-1');
+      expect(queueMock.getJob).toHaveBeenCalledWith('job-1');
+
+      expect(removeMock).toHaveBeenCalled();
+      // expect(task.status).toBe(TaskStatus.DONE);
+
+      expect(repoMock.save).toHaveBeenCalledWith(
+        expect.objectContaining({
+          status: TaskStatus.DONE,
+          jobId: null, // job id is removed
+          completedAt: expect.any(Date),
+        }),
+      );
+
+      expect(result).toBe(task);
+    });
+
+    it('should handle and save task (job = null)', async () => {
+      const task = {
+        id: 'task-1',
+        status: TaskStatus.PENDING,
+        jobId: 'job-1',
+      } as Task;
+
+      repoMock.findOne.mockResolvedValue(task); // found task
+      queueMock.getJob = jest.fn().mockResolvedValue(null); // job doesnt exist
+      repoMock.save.mockResolvedValue(task); // task is saved succesfully
+
+      await service.completeTask('task-1', 'user-1');
+
+      expect(repoMock.save).toHaveBeenCalledWith({
+        ...task,
+        status: TaskStatus.DONE,
+        jobId: null,
+        completedAt: expect.any(Date),
+      });
+    });
+  });
+
+  /*--------------- updateTask -------------------*/
+  describe('updateTask', () => {
+    const baseTask = {
+      id: 'task-1',
+      status: TaskStatus.PENDING,
+      deadLine: new Date(Date.now() + 100000),
+      assignedById: 'manager-1',
+    } as Task;
+
+    it('should throw if task not found', async () => {
+      repoMock.findOne.mockResolvedValue(null);
+
+      await expect(
+        service.updateTask('task-1', {}, 'manager-1'),
+      ).rejects.toThrow();
+    });
+
+    it('should update task successfully', async () => {
+      const task = { ...baseTask };
+
+      repoMock.findOne.mockResolvedValue(task);
+      repoMock.save.mockResolvedValue(task);
+
+      jest.spyOn(service as any, 'validateUpdateIsAllowed');
+      jest.spyOn(service as any, 'updateCompletedAt');
+      jest.spyOn(service as any, 'updateTaskJob').mockResolvedValue(undefined);
+
+      const dto = {
+        title: 'Updated Task',
+      };
+
+      const result = await service.updateTask('task-1', dto, 'manager-1');
+
+      expect(repoMock.save).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: 'Updated Task',
+        }),
+      );
+
+      expect(result).toBe(task);
+    });
+
+    it('should call updateCompletedAt when status is provided', async () => {
+      const task = { ...baseTask };
+
+      repoMock.findOne.mockResolvedValue(task);
+      repoMock.save.mockResolvedValue(task);
+
+      const updateCompletedAtSpy = jest.spyOn(
+        service as any,
+        'updateCompletedAt',
+      );
+
+      jest.spyOn(service as any, 'updateTaskJob').mockResolvedValue(undefined);
+
+      await service.updateTask(
+        'task-1',
+        { status: TaskStatus.DONE },
+        'manager-1',
+      );
+
+      expect(updateCompletedAtSpy).toHaveBeenCalled();
+    });
+
+    it('should call updateTaskJob when deadline changes', async () => {
+      const task = { ...baseTask };
+
+      repoMock.findOne.mockResolvedValue(task);
+      repoMock.save.mockResolvedValue(task);
+
+      const spy = jest
+        .spyOn(service as any, 'updateTaskJob')
+        .mockResolvedValue(undefined);
+
+      await service.updateTask(
+        'task-1',
+        { deadLine: new Date(Date.now() + 200000) },
+        'manager-1',
+      );
+
+      expect(spy).toHaveBeenCalled();
+    });
+
+    it('should throw when updating overdue task without status change', async () => {
+      const task = {
+        ...baseTask,
+        status: TaskStatus.OVERDUE,
+      };
+
+      repoMock.findOne.mockResolvedValue(task);
+
+      await expect(
+        service.updateTask('task-1', { title: 'test' }, 'manager-1'),
+      ).rejects.toThrow();
     });
   });
 });
