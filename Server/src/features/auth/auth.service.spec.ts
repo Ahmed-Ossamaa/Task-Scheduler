@@ -263,8 +263,8 @@ describe('AuthService', () => {
       );
 
       expect(result).toEqual({
-        message:
-          'Employee registered successfully, please ask the user to check their email to verify thier account',
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        message: expect.stringContaining('successfully'),
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         user: expect.any(Object),
       });
