@@ -21,6 +21,7 @@ describe('AuthService', () => {
   let userServiceMock: {
     findUserByEmail: jest.Mock;
     createUser: jest.Mock;
+    createEmployee: jest.Mock;
     findByEmailWithFields: jest.Mock;
     findUserByIdWithFields: jest.Mock;
     updateRefreshToken: jest.Mock;
@@ -50,6 +51,7 @@ describe('AuthService', () => {
     userServiceMock = {
       findUserByEmail: jest.fn(),
       createUser: jest.fn(),
+      createEmployee: jest.fn(),
       findByEmailWithFields: jest.fn(),
       findUserByIdWithFields: jest.fn(),
       updateRefreshToken: jest.fn(),
@@ -122,15 +124,17 @@ describe('AuthService', () => {
 
       (bcrypt.compare as jest.Mock).mockResolvedValue(true);
 
-      jwtServiceMock.signAsync.mockResolvedValue('token');
+      jwtServiceMock.signAsync
+        .mockResolvedValueOnce('access-token')
+        .mockResolvedValueOnce('refresh-token');
 
       const result = await service.login({
         email: 'test@test.com',
         password: '123@Bla',
       });
 
-      expect(result.accessToken).toBe('token');
-      expect(result.refreshToken).toBe('token');
+      expect(result.accessToken).toBe('access-token');
+      expect(result.refreshToken).toBe('refresh-token');
       expect(result.user).toBeDefined();
     });
   });
@@ -193,15 +197,83 @@ describe('AuthService', () => {
 
       (bcrypt.hash as jest.Mock).mockResolvedValue('hashed-password');
 
-      const randomSpy = jest.spyOn(crypto, 'randomBytes').mockReturnValue({
+      (crypto.randomBytes as jest.Mock).mockReturnValue({
         toString: () => 'verif-token-123',
-      } as any);
+      });
 
       userServiceMock.createUser.mockResolvedValue({ id: '1' });
 
       await service.registerManager(dto);
 
-      expect(randomSpy).toHaveBeenCalledWith(32);
+      expect(crypto.randomBytes).toHaveBeenCalledWith(32);
+    });
+  });
+
+  /*..................Register(Employee)............... */
+  describe('registerEmployee', () => {
+    const managerId = 'manager-1';
+
+    const dto = {
+      name: 'Emp',
+      email: 'emp@test.com',
+      password: '123456',
+    };
+
+    const employeeMock = {
+      id: 'emp-1',
+      name: dto.name,
+      email: dto.email,
+    };
+
+    //encrypt password and hashed verif token and mock createEmployee resolved value
+    beforeEach(() => {
+      (bcrypt.hash as jest.Mock).mockResolvedValue('hashed-password');
+
+      (crypto.randomBytes as jest.Mock).mockReturnValue({
+        toString: () => 'verif-token-123',
+      });
+
+      userServiceMock.createEmployee.mockResolvedValue(employeeMock);
+    });
+
+    it('should register employee successfully', async () => {
+      const result = await service.registerEmployee(managerId, dto);
+
+      expect(bcrypt.hash).toHaveBeenCalledWith(dto.password, 10);
+
+      expect(crypto.randomBytes).toHaveBeenCalledWith(32);
+
+      expect(userServiceMock.createEmployee).toHaveBeenCalledWith(
+        managerId,
+        dto,
+        'hashed-password',
+        expect.objectContaining({
+          verificationToken: 'verif-token-123',
+          isEmailVerified: false,
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+          verificationTokenExpires: expect.any(Date),
+        }),
+      );
+
+      expect(mailServiceMock.sendEmail).toHaveBeenCalledWith(
+        employeeMock.email,
+        employeeMock.name,
+        'You are invited!', //subject
+        expect.any(String), //html template
+      );
+
+      expect(result).toEqual({
+        message:
+          'Employee registered successfully, please ask the user to check their email to verify thier account',
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        user: expect.any(Object),
+      });
+    });
+
+    it('should send invite email once', async () => {
+      await service.registerEmployee(managerId, dto);
+
+      expect(mailServiceMock.sendEmail).toHaveBeenCalledTimes(1);
     });
   });
 });
