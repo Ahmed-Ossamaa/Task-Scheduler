@@ -8,16 +8,33 @@ import { DataSource } from 'typeorm';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-export const TestDataSource = new DataSource({
-  type: 'postgres',
-  host: process.env.DB_TEST_HOST || 'localhost',
-  port: Number(process.env.DB_TEST_PORT) || 5434,
-  username: process.env.DB_TEST_USER || 'postgres',
-  password: process.env.DB_TEST_PASS || 'postgres',
-  database: process.env.DB_TEST_NAME || 'task-management-test',
-
-  entities: [Task, Project, User, Organization, ContactMessage, ActivityLog],
-
-  synchronize: true,
-  dropSchema: true,
-});
+const useUrl = process.env.DATABASE_TEST_URL;
+const entities = [
+  Task,
+  Project,
+  User,
+  Organization,
+  ContactMessage,
+  ActivityLog,
+];
+export const TestDataSource = new DataSource(
+  useUrl
+    ? {
+        type: 'postgres',
+        url: process.env.DATABASE_TEST_URL,
+        entities: entities,
+        synchronize: true,
+        dropSchema: true,
+      }
+    : {
+        type: 'postgres',
+        host: process.env.DB_TEST_HOST || 'localhost',
+        port: Number(process.env.DB_TEST_PORT) || 5434,
+        username: process.env.DB_TEST_USER || 'postgres',
+        password: process.env.DB_TEST_PASS || 'postgres',
+        database: process.env.DB_TEST_NAME || 'task-management-test',
+        entities: entities,
+        synchronize: true,
+        dropSchema: true,
+      },
+);
