@@ -31,7 +31,12 @@ export const validationSchema = Joi.object({
   DB_AUTO_LOAD_ENTITIES: Joi.boolean().default(true),
 
   // REDIS
-  REDIS_HOST: Joi.string().required(),
+  DATABASE_TEST_URL: Joi.string().optional(),
+  REDIS_HOST: Joi.string().when('DATABASE_TEST_URL', {
+    is: Joi.exist(),
+    then: Joi.optional(),
+    otherwise: Joi.required(),
+  }),
   REDIS_PORT: Joi.number().default(6379),
   REDIS_PASSWORD: Joi.string().allow('').optional(),
 
