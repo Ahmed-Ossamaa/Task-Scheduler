@@ -5,8 +5,10 @@ import {
   clearAuth,
 } from '@/features/auth/store/auth.store';
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000',
+  baseURL: API_URL,
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
@@ -15,6 +17,9 @@ const api = axios.create({
 
 // Request interceptor to attach access token
 api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
+  if (!API_URL) {
+    return Promise.reject(new Error('API URL is not defined'));
+  }
   const token = getAccessToken();
   if (token) {
     config.headers = config.headers ?? {};
@@ -65,9 +70,14 @@ api.interceptors.response.use(
       }
       originalRequest._retry = true;
       isRefreshing = true;
+
+      if (!API_URL) {
+        clearAuth();
+        return Promise.reject(new Error('API unavailable'));
+      }
       try {
         const refreshResponse = await axios.post(
-          `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/auth/refresh`,
+          `${API_URL}/auth/refresh`,
           {},
           { withCredentials: true },
         );

@@ -1,17 +1,18 @@
-import api from "@/lib/api/axios";
-import { SystemSettingsValues } from "@/lib/schema/system-settings-schema";
-
+import api from '@/lib/api/axios';
+import { SystemSettingsValues } from '@/lib/schema/system-settings-schema';
 
 export const systemSettingsApi = {
-
   /**
    * Get current system settings (public)
    */
   getSettings: async () => {
-    const { data } = await api.get('/system-settings');
-    return data;
+    try {
+      const { data } = await api.get('/system-settings');
+      return data;
+    } catch {
+      return null;
+    }
   },
-
 
   /**
    * Update system settings (admin)
@@ -32,14 +33,14 @@ export const systemSettingsApi = {
   /**
    * Upload/update system logo (admin)
    */
-uploadLogo: async (file: File) => {
+  uploadLogo: async (file: File) => {
     const formData = new FormData();
-    formData.append('logo', file); 
+    formData.append('logo', file);
 
     const { data } = await api.patch('/system-settings/logo', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
-    return data; 
+    return data;
   },
 
   /**
@@ -47,11 +48,11 @@ uploadLogo: async (file: File) => {
    */
   uploadLandingImage: async (file: File) => {
     const formData = new FormData();
-    formData.append('landing', file); 
+    formData.append('landing', file);
 
     const { data } = await api.patch('/system-settings/landing', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
-    return data; 
+    return data;
   },
 };
