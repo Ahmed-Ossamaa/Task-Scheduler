@@ -62,7 +62,6 @@ export function LoginForm({ logo, appName }: LoginFormProps) {
       }
     }
   };
-  console.log("Logo", logo)
 
   return (
     <div className="w-full max-w-110 flex flex-col relative bg-card/60 backdrop-blur-xl border border-border/50 p-8 rounded-3xl shadow-2xl shadow-black/5 dark:shadow-black/40">
