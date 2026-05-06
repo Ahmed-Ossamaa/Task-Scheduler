@@ -7,12 +7,13 @@ export const metadata = {
   description: 'Securely verify your email address.',
 };
 
-export default function VerifyEmailPage({
+export default async function VerifyEmailPage({
   searchParams,
 }: {
-  searchParams: { [key: string]: string  | undefined };
+  searchParams: Promise<{ [key: string]: string  | undefined }>;
 }) {
-  const token = searchParams.token as string | undefined;
+  const params = await searchParams;
+  const token = params.token;
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
