@@ -130,7 +130,7 @@ export function CreateTaskForm({ onSuccess }: { onSuccess?: () => void }) {
                   defaultValue={field.value}
                 >
                   <FormControl>
-                    <SelectTrigger>
+                    <SelectTrigger className='bg-secondary'>
                       <SelectValue placeholder="Select priority" />
                     </SelectTrigger>
                   </FormControl>
@@ -158,7 +158,7 @@ export function CreateTaskForm({ onSuccess }: { onSuccess?: () => void }) {
                   defaultValue={field.value}
                 >
                   <FormControl>
-                    <SelectTrigger disabled={isLoadingProjects}>
+                    <SelectTrigger disabled={isLoadingProjects} className='bg-secondary'>
                       {isLoadingProjects ? (
                         <span className="flex items-center gap-2 text-muted-foreground">
                           <Loader2 className="h-4 w-4 animate-spin" />{' '}
@@ -176,7 +176,7 @@ export function CreateTaskForm({ onSuccess }: { onSuccess?: () => void }) {
                       </SelectItem>
                     ) : (
                       projects?.data?.map((project) => (
-                        <SelectItem key={project.id} value={project.id} className='focus:bg-red-100'>
+                        <SelectItem key={project.id} value={project.id} className='focus:bg-primary/10'>
                           {project.name}
                         </SelectItem>
                       ))
@@ -200,7 +200,7 @@ export function CreateTaskForm({ onSuccess }: { onSuccess?: () => void }) {
                   defaultValue={field.value}
                 >
                   <FormControl>
-                    <SelectTrigger disabled={isLoadingEmployees}>
+                    <SelectTrigger disabled={isLoadingEmployees} className='bg-secondary'>
                       {isLoadingEmployees ? (
                         <div className="flex items-center gap-2">
                           <Loader2 className="h-4 w-4 animate-spin" />
@@ -218,7 +218,7 @@ export function CreateTaskForm({ onSuccess }: { onSuccess?: () => void }) {
                       </SelectItem>
                     ) : (
                       employees?.data?.map((employee) => (
-                        <SelectItem key={employee.id} value={employee.id} className='focus:bg-red-100'>
+                        <SelectItem key={employee.id} value={employee.id} className='focus:bg-primary/10'>
                           <div className="flex flex-col items-start truncate text-left w-full">
                             <span className="truncate font-medium">
                               {employee.name}

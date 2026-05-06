@@ -43,7 +43,7 @@ export function TaskDetailsDialog({ task }: { task: Task }) {
             <span className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">
               Description
             </span>
-            <p className="text-foreground">
+            <p className="text-foreground wrap-break-word">
               {task.description || 'No description provided.'}
             </p>
           </div>
