@@ -211,6 +211,19 @@ export const useAdminDeleteUser = () => {
 };
 
 /**
+ * Admin : Hook to ban/unban a user
+ */
+export const useAdminBanUser=()=>{
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({userId, isActive}: {userId: string, isActive: boolean}) => usersApi.updateUserStatus(userId, isActive),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users', 'admin-all'] });
+    }
+  })
+}
+
+/**
  * - Admin : Hook to Get All Archived Users Paginated.
  */
 

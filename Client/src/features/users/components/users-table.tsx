@@ -29,7 +29,7 @@ export function UsersTable({ users, isLoading, actions }: UsersTableProps) {
             <TableHead>Role</TableHead>
             <TableHead>Organization</TableHead>
             <TableHead>Created</TableHead>
-            <TableHead className="text-right pr-8">Actions</TableHead>
+            <TableHead className="text-center">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

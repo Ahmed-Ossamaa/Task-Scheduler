@@ -3,18 +3,17 @@ import { User } from '@/features/auth/types/user-interface';
 import { CreateEmployeeDto, PaginatedUser } from '../types';
 
 export const usersApi = {
-
   /**
    * Get My own profile (currently logged in user)
    */
-  getMyProfile: async()=>{
-    const {data}= await api.get<User>('/user/me');
-    return data
+  getMyProfile: async () => {
+    const { data } = await api.get<User>('/user/me');
+    return data;
   },
 
-/**
- * - Manager/Emp : Get a team member profile (must be within the same organization)
- */
+  /**
+   * - Manager/Emp : Get a team member profile (must be within the same organization)
+   */
   getUserProfile: async (userId: string): Promise<User> => {
     const { data } = await api.get<User>(`/user/${userId}/profile`);
     return data;
@@ -101,16 +100,16 @@ export const usersApi = {
   },
 
   uploadAvatar: async (file: File): Promise<User> => {
-  const formData = new FormData();
-  formData.append('avatar', file);
-  
-  const { data } = await api.patch<User>('/user/avatar', formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  });
-  return data;
-},
+    const formData = new FormData();
+    formData.append('avatar', file);
+
+    const { data } = await api.patch<User>('/user/avatar', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return data;
+  },
 
   //................Admin APIs................
 
@@ -135,6 +134,13 @@ export const usersApi = {
   removeUser: async (userId: string): Promise<{ message: string }> => {
     const { data } = await api.delete<{ message: string }>(`/user/${userId}`);
     return data;
+  },
+
+  /**
+   * - Admin : update user's status  (Ban / Unban a user).
+   */
+  updateUserStatus: async (userId: string, isActive: boolean) => {
+    await api.patch(`/user/${userId}/ban`, { isActive });
   },
 
   /**

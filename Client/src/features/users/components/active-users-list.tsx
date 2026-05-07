@@ -2,10 +2,14 @@
 
 import { useState } from 'react';
 import { toast } from 'sonner';
-import { Eye, Trash2 } from 'lucide-react';
+import { Eye, UserLock , LockKeyholeOpen, Trash2 } from 'lucide-react';
 import { User } from '@/features/auth/types/user-interface';
 import { UsersTable } from './users-table';
-import { useAllUsers, useAdminDeleteUser } from '@/features/users/hooks/use-users';
+import {
+  useAllUsers,
+  useAdminDeleteUser,
+  useAdminBanUser,
+} from '@/features/users/hooks/use-users';
 import { UserDetailsDialog } from './user-deatils-dialog';
 import { Button } from '@/components/ui/button';
 import {
@@ -20,15 +24,25 @@ import {
 } from '@/components/ui/alert-dialog';
 import { restorationPeriod } from '@/lib/utils';
 
-
-
 export function ActiveUsersList() {
   const [page, setPage] = useState<number>(1);
   const { data: paginatedResult, isLoading } = useAllUsers(page, 20);
   const { mutateAsync: removeUser, isPending: isRemoving } = useAdminDeleteUser();
-  
+  const { mutateAsync: toggleUserStatus, isPending: isToggling } =useAdminBanUser();
+
   const [userToView, setUserToView] = useState<User | null>(null);
   const [userToDelete, setUserToDelete] = useState<{ id: string; name: string } | null>(null);
+  const [userToBan, setUserToBan] = useState<{ id: string; name: string;isActive: boolean; } | null>(null);
+
+  const handleBan = async (userId: string, currentStatus: boolean) => {
+    try {
+      await toggleUserStatus({ userId, isActive: !currentStatus });
+      toast.success('User status has been updated');
+      setUserToBan(null);
+    } catch {
+      toast.error('Failed to suspend user');
+    }
+  };
 
   const handleRemove = async (userId: string) => {
     try {
@@ -50,6 +64,7 @@ export function ActiveUsersList() {
             <Button
               variant="ghost"
               size="icon"
+              title="View"
               className="h-8 w-8 text-muted-foreground hover:text-green-600"
               onClick={() => setUserToView(user)}
             >
@@ -59,6 +74,7 @@ export function ActiveUsersList() {
             <Button
               variant="ghost"
               size="icon"
+              title="Archive"
               className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50"
               onClick={() => setUserToDelete({ id: user.id, name: user.name })}
               disabled={isRemoving}
@@ -66,6 +82,31 @@ export function ActiveUsersList() {
               <Trash2 className="w-4 h-4" />
               <span className="sr-only">Suspend User</span>
             </Button>
+            {user.isActive ? (
+              <Button
+                variant="ghost"
+                size="icon"
+                title="Ban"
+                className="h-8 w-8 text-amber-500 hover:text-amber-800 hover:bg-red-50"
+                onClick={() => setUserToBan({ id: user.id, name: user.name, isActive: user.isActive })}
+                disabled={isToggling}
+              >
+                <UserLock className="w-4 h-4" />
+                <span className="sr-only">Ban user</span>
+              </Button>
+            ) : (
+              <Button
+                variant="ghost"
+                size="icon"
+                title="Unban"
+                className="h-8 w-8 text-green-500 hover:text-green-600 hover:bg-green-50"
+                onClick={() => setUserToBan({ id: user.id, name: user.name, isActive: user.isActive })}
+                disabled={isToggling}
+              >
+                <LockKeyholeOpen  className="w-4 h-4" />
+                <span className="sr-only">Unban user</span>
+              </Button>
+            )}
           </>
         )}
       />
@@ -87,7 +128,9 @@ export function ActiveUsersList() {
           variant="default"
           size="sm"
           onClick={() => setPage((old) => old + 1)}
-          disabled={!paginatedResult || page >= paginatedResult.lastPage || isLoading}
+          disabled={
+            !paginatedResult || page >= paginatedResult.lastPage || isLoading
+          }
         >
           Next
         </Button>
@@ -108,6 +151,8 @@ export function ActiveUsersList() {
               Are you sure you want to suspend <strong>{userToDelete?.name}</strong>? 
               They will be moved to the archives and lose platform access, but their data will be retained
               and can be restored within {restorationPeriod}.
+              <br />
+              <span className="font-semibold text-red-500">Note:</span>This action is NOT a ban, Users can be restored by their Manager within the retention period.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -117,7 +162,31 @@ export function ActiveUsersList() {
               disabled={isRemoving}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {isRemoving ? 'Suspending...' : 'Yes, suspend user'}
+              {isRemoving ? 'Archiving...' : 'Yes, archive user'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={!!userToBan} onOpenChange={(isOpen) => !isOpen && setUserToBan(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle> 
+              {userToBan?.isActive ? 'Ban User?' : 'Unban User?'}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to {userToBan?.isActive ? 'ban' : 'unban'}{' '}
+              <strong>{userToBan?.name}</strong>? 
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => userToBan && handleBan(userToBan.id, userToBan.isActive)}
+              disabled={isToggling}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isRemoving ? 'Processing...' : 'Confirm'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

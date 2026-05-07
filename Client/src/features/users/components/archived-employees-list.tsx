@@ -54,6 +54,7 @@ export function ArchivedTeamList({
           <Button
             variant="ghost"
             size="icon"
+            title='Restore'
             onClick={() =>
               setUserToRestore({ id: employee.id, name: employee.name })
             }
