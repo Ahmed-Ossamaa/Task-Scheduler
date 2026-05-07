@@ -49,6 +49,27 @@
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
   --animate-marquee: marquee 30s linear infinite;
+  --animate-underline-flow: underline-flow 1.5s ease-in-out;
+
+  @keyframes underline-flow {
+    0% {
+      width: 0;
+      left: 0;
+    }
+    30% {
+      width: 100%;
+      left: 0;
+    }
+    60% {
+      width: 100%;
+      left: 0;
+    }
+    85%,
+    100% {
+      width: 0;
+      left: 100%;
+    }
+  }
 
   @keyframes marquee {
     0% {

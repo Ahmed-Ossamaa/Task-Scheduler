@@ -17,7 +17,11 @@ export function HeroSection({ heroImg }: { heroImg?: string }) {
           <h1 className="text-4xl sm:text-5xl md:text-[clamp(48px,6vw,90px)] leading-[0.95] tracking-tighter mb-8">
             Work smarter.
             <br />
-            Ship <em className="not-italic text-primary">faster.</em>
+            Ship{' '}
+            <span className="relative inline-block">
+              <em className="not-italic text-primary">faster.</em>
+              <span className="absolute bottom-1 left-0 h-1 bg-primary rounded-full animate-underline-flow" />
+            </span>
             <br />
             Together.
           </h1>

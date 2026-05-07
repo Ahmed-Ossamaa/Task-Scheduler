@@ -40,14 +40,14 @@ export function AppSidebar({ appName, logo }: AppSidebarProps) {
   return (
     <Sidebar collapsible="icon">
       {/*Header with Logo */}
-      <SidebarHeader className="h-12 flex items-center justify-center border-b border-sidebar-border  px-5 transition-all duration-300 group-data-[collapsible=icon]:px-0">
+      <SidebarHeader className="h-12 flex  justify-center border-b border-sidebar-border  px-5 transition-all duration-300 group-data-[collapsible=icon]:px-0">
         <Link
           href="/"
-          className="flex items-center w-full overflow-hidden"
+          className="flex items-center overflow-hidden"
         >
           {logo ? (
             <>
-              <div className="relative h-10 w-25  shrink-0 group-data-[collapsible=icon]:hidden">
+              <div className="relative h-10 w-25 ml-5 shrink-0 group-data-[collapsible=icon]:hidden">
                 <Image
                   src={logo}
                   alt={`${appName} logo`}
@@ -58,7 +58,7 @@ export function AppSidebar({ appName, logo }: AppSidebarProps) {
                   unoptimized={true}
                 />
               </div>
-              <div className="hidden group-data-[collapsible=icon]:block relative h-8 w-8 shrink-0 mx-auto!">
+              <div className="hidden group-data-[collapsible=icon]:block relative h-10 w-10 shrink-0 mx-auto!">
                 <Image
                   src={logo}
                   alt={`${appName} icon`}
