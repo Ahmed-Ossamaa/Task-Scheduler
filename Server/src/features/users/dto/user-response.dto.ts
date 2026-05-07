@@ -50,4 +50,7 @@ export class UserResponseDto {
 
   @ApiProperty({ example: true })
   isEmailVerified!: boolean;
+
+  @ApiProperty({ example: true })
+  isActive!: boolean;
 }

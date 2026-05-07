@@ -15,6 +15,7 @@ export class UserMapper {
       avatar: user.avatar ?? null,
       createdAt: user.createdAt,
       isEmailVerified: user.isEmailVerified,
+      isActive: user.isActive,
       organizationId: user.organizationId ?? null,
       organization: user.organization
         ? {

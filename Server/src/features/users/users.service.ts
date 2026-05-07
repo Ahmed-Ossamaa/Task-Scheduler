@@ -24,6 +24,7 @@ import { SensitiveUserFields } from './types/user-sensetive-fields';
 import { UserResponseDto } from './dto/user-response.dto';
 import { UserMapper } from './mappers/user.mapper';
 import { JwtPayload } from '../auth/interfaces/jwt-payload.interface';
+import { defaultUserSelect } from './utils/user.select';
 
 @Injectable()
 export class UserService {
@@ -258,23 +259,7 @@ export class UserService {
     const [users, total] = await this.userRepo.findAndCount({
       where: {},
       relations: ['organization'],
-      select: select || {
-        id: true,
-        name: true,
-        email: true,
-        phone: true,
-        address: true,
-        role: true,
-        avatar: true,
-        organizationId: true,
-        createdAt: true,
-        updatedAt: true,
-        deletedAt: true,
-        organization: {
-          id: true,
-          name: true,
-        },
-      },
+      select: select ?? defaultUserSelect,
       order: { createdAt: 'DESC' },
       skip,
       take,
