@@ -40,7 +40,7 @@ export function Navbar({ appName, logo }: NavbarProps) {
           className="flex items-center gap-2 transition-opacity hover:opacity-80"
         >
           {logo ? (
-            <div className="relative h-13 w-30 ">
+            <div className="relative h-10 w-30">
               <Image
                 src={logo}
                 alt={`${appName} logo`}
@@ -48,6 +48,7 @@ export function Navbar({ appName, logo }: NavbarProps) {
                 sizes="100px"
                 loading='eager'
                 className="object-contain"
+                unoptimized={true}
               />
             </div>
           ) : (

@@ -72,14 +72,15 @@ export function RegisterForm({ logo, appName }: RegisterFormProps) {
             className="flex items-center gap-2 transition-opacity hover:opacity-80"
           >
             {logo ? (
-              <div className="relative h-15 w-60 shrink-0 ">
+              <div className="relative h-15 w-50 shrink-0 mr-2 ">
                 <Image
                   src={logo}
                   alt={`${appName} logo`}
                   fill
-                  sizes="160px"
+                  sizes="200px"
                   priority
                   className="object-contain"
+                  unoptimized={true}
                 />
               </div>
             ) : (

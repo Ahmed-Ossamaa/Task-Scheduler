@@ -22,7 +22,6 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { getInitials } from '@/lib/utils';
 import Image from 'next/image';
 
-
 interface AppSidebarProps {
   appName: string;
   logo: string | undefined;
@@ -41,22 +40,35 @@ export function AppSidebar({ appName, logo }: AppSidebarProps) {
   return (
     <Sidebar collapsible="icon">
       {/*Header with Logo */}
-      <SidebarHeader className="h-12 flex items-center justify-center border-b border-sidebar-border  px-4 group-data-[collapsible=icon]:pl-1 group-data-[collapsible=icon]:pr-3!">
+      <SidebarHeader className="h-12 flex items-center justify-center border-b border-sidebar-border  px-5 transition-all duration-300 group-data-[collapsible=icon]:px-0">
         <Link
           href="/"
-          className="flex items-center gap-2 w-full overflow-hidden"
+          className="flex items-center w-full overflow-hidden"
         >
           {logo ? (
-            <div className="relative h-10 w-30 shrink-0">
-              <Image
-                src={logo}
-                alt={`${appName} logo`}
-                fill
-                sizes="120px"
-                priority
-                className="object-contain"
-              />
-            </div>
+            <>
+              <div className="relative h-10 w-25  shrink-0 group-data-[collapsible=icon]:hidden">
+                <Image
+                  src={logo}
+                  alt={`${appName} logo`}
+                  fill
+                  sizes="100px"
+                  priority
+                  className="object-contain"
+                  unoptimized={true}
+                />
+              </div>
+              <div className="hidden group-data-[collapsible=icon]:block relative h-8 w-8 shrink-0 mx-auto!">
+                <Image
+                  src={logo}
+                  alt={`${appName} icon`}
+                  fill
+                  priority
+                  className="object-contain "
+                  unoptimized={true}
+                />
+              </div>
+            </>
           ) : (
             <div className="flex gap-2  items-center justify-center">
               <CheckCircle className="h-4 w-5 text-red-500 shrink-0 group-data-[collapsible=icon]:pl-1!" />
