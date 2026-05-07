@@ -1,6 +1,5 @@
 import {
   BadRequestException,
-  ConflictException,
   ForbiddenException,
   Injectable,
   Logger,
@@ -65,12 +64,6 @@ export class UserService {
         'Manager must have an organization in order to create an employee',
       );
     }
-
-    const existing = await this.userRepo.findOneBy({
-      email: employeeDto.email,
-    });
-    if (existing)
-      throw new ConflictException('A user with this Email already exists');
 
     const newEmployee = this.userRepo.create({
       name: employeeDto.name,
@@ -163,10 +156,18 @@ export class UserService {
 
   /**
    * Finds a user by their email.
+   * @param email The email of the user to find.
+   * @param withDeleted Whether to include deleted users in the search.
    * @returns The user if found, otherwise null.
    */
-  async findUserByEmail(email: string): Promise<User | null> {
-    const user = await this.userRepo.findOneBy({ email });
+  async findUserByEmail(
+    email: string,
+    withDeleted: boolean = false,
+  ): Promise<User | null> {
+    const user = await this.userRepo.findOne({
+      where: { email: email },
+      withDeleted,
+    });
     return user;
   }
 
@@ -350,6 +351,14 @@ export class UserService {
     refreshToken: string | null,
   ): Promise<void> {
     await this.userRepo.update(userId, { refreshToken });
+  }
+
+  async updateUserStatus(userId: string, isActive: boolean): Promise<void> {
+    const result = await this.userRepo.update(userId, { isActive });
+
+    if (result.affected === 0) {
+      throw new NotFoundException('User not found');
+    }
   }
 
   /**

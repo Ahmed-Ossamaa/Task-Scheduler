@@ -23,7 +23,7 @@ export class User {
   @Column()
   name!: string;
 
-  @Index('IDX_USERS_EMAIL', { unique: true, where: '"deletedAt" IS NULL' })
+  @Index('IDX_USERS_EMAIL', { unique: true })
   @Column()
   email!: string;
 

@@ -28,6 +28,7 @@ import { ApiImageUpload } from 'src/common/decorators/api-image-upload.decorator
 import { ImageValidationPipe } from 'src/common/pipes/image-validation.pipe';
 import { UserResponseDto } from './dto/user-response.dto';
 import { PaginatedUsers } from './types/paginated-users-interface';
+import { UpdateUserStatusDto } from './dto/update-user-status.dto';
 
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
@@ -229,6 +230,16 @@ export class UserController {
     @Query('limit', new ParseIntPipe({ optional: true })) limit: number,
   ): Promise<PaginatedUsers> {
     return this.userService.findAllUsers(page, limit);
+  }
+
+  @ApiOperation({ summary: 'Ban/unban user (admin only)' })
+  @Patch(':userId/ban')
+  @Roles(UserRole.ADMIN)
+  async banUser(
+    @Param('userId', ParseUUIDPipe) userId: string,
+    @Body() dto: UpdateUserStatusDto,
+  ): Promise<void> {
+    return this.userService.updateUserStatus(userId, dto.isActive);
   }
 
   @ApiOperation({ summary: 'Restore deleted user (admin only)' })

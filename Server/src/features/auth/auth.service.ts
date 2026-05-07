@@ -4,6 +4,7 @@ import {
   ForbiddenException,
   BadRequestException,
   Inject,
+  ConflictException,
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
@@ -48,10 +49,11 @@ export class AuthService {
   async registerManager(registerManagerDto: RegisterUserDto) {
     const existingUser = await this.userService.findUserByEmail(
       registerManagerDto.email,
+      true,
     );
 
     if (existingUser) {
-      throw new BadRequestException('Email already exists');
+      throw new ConflictException('Email already exists');
     }
 
     const hashedPassword = await bcrypt.hash(registerManagerDto.password, 10);
@@ -87,6 +89,10 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
+    if (user.isActive === false) {
+      throw new ForbiddenException('Your account has been banned.');
+    }
+
     const matchedPassword = await bcrypt.compare(
       loginDto.password,
       user.password,
@@ -112,6 +118,13 @@ export class AuthService {
   }
 
   async registerEmployee(managerId: string, registerEmpDto: CreateEmployeeDto) {
+    const existingUser = await this.userService.findUserByEmail(
+      registerEmpDto.email,
+      true,
+    );
+    if (existingUser) {
+      throw new ConflictException('Email already exists');
+    }
     const hashedPassword = await bcrypt.hash(registerEmpDto.password, 10);
     // Generate token
     const verificationToken = crypto.randomBytes(32).toString('hex');
