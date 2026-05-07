@@ -77,6 +77,7 @@ export class UserController {
       'user_avatars', //folderName
       user.sub, //fileName = user_id
       true, //overwrite existing
+      'avatar',
     );
 
     //Save URL to the user.avatar

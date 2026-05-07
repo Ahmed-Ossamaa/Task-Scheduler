@@ -4,8 +4,8 @@ export abstract class StorageService {
     folder?: string,
     customFilename?: string,
     overwrite?: boolean,
+    imageType?: string,
   ): Promise<string>;
-
   abstract deleteImage(publicId: string): Promise<void>;
 
   abstract extractPublicIdFromUrl(url: string): string | null;

@@ -8,6 +8,8 @@ import { Readable } from 'stream';
 import { StorageService } from './storage.interface';
 import 'multer';
 
+export type ImageUploadType = 'avatar' | 'standard' | 'logo';
+
 @Injectable()
 export class CloudinaryService implements StorageService {
   private readonly logger = new Logger(CloudinaryService.name);
@@ -17,6 +19,7 @@ export class CloudinaryService implements StorageService {
    * @param folder The folder to upload the image to. Defaults to 'general'.
    * @param customFilename The custom filename to use for the image. Defaults to null.
    * @param overwrite Whether to overwrite an existing image with the same filename. Defaults to true.
+   * @param imageType The type of image to upload (avatar, standard, logo). Defaults to 'standard'.
    * @returns A promise with the URL of the uploaded image.
    */
   async uploadImage(
@@ -24,10 +27,35 @@ export class CloudinaryService implements StorageService {
     folder = 'general',
     customFilename?: string,
     overwrite = true,
+    imageType: ImageUploadType = 'standard',
   ): Promise<string> {
     return new Promise((resolve, reject) => {
+      let transformations: any[] = [];
+      const isSvg =
+        file.mimetype === 'image/svg+xml' || file.originalname.endsWith('.svg');
+
+      if (isSvg) {
+        transformations = [];
+      } else if (imageType === 'avatar') {
+        transformations = [
+          { width: 250, height: 250, crop: 'fill', gravity: 'face' },
+          { fetch_format: 'auto', quality: 'auto' },
+        ];
+      } else if (imageType === 'standard') {
+        transformations = [
+          { width: 1920, crop: 'limit' },
+          { fetch_format: 'auto', quality: 'auto' },
+        ];
+      } else {
+        transformations = [{ fetch_format: 'auto', quality: 'auto:best' }];
+      }
       const upload = cloudinary.uploader.upload_stream(
-        { folder, public_id: customFilename, overwrite: overwrite },
+        {
+          folder,
+          public_id: customFilename,
+          overwrite: overwrite,
+          transformation: transformations,
+        },
         (error?: UploadApiErrorResponse, result?: UploadApiResponse) => {
           if (error) {
             return reject(

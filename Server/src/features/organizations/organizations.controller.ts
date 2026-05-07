@@ -102,6 +102,7 @@ export class OrganizationsController {
       'org_logos', //folderName
       manager.organizationId, //fileName = org_id
       true, //overwrite existing
+      'avatar',
     );
 
     return this.organizationsService.updateOrgLogo(
