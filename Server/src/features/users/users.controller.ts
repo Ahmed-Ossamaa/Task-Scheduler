@@ -242,17 +242,26 @@ export class UserController {
     return this.userService.updateUserStatus(userId, dto.isActive);
   }
 
-  @ApiOperation({ summary: 'Restore deleted user (admin only)' })
+  @ApiOperation({ summary: 'Restore soft deleted user (admin only)' })
   @Patch(':userId/restore')
   @Roles(UserRole.ADMIN)
   async restoreUser(@Param('userId', ParseUUIDPipe) userId: string) {
     return this.userService.restoreUser(userId);
   }
 
-  @ApiOperation({ summary: 'Delete user "soft delete" (admin only)' })
-  @Delete(':userId')
+  @ApiOperation({
+    summary: 'Hard Delete user permanently without cascading (admin only)',
+  })
+  @Delete(':userId/hard-delete')
   @Roles(UserRole.ADMIN)
-  async deleteUser(@Param('userId') userId: string) {
-    return this.userService.deleteUser(userId);
+  async hardDeleteUser(@Param('userId', ParseUUIDPipe) userId: string) {
+    return this.userService.hardDeleteUser(userId);
+  }
+
+  @ApiOperation({ summary: 'Soft Delete user "Archive" (admin only)' })
+  @Delete(':userId/archive')
+  @Roles(UserRole.ADMIN)
+  async softDeleteUser(@Param('userId') userId: string) {
+    return this.userService.softDeleteUser(userId);
   }
 }

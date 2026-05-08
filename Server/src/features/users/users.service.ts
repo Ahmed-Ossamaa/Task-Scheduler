@@ -415,11 +415,24 @@ export class UserService {
   }
 
   /**
-   * Deletes any user and their associated tasks (Soft Delete).
+   * Hard Deletes any user (without cascading)
+   * - tasks assigned to this user will not be deleted'.
+   * - should be used by Admins only
+   * @returns Success Deletion message on Success.
+   */
+  async hardDeleteUser(userId: string): Promise<void> {
+    const result = await this.userRepo.delete(userId);
+    if (result.affected === 0) {
+      throw new NotFoundException('User not found');
+    }
+  }
+
+  /**
+   * Soft Deletes any user and their associated tasks.
    * should be used by Admins only
    * @returns Success Deletion message on Success.
    */
-  async deleteUser(userId: string): Promise<{ message: string }> {
+  async softDeleteUser(userId: string): Promise<{ message: string }> {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
