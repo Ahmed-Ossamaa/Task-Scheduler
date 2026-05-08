@@ -21,8 +21,8 @@ async function bootstrap() {
   );
 
   const swaggerConfig = new DocumentBuilder()
-    .setTitle('Task Scheduler API')
-    .setDescription('API Documentation for Task Scheduler')
+    .setTitle('Schedio API')
+    .setDescription('API Documentation for Schedio')
     .setContact(
       'Ahmed Ossama',
       'https://github.com/Ahmed-Ossamaa/Task-Scheduler',
