@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 import {
-  BadRequestException,
+  ConflictException,
   ForbiddenException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -154,7 +154,7 @@ describe('AuthService', () => {
       });
 
       await expect(service.registerManager(dto)).rejects.toThrow(
-        BadRequestException,
+        ConflictException,
       );
       expect(userServiceMock.createUser).not.toHaveBeenCalled();
     });
