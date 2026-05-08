@@ -9,21 +9,27 @@ import { getCachedSystemSettings } from '@/features/system-settings/api/get-cach
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getCachedSystemSettings();
   const appName = settings.appName || 'Schedio';
-  const img =
-    (settings.landingPageImage as string | undefined) || '';
+  const img = (settings.landingPageImage as string | undefined) || '/landing-hero.webp';
 
   return {
+    metadataBase: new URL(
+      process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
+    ),
+
     title: {
       default: appName,
       template: `%s | ${appName}`,
     },
-    description:'Manage your team\'s project spaces.',
+    description: "Manage your team's project spaces.",
 
     openGraph: {
       title: appName,
       images: [
         {
           url: img,
+          width: 1200,
+          height: 630,
+          alt: appName,
         },
       ],
     },
@@ -39,7 +45,6 @@ const geistMono = Geist_Mono({
   variable: '--font-geist-mono',
   subsets: ['latin'],
 });
-
 
 export default function RootLayout({
   children,
