@@ -8,9 +8,14 @@ export function proxy(request: NextRequest) {
 
   const isAuthPage = AUTH_ROUTES.some((route) => pathname.startsWith(route));
 
-  const isPublicPage = PUBLIC_ROUTES.some(
-    (route) => pathname === route || pathname.startsWith(route),
-  );
+  const isPublicPage = PUBLIC_ROUTES.some((route) => {
+    // If the route is exactly the home page
+    if (route === '/') {
+      return pathname === '/'; 
+    }
+    // else, check for exact match || or if its a sub-route 
+    return pathname === route || pathname.startsWith(`${route}/`); 
+  });;
 
   const isPublicRoute = isAuthPage || isPublicPage;
 
