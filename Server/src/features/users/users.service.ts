@@ -6,13 +6,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { User } from './entities/user.entity';
-import {
-  DataSource,
-  FindOptionsSelect,
-  IsNull,
-  Not,
-  Repository,
-} from 'typeorm';
+import { DataSource, IsNull, Not, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaginatedUsers } from './types/paginated-users-interface';
 import { Profile } from 'passport-google-oauth20';
@@ -24,7 +18,6 @@ import { SensitiveUserFields } from './types/user-sensetive-fields';
 import { UserResponseDto } from './dto/user-response.dto';
 import { UserMapper } from './mappers/user.mapper';
 import { JwtPayload } from '../auth/interfaces/jwt-payload.interface';
-import { defaultUserSelect } from './utils/user.select';
 
 @Injectable()
 export class UserService {
@@ -246,20 +239,17 @@ export class UserService {
    * Finds all users (Paginated).
    * @param page - Page number (Defaults to 1).
    * @param limit - Number of users per page (Defaults to 20).
-   * @param select - An optional object to specify which fields should be returned.
    * @returns An object containing the users, total count, page number, and last page number.
    */
   async findAllUsers(
     page: number = 1,
     limit: number = 20,
-    select?: FindOptionsSelect<User>,
   ): Promise<PaginatedUsers> {
     const take = Math.min(limit, 100);
     const skip = (page - 1) * take;
     const [users, total] = await this.userRepo.findAndCount({
       where: {},
       relations: ['organization'],
-      select: select ?? defaultUserSelect,
       order: { createdAt: 'DESC' },
       skip,
       take,
