@@ -20,7 +20,7 @@ export function HeroSection({ heroImg }: { heroImg?: string }) {
             Ship{' '}
             <span className="relative inline-block">
               <em className="not-italic text-primary">faster.</em>
-              <span className="absolute bottom-1 left-0 h-1 bg-primary rounded-full animate-underline-flow" />
+              <span className="absolute -bottom-px h-0.5 md:-bottom-1 left-0 md:h-1 bg-primary rounded-full animate-underline-flow" />
             </span>
             <br />
             Together.
