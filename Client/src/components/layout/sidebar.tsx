@@ -12,6 +12,7 @@ import {
   SidebarMenuItem,
   SidebarFooter,
   SidebarHeader,
+  useSidebar,
 } from '@/components/ui/sidebar';
 import { useAuthStore } from '@/features/auth/store/auth.store';
 import { usePathname } from 'next/navigation';
@@ -27,6 +28,7 @@ interface AppSidebarProps {
   logo: string | undefined;
 }
 export function AppSidebar({ appName, logo }: AppSidebarProps) {
+  const { setOpenMobile } = useSidebar();
   const user = useAuthStore((state) => state.user);
   const { mutate: logout, isPending } = useLogout();
   const pathname = usePathname();
@@ -56,6 +58,7 @@ export function AppSidebar({ appName, logo }: AppSidebarProps) {
                   priority
                   className="object-contain"
                   unoptimized={true}
+                  title='Home'
                 />
               </div>
               <div className="hidden group-data-[collapsible=icon]:block relative h-10 w-10 shrink-0 mx-auto!">
@@ -102,7 +105,7 @@ export function AppSidebar({ appName, logo }: AppSidebarProps) {
                       isActive={isActive}
                       tooltip={item.title}
                     >
-                      <Link href={item.url}>
+                      <Link href={item.url} onClick={() => setOpenMobile(false)}>
                         <item.icon
                           className={
                             isActive ? 'text-primary' : 'text-muted-foreground'
@@ -136,7 +139,7 @@ export function AppSidebar({ appName, logo }: AppSidebarProps) {
                   isActive={pathname === '/dashboard/settings'}
                   tooltip="Account Settings"
                 >
-                  <Link href="/dashboard/settings">
+                  <Link href="/dashboard/settings" onClick={() => setOpenMobile(false)}>
                     <Settings
                       className={
                         pathname === '/dashboard/settings'
@@ -179,6 +182,7 @@ export function AppSidebar({ appName, logo }: AppSidebarProps) {
                 <Link
                   className="text-sm font-medium truncate hover:underline"
                   href="/profile"
+                  title='Profile'
                 >
                   {user?.name || 'User'}
                 </Link>

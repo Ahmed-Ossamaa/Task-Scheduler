@@ -250,6 +250,7 @@ function SidebarTrigger({
 
   return (
     <Button
+      title="toggle sidebar ctrl+b"
       data-sidebar="trigger"
       data-slot="sidebar-trigger"
       variant="ghost"
@@ -521,11 +522,11 @@ function SidebarMenuButton({
       <TooltipContent
         side="right"
         align="center"
-        hidden={state !== "collapsed" || isMobile}
+        hidden={state !== 'collapsed' || isMobile}
         {...tooltip}
       />
     </Tooltip>
-  )
+  );
 }
 
 function SidebarMenuAction({
