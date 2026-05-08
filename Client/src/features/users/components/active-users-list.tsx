@@ -2,12 +2,12 @@
 
 import { useState } from 'react';
 import { toast } from 'sonner';
-import { Eye, UserLock , LockKeyholeOpen, Trash2 } from 'lucide-react';
+import { Eye, UserLock , LockKeyholeOpen, ArchiveX } from 'lucide-react';
 import { User } from '@/features/auth/types/user-interface';
 import { UsersTable } from './users-table';
 import {
   useAllUsers,
-  useAdminDeleteUser,
+  useAdminArchiveUser,
   useAdminBanUser,
 } from '@/features/users/hooks/use-users';
 import { UserDetailsDialog } from './user-deatils-dialog';
@@ -27,7 +27,7 @@ import { restorationPeriod } from '@/lib/utils';
 export function ActiveUsersList() {
   const [page, setPage] = useState<number>(1);
   const { data: paginatedResult, isLoading } = useAllUsers(page, 20);
-  const { mutateAsync: removeUser, isPending: isRemoving } = useAdminDeleteUser();
+  const { mutateAsync: removeUser, isPending: isRemoving } = useAdminArchiveUser();
   const { mutateAsync: toggleUserStatus, isPending: isToggling } =useAdminBanUser();
 
   const [userToView, setUserToView] = useState<User | null>(null);
@@ -37,7 +37,7 @@ export function ActiveUsersList() {
   const handleBan = async (userId: string, currentStatus: boolean) => {
     try {
       await toggleUserStatus({ userId, isActive: !currentStatus });
-      toast.success('User status has been updated');
+      toast.success(`User has been ${currentStatus ? 'banned' : 'unbanned'}`);
       setUserToBan(null);
     } catch {
       toast.error('Failed to suspend user');
@@ -71,17 +71,7 @@ export function ActiveUsersList() {
               <Eye className="h-4 w-4" />
               <span className="sr-only">View User Details</span>
             </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              title="Archive"
-              className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50"
-              onClick={() => setUserToDelete({ id: user.id, name: user.name })}
-              disabled={isRemoving}
-            >
-              <Trash2 className="w-4 h-4" />
-              <span className="sr-only">Suspend User</span>
-            </Button>
+
             {user.isActive ? (
               <Button
                 variant="ghost"
@@ -107,6 +97,18 @@ export function ActiveUsersList() {
                 <span className="sr-only">Unban user</span>
               </Button>
             )}
+
+            <Button
+              variant="ghost"
+              size="icon"
+              title="Archive"
+              className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50"
+              onClick={() => setUserToDelete({ id: user.id, name: user.name })}
+              disabled={isRemoving}
+            >
+              <ArchiveX className="w-4 h-4" />
+              <span className="sr-only">Suspend User</span>
+            </Button>
           </>
         )}
       />

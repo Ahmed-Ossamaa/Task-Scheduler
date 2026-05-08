@@ -196,11 +196,11 @@ export const useAllUsers = (page: number = 1, limit: number = 20) => {
 /**
  * - Admin : Hook to soft delete any user and his tasks.
  */
-export const useAdminDeleteUser = () => {
+export const useAdminArchiveUser = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (userId: string) => usersApi.removeUser(userId),
+    mutationFn: (userId: string) => usersApi.archiveUser(userId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users', 'admin-all'] });
       queryClient.invalidateQueries({ queryKey: ['users', 'archived'] });
@@ -209,6 +209,22 @@ export const useAdminDeleteUser = () => {
     },
   });
 };
+
+/**
+ * - Admin : Hook to permanently hard delete any user (No Cascading).
+ */
+export const useAdminHardDeleteUser = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (userId: string) => usersApi.hardDeleteUser(userId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users', 'admin-all'] });
+      queryClient.invalidateQueries({ queryKey: ['users', 'archived'] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'analytics'] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'activity'] });
+    },
+  });
+}
 
 /**
  * Admin : Hook to ban/unban a user

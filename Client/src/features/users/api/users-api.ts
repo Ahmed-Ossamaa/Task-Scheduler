@@ -128,12 +128,19 @@ export const usersApi = {
   },
 
   /**
-   * - Admin : Delete a user and their tasks (Soft Delete).
+   * - Admin :Soft Delete a user and their tasks.
    * @returns Success Deletion message on Success.
    */
-  removeUser: async (userId: string): Promise<{ message: string }> => {
-    const { data } = await api.delete<{ message: string }>(`/user/${userId}`);
+  archiveUser: async (userId: string): Promise<{ message: string }> => {
+    const { data } = await api.delete<{ message: string }>(`/user/${userId}/archive`);
     return data;
+  },
+
+  /**
+   * - Admin : Hard Delete a user (No Cascading).
+   */
+  hardDeleteUser: async (userId: string): Promise<void> => {
+    await api.delete<void>(`/user/${userId}/hard-delete`);
   },
 
   /**
