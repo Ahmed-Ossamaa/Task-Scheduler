@@ -1,6 +1,7 @@
 import { User } from '@/features/auth/types/user-interface';
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
+import Cookies from 'js-cookie';
 
 interface AuthState {
   user: User | null;
@@ -17,7 +18,11 @@ export const useAuthStore = create<AuthState>()(
     accessToken: null,
     setUser: (user) => set({ user }),
     setAccessToken: (token) => set({ accessToken: token }),
-    clearAuth: () => set({ user: null, accessToken: null }),
+    clearAuth: () => {
+      Cookies.remove('hasSession', { path: '/' });
+      set({ user: null, accessToken: null })
+    },
+      
     getAccessToken: () => get().accessToken,
   }))
 );
