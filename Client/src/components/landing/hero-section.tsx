@@ -37,15 +37,15 @@ export function HeroSection({ heroImg }: { heroImg?: string }) {
         </div>
 
         {/* right */}
-        <div className="relative w-full h-full flex items-center justify-center animate-fade-in">
-          <div className="relative w-full h-87.5 sm:h-87.5 md:h-105 lg:h-full min-h-75">
+        <div className="relative w-full flex items-center justify-center">
+          <div className="relative w-full min-h-75  sm:min-h-87.5 md:min-h-95 ">
             <Image
               src={heroImg || '/landing-hero.webp'}
               alt="hero"
               fill
-              sizes="(max-width: 768px) 100vw, 60vw"
+              sizes="(max-width: 1024) 100vw, 50vw"
               priority
-              className="object-fill object-center lg:object-right rounded-sm "
+              className="object-cover object-center lg:object-right rounded-sm "
             />
           </div>
         </div>
