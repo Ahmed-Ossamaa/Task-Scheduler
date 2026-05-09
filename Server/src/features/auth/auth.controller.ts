@@ -131,10 +131,10 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     await this.authService.logout(user.sub);
-
+    const isProduction = this.appConfig.nodeEnv === 'production';
     const clearOptions = {
-      secure: this.appConfig.nodeEnv === 'production',
-      sameSite: 'lax' as const,
+      secure: isProduction,
+      sameSite: (isProduction ? 'none' : 'lax') as 'none' | 'lax',
       path: '/',
     };
 
@@ -156,9 +156,10 @@ export class AuthController {
   ): Promise<{ message: string }> {
     await this.authService.changePassword(user.sub, changePasswordDto);
     //clear cookies (refreshToken & flag)
+    const isProduction = this.appConfig.nodeEnv === 'production';
     const clearOptions = {
-      secure: this.appConfig.nodeEnv === 'production',
-      sameSite: 'lax' as const,
+      secure: isProduction,
+      sameSite: (isProduction ? 'none' : 'lax') as 'none' | 'lax',
       path: '/',
     };
 
@@ -220,9 +221,10 @@ export class AuthController {
   // Helper method =>  set the refresh token cookie to the response
   private setAuthCookies(res: Response, refreshToken: string): void {
     const days: number = parseInt(this.jwtConfig.refreshExpires, 10) || 7;
+    const isProduction = this.appConfig.nodeEnv === 'production';
     const cookieOptions = {
-      secure: this.appConfig.nodeEnv === 'production',
-      sameSite: 'lax' as const,
+      secure: isProduction,
+      sameSite: (isProduction ? 'none' : 'lax') as 'none' | 'lax',
       maxAge: days * 24 * 60 * 60 * 1000,
       path: '/',
     };
