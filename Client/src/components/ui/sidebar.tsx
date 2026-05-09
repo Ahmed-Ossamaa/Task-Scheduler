@@ -250,7 +250,8 @@ function SidebarTrigger({
 
   return (
     <Button
-      title="toggle sidebar ctrl+b"
+      aria-label="Toggle sidebar (Ctrl + B)"
+      title="Toggle sidebar (Ctrl + B)"
       data-sidebar="trigger"
       data-slot="sidebar-trigger"
       variant="ghost"

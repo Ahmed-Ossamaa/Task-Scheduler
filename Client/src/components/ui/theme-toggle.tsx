@@ -10,11 +10,12 @@ export function ThemeToggle() {
 
   return (
     <Button
+      aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
       title={theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
       variant="ghost"
       size="icon"
       onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-      className="w-9 h-9 rounded-full hover:bg-amber-100 dark:hover:bg-gray-800 "
+      className="w-9 h-9 rounded-full hover:bg-amber-100/50 dark:hover:bg-gray-800/50 "
     >
       <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
       <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 text-blue-900" />

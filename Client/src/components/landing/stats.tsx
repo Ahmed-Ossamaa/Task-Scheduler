@@ -10,7 +10,7 @@ export function Stats() {
         className={`
           flex flex-col items-center justify-center text-center
           py-8 md:py-12 px-6
-          transition-all duration-300
+          transition-all duration-300 hover:bg-foreground/5
           ${i < STATS.length - 1 ? 'md:border-r border-border' : ''}
         `}
       >

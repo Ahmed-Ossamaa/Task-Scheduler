@@ -31,8 +31,8 @@ export function HeroSection({ heroImg }: { heroImg?: string }) {
           </p>
 
           <div className="flex flex-wrap gap-4">
-            <BtnPrimary href="/register">Get Started Free →</BtnPrimary>
-            <BtnGhost href="/login">Login</BtnGhost>
+            <BtnPrimary arial-label="Go to Sign Up" href="/register">Get Started Free →</BtnPrimary>
+            <BtnGhost arial-label="Go to Login" href="/login">Login</BtnGhost>
           </div>
         </div>
 
@@ -41,7 +41,7 @@ export function HeroSection({ heroImg }: { heroImg?: string }) {
           <div className="relative w-full min-h-75  sm:min-h-87.5 md:min-h-95 ">
             <Image
               src={heroImg || '/landing-hero.webp'}
-              alt="hero"
+              alt="hero-image"
               fill
               sizes="(max-width: 1024) 100vw, 50vw"
               priority

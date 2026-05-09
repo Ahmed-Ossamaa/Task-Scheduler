@@ -43,7 +43,7 @@ export function Navbar({ appName, logo }: NavbarProps) {
             <div className="relative h-10 w-25">
               <Image
                 src={logo}
-                alt={`${appName} logo`}
+                alt={`${appName} - go to home page`}
                 fill
                 sizes="100px"
                 loading='eager'
@@ -83,7 +83,10 @@ export function Navbar({ appName, logo }: NavbarProps) {
           {user ? (
             <DropdownMenu modal={false}>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="h-10 w-10 rounded-full p-0 ">
+                <Button 
+                aria-label="User Menu"
+                variant="ghost" 
+                className="h-10 w-10 rounded-full p-0 ">
                   <Avatar className="h-8 w-8 relative overflow-hidden">
                     {user.avatar ? (
                       <Image
@@ -94,7 +97,7 @@ export function Navbar({ appName, logo }: NavbarProps) {
                         className="object-cover"
                       />
                     ) : (
-                      <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
+                      <AvatarFallback aria-label={user.name} className="bg-primary/10 text-primary text-xs font-bold">
                         {getInitials(user.name)}
                       </AvatarFallback>
                     )}
@@ -117,7 +120,7 @@ export function Navbar({ appName, logo }: NavbarProps) {
                   <Link href="/dashboard">
                     <LayoutDashboard className="mr-2 h-4 w-4" />
                     <span>Dashboard</span>
-                    <span>({user.role})</span>
+                    <span aria-label={`Role: ${user.role}`}>({user.role})</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild className="cursor-pointer">
