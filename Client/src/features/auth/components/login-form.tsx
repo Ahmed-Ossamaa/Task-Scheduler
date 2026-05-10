@@ -48,7 +48,7 @@ export function LoginForm({ logo, appName }: LoginFormProps) {
     try {
       await loginMutation(data);
       toast.success('Welcome back!');
-      router.push('/dashboard');
+      window.location.replace('/dashboard');
     } catch (error) {
       const axiosError = error as AxiosError<{ message: string }>;
       const errorMessage = axiosError.response?.data?.message;
@@ -73,22 +73,23 @@ export function LoginForm({ logo, appName }: LoginFormProps) {
           >
             {logo ? (
               <div className="relative h-15 w-50 shrink-0 mr-2">
-                <Image 
-                  src={logo} 
-                  alt={`${appName} logo`} 
-                  fill 
+                <Image
+                  src={logo}
+                  alt={`${appName} logo`}
+                  fill
                   sizes="200px"
                   priority
-                  className="object-contain" 
+                  className="object-contain"
                   unoptimized={true}
                 />
               </div>
             ) : (
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="h-8 w-8 text-red-500 shrink-0" />
-                <span className="text-2xl font-bold text-primary ">{appName}</span>
+                <span className="text-2xl font-bold text-primary ">
+                  {appName}
+                </span>
               </div>
-              
             )}
           </Link>
         </div>
@@ -109,11 +110,12 @@ export function LoginForm({ logo, appName }: LoginFormProps) {
           <FormField
             control={form.control}
             name="email"
-            render={({ field}) => (
+            render={({ field }) => (
               <FormItem className="space-y-2">
-                <FormLabel 
-                htmlFor={field.name}
-                className="text-[11px] font-bold tracking-[0.15em] uppercase text-muted-foreground">
+                <FormLabel
+                  htmlFor={field.name}
+                  className="text-[11px] font-bold tracking-[0.15em] uppercase text-muted-foreground"
+                >
                   Email Address
                 </FormLabel>
                 <FormControl>
@@ -123,7 +125,6 @@ export function LoginForm({ logo, appName }: LoginFormProps) {
                     type="email"
                     placeholder="you@example.com"
                     {...field}
- 
                   />
                 </FormControl>
                 <FormMessage className="text-[12px] text-destructive font-medium" />
@@ -138,8 +139,9 @@ export function LoginForm({ logo, appName }: LoginFormProps) {
               <FormItem className="space-y-2">
                 <div className="flex items-center justify-between">
                   <FormLabel
-                  htmlFor={field.name}
-                   className="text-[11px] font-bold tracking-[0.15em] uppercase text-muted-foreground">
+                    htmlFor={field.name}
+                    className="text-[11px] font-bold tracking-[0.15em] uppercase text-muted-foreground"
+                  >
                     Password
                   </FormLabel>
                   <Link

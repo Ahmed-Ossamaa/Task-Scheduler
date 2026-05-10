@@ -4,6 +4,7 @@ import { authApi } from '../api/auth-api';
 import { useAuthStore } from '../store/auth.store';
 import { LoginDto, RegisterDto } from '../types/auth-dto';
 import { ChangePasswordValues } from '@/lib/schema/password.schema';
+import Cookies from 'js-cookie';
 
 
 export const useRegister = () => {
@@ -24,6 +25,7 @@ export const useLogin = () => {
       // Updating  Store
       setUser(data.user);
       setAccessToken(data.accessToken);
+      Cookies.set('hasSession', 'true', { expires: 7, path: '/' });
     },
   });
 };
