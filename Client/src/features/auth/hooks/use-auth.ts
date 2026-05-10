@@ -31,7 +31,6 @@ export const useLogin = () => {
 };
 
 export const useLogout = () => {
-  const router = useRouter();
   const queryClient = useQueryClient();
   const clearAuth = useAuthStore((state) => state.clearAuth);
 
@@ -43,7 +42,7 @@ export const useLogout = () => {
       // Clear the auth store (remove refresh token)
       clearAuth();
       // Redirect to the login page
-      router.push('/login');
+      window.location.replace('/login');
     },
   });
 };
