@@ -39,6 +39,7 @@ export class User {
   @Column({ type: 'enum', enum: UserGender, nullable: true })
   gender!: UserGender | null;
 
+  @Index('IDX_USERS_ROLE')
   @Column({
     type: 'enum',
     enum: UserRole,
@@ -81,6 +82,7 @@ export class User {
   @Column({ type: 'timestamptz', nullable: true, select: false })
   resetPasswordExpires: Date | null = null;
 
+  @Index('IDX_USERS_CREATED_AT')
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt!: Date;
 
@@ -106,4 +108,7 @@ export class User {
   })
   @JoinColumn({ name: 'organizationId' })
   organization!: Organization | null;
+
+  @Column({ type: 'tsvector', select: false, nullable: true })
+  search_vector?: string;
 }

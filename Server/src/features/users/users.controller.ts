@@ -29,6 +29,7 @@ import { ImageValidationPipe } from 'src/common/pipes/image-validation.pipe';
 import { UserResponseDto } from './dto/user-response.dto';
 import { PaginatedUsers } from './types/paginated-users-interface';
 import { UpdateUserStatusDto } from './dto/update-user-status.dto';
+import { GetUsersQueryDto } from './dto/get-users-query.dto';
 
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
@@ -225,11 +226,15 @@ export class UserController {
   @Throttle({ default: { limit: 50, ttl: 60000 } })
   @Roles(UserRole.ADMIN)
   @Get()
-  async getAllUsers(
-    @Query('page', new ParseIntPipe({ optional: true })) page: number,
-    @Query('limit', new ParseIntPipe({ optional: true })) limit: number,
-  ): Promise<PaginatedUsers> {
-    return this.userService.findAllUsers(page, limit);
+  async getAllUsers(@Query() query: GetUsersQueryDto): Promise<PaginatedUsers> {
+    return this.userService.findAllUsers(
+      query.page,
+      query.limit,
+      query.search,
+      query.role,
+      query.status,
+      query.organizationId,
+    );
   }
 
   @ApiOperation({ summary: 'Ban/unban user (admin only)' })

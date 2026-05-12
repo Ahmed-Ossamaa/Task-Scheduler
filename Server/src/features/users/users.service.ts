@@ -244,16 +244,59 @@ export class UserService {
   async findAllUsers(
     page: number = 1,
     limit: number = 20,
+    search?: string,
+    role?: UserRole,
+    status?: 'active' | 'banned',
+    organizationId?: string,
   ): Promise<PaginatedUsers> {
     const take = Math.min(limit, 100);
     const skip = (page - 1) * take;
-    const [users, total] = await this.userRepo.findAndCount({
-      where: {},
-      relations: ['organization'],
-      order: { createdAt: 'DESC' },
-      skip,
-      take,
-    });
+
+    const qb = this.userRepo
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.organization', 'organization')
+      .orderBy('user.createdAt', 'DESC')
+      .skip(skip)
+      .take(take);
+
+    if (search) {
+      const formattedSearch = search
+        .trim()
+        .split(/\s+/)
+        .map((word) => `${word}:*`)
+        .join(' & ');
+
+      qb.andWhere(
+        `(user.search_vector @@ to_tsquery(:search)
+        OR user.email ILIKE :email)`,
+        {
+          search: formattedSearch,
+          email: `${search}%`, // prefix (aoss => aossama@gmail.com)
+        },
+      );
+
+      // ranking (rank results by relevance)
+      qb.addSelect(`ts_rank(user.search_vector, to_tsquery(:search))`, 'rank')
+        .orderBy('rank', 'DESC')
+        .addOrderBy('user.createdAt', 'DESC');
+    }
+
+    // Filters
+    if (role) {
+      qb.andWhere('user.role = :role', { role });
+    }
+
+    if (status) {
+      const isActive = status === 'active';
+      qb.andWhere('user.isActive  = :isActive', { isActive });
+    }
+
+    if (organizationId) {
+      qb.andWhere('organization.id = :organizationId', { organizationId });
+    }
+
+    const [users, total] = await qb.getManyAndCount();
+
     return {
       data: users.map(UserMapper.fromEntity),
       total,
@@ -300,6 +343,10 @@ export class UserService {
   ): Promise<UserResponseDto> {
     const user = await this.findUserById(userId);
     Object.assign(user, profile);
+    // Update search vector
+    if (profile.name) {
+      user.search_vector = `${user.name ?? ''} ${user.email ?? ''}`.trim();
+    }
     const saved = await this.saveUser(user);
     return UserMapper.fromEntity(saved);
   }
