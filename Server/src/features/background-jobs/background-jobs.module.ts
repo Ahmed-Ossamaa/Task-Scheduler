@@ -1,9 +1,10 @@
-import { Module, OnModuleInit, Logger } from '@nestjs/common';
+import { Module, OnModuleInit, Logger, Inject } from '@nestjs/common';
 import { BullModule, InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
-import { ConfigService } from '@nestjs/config';
+import type { ConfigType } from '@nestjs/config';
 import { DataRetentionService } from './services/data-retention.service';
 import { DataRetentionProcessor } from './processors/data-retention.processor';
+import appConfig from 'src/config/app.config';
 
 @Module({
   imports: [
@@ -18,16 +19,15 @@ export class BackgroundJobsModule implements OnModuleInit {
   constructor(
     @InjectQueue('system-maintenance')
     private readonly maintenanceQueue: Queue,
-    private readonly configService: ConfigService,
+    @Inject(appConfig.KEY)
+    private readonly appEnv: ConfigType<typeof appConfig>,
   ) {}
 
   // needed onInit here cause its not event driven job ,
   // its wont be triggered by user , but it will be triggered on boot
   async onModuleInit() {
     this.logger.log('Registering background jobs...');
-    const cronSchedule = this.configService.get<string>(
-      'app.dataRetentionCron',
-    );
+    const cronSchedule = this.appEnv.dataRetentionCron;
 
     await this.maintenanceQueue.add(
       'empty-trash',

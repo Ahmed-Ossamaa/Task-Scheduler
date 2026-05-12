@@ -5,18 +5,22 @@ type BackoffType = 'fixed' | 'exponential';
 export default registerAs('redis', () => {
   const url = process.env.REDIS_URL;
 
-  const connectionOptions = url
+  const parsedUrl = url ? new URL(url) : null;
+
+  const connectionOptions = parsedUrl
     ? {
-        host: new URL(url).hostname,
-        port: Number(new URL(url).port) || 6379,
-        password: new URL(url).password,
-        tls: { rejectUnauthorized: false },
+        host: parsedUrl.hostname,
+        port: Number(parsedUrl.port) || 6379,
+        password: parsedUrl.password,
+        ...(parsedUrl.protocol === 'rediss:' ? { tls: {} } : {}),
         family: 4,
+        maxRetriesPerRequest: null,
       }
     : {
         host: process.env.REDIS_HOST || 'localhost',
         port: Number(process.env.REDIS_PORT) || 6379,
         password: process.env.REDIS_PASSWORD,
+        maxRetriesPerRequest: null,
       };
 
   return {
