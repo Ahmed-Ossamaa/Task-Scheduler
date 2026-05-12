@@ -1,25 +1,21 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import {
   IsEmail,
-  IsEnum,
   IsNotEmpty,
-  IsNumber,
-  IsOptional,
   IsString,
   Matches,
   MinLength,
 } from 'class-validator';
-import { UserGender } from 'src/features/users/enums/user-gender.enum';
 
 export class RegisterUserDto {
   @ApiProperty({ example: 'Ahmed Ossama' })
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name!: string;
 
   @ApiProperty({ example: 'aossama2015@gmail' })
   @IsEmail()
-  email: string;
+  email!: string;
 
   @ApiProperty({
     example: '123456@Ab',
@@ -32,25 +28,5 @@ export class RegisterUserDto {
     message:
       'Password must contain uppercase, lowercase, number, and special character',
   })
-  password: string;
-
-  @ApiPropertyOptional({ example: 'male', enum: UserGender })
-  @IsOptional()
-  @IsEnum(UserGender)
-  gender?: UserGender;
-
-  @ApiPropertyOptional({ example: 25 })
-  @IsOptional()
-  @IsNumber()
-  age?: number;
-
-  @ApiPropertyOptional({ example: '01223456789' })
-  @IsOptional()
-  @IsString()
-  phone?: string;
-
-  @ApiPropertyOptional({ example: 'Alexandria, Egypt' })
-  @IsOptional()
-  @IsString()
-  address?: string;
+  password!: string;
 }
