@@ -48,8 +48,8 @@ export class User {
   role!: UserRole;
 
   //will be changed later to birthdate : Date | null
-  @Column({ nullable: true })
-  age!: number;
+  @Column({ type: 'date', nullable: true })
+  dateOfBirth!: Date;
 
   @Column({ type: 'varchar', nullable: true })
   phone!: string | null;

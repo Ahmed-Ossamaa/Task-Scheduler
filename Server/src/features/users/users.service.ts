@@ -18,6 +18,7 @@ import { SensitiveUserFields } from './types/user-sensetive-fields';
 import { UserResponseDto } from './dto/user-response.dto';
 import { UserMapper } from './mappers/user.mapper';
 import { JwtPayload } from '../auth/interfaces/jwt-payload.interface';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UserService {
@@ -339,7 +340,7 @@ export class UserService {
    */
   async updateUserProfile(
     userId: string,
-    profile: Partial<User>,
+    profile: UpdateUserDto,
   ): Promise<UserResponseDto> {
     const user = await this.findUserById(userId);
     Object.assign(user, profile);

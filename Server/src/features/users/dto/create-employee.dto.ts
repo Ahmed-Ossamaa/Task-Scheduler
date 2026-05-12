@@ -5,6 +5,7 @@ import {
   IsOptional,
   IsString,
   Matches,
+  MaxLength,
   MinLength,
 } from 'class-validator';
 import { UserGender } from '../enums/user-gender.enum';
@@ -14,6 +15,8 @@ export class CreateEmployeeDto {
   @ApiProperty({ example: 'Ahmed Ossama' })
   @IsString()
   @IsNotEmpty()
+  @MinLength(2)
+  @MaxLength(50)
   name!: string;
 
   @ApiPropertyOptional({ enum: UserGender })
@@ -30,6 +33,7 @@ export class CreateEmployeeDto {
   @IsString()
   @IsNotEmpty()
   @MinLength(8)
+  @MaxLength(50)
   @Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
     message:
       'Password must contain uppercase, lowercase, number, and special character',

@@ -9,7 +9,7 @@ export class UserMapper {
       email: user.email,
       role: user.role,
       gender: user.gender ?? null,
-      age: user.age ?? null,
+      dateOfBirth: user.dateOfBirth ?? null,
       phone: user.phone ?? null,
       address: user.address ?? null,
       avatar: user.avatar ?? null,

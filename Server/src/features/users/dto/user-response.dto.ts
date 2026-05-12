@@ -34,7 +34,7 @@ export class UserResponseDto {
   gender!: UserGender | null;
 
   @ApiPropertyOptional({ example: 25 })
-  age!: number | null;
+  dateOfBirth!: Date | null;
 
   @ApiPropertyOptional({ example: '01223456789' })
   phone!: string | null;
