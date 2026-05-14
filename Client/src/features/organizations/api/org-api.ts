@@ -69,8 +69,18 @@ export const orgApi = {
     return data;
   },
 
-  getAllOrgsNames: async (): Promise<{id: string, name: string}[]> => {
-    const { data } = await api.get('/organizations/names');
+  /**
+   * - Admin : Get organizations names according to search (limited to 20 results) .
+   * - if {search} is not provided, returns max 20 of organizations names "ASC".
+   * @returns An array of organizations names & ids.
+   */
+  getAllOrgsNames: async (
+    search?: string,
+    limit: number = 20,
+  ): Promise<{ id: string; name: string }[]> => {
+    const { data } = await api.get('/organizations/names', {
+      params: { search, limit },
+    });
     return data;
   },
 

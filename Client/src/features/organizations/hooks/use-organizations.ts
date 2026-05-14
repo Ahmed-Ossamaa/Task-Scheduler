@@ -88,12 +88,13 @@ export const useAllOrganizations = (
 /**
  * Admin: Hook to retrieve all organizations names (for dropdown filter).
  */
-export const useOrgsNames = () => {
+export const useOrgsNames = (search?: string, limit: number = 20) => {
   return useQuery({
-    queryKey: ['organizations', 'names'],
-    queryFn: () => orgApi.getAllOrgsNames(),
-    staleTime: Infinity,
-    gcTime: 1000 * 60 * 60 * 24,
+    queryKey: ['organizations', 'names', search],
+    queryFn: () => orgApi.getAllOrgsNames(search, limit),
+    staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 30,
+    placeholderData: (previousData) => previousData,
   });
 };
 
