@@ -58,6 +58,13 @@ export class OrganizationsController {
     return this.organizationsService.getDeletedOrgs(page, limit);
   }
 
+  @ApiOperation({ summary: 'Get all organizations names (admin only)' })
+  @Get('names')
+  @Roles(UserRole.ADMIN)
+  async getAllOrgsName() {
+    return this.organizationsService.getAllOrgsName();
+  }
+
   @ApiOperation({
     summary: 'Get all organizations with pagination (admin only)',
   })

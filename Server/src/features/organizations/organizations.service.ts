@@ -197,6 +197,15 @@ export class OrganizationsService {
     }
   }
 
+  /**
+   * Get all orgs names and ids for fropdown filters (or wherever they are needed)
+   */
+  async getAllOrgsName(): Promise<{ id: string; name: string }[]> {
+    return this.orgRepo.find({
+      select: ['id', 'name'],
+    });
+  }
+
   async getOrgsCount() {
     return this.orgRepo.count();
   }
