@@ -86,6 +86,18 @@ export const useAllOrganizations = (
 };
 
 /**
+ * Admin: Hook to retrieve all organizations names (for dropdown filter).
+ */
+export const useOrgsNames = () => {
+  return useQuery({
+    queryKey: ['organizations', 'names'],
+    queryFn: () => orgApi.getAllOrgsNames(),
+    staleTime: Infinity,
+    gcTime: 1000 * 60 * 60 * 24,
+  });
+};
+
+/**
  * Admin: Hook to remove an organization(soft delete) with all its associated data.
  */
 export const useRemoveOrg = () => {
@@ -128,9 +140,13 @@ export const useRestoreOrg = () => {
     mutationFn: (orgId: string) => orgApi.restoreOrganization(orgId),
     onSuccess: () => {
       //invalidate active orgs
-      queryClient.invalidateQueries({ queryKey: ['organizations', 'admin-all'] });
+      queryClient.invalidateQueries({
+        queryKey: ['organizations', 'admin-all'],
+      });
       //invalidate archived orgs
-      queryClient.invalidateQueries({ queryKey: ['organizations', 'admin-archived'] });
+      queryClient.invalidateQueries({
+        queryKey: ['organizations', 'admin-archived'],
+      });
 
       //invalidate  archived users
       queryClient.invalidateQueries({ queryKey: ['users', 'archived'] });

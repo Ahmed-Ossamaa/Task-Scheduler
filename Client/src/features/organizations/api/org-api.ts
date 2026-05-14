@@ -69,6 +69,11 @@ export const orgApi = {
     return data;
   },
 
+  getAllOrgsNames: async (): Promise<{id: string, name: string}[]> => {
+    const { data } = await api.get('/organizations/names');
+    return data;
+  },
+
   /**
    * - Admin : Soft Delete an Organization.
    * @returns deletion success message
