@@ -24,13 +24,17 @@ import {
 } from '@/components/ui/alert-dialog';
 import { restorationPeriod } from '@/lib/utils';
 import { UsersFilters } from './users-filter';
-import {  RoleFilterUI, StatusFilterUI } from '../types';
+import { RoleFilterUI, StatusFilterUI } from '../types';
 import { useOrgsNames } from '@/features/organizations/hooks/use-organizations';
 import { useDebounce } from '@/hooks/use-debounce';
 
 export function ActiveUsersList() {
   const [search, setSearch] = useState<string>('');
   const debouncedSearch = useDebounce(search, 500);
+
+  const [orgSearch, setOrgSearch] = useState<string>('');
+  const debouncedOrgSearch = useDebounce(orgSearch, 500);
+
   const [role, setRole] = useState<RoleFilterUI>('ALL');
   const [status, setStatus] = useState<StatusFilterUI>('ALL');
   const [selectedOrg, setSelectedOrg] = useState<string>('ALL');
@@ -39,7 +43,7 @@ export function ActiveUsersList() {
   const userRole = role === 'ALL' ? undefined : role;
   const userStatus = status === 'ALL' ? undefined : status;
   const userOrg = selectedOrg === 'ALL' ? undefined : selectedOrg;
-  const { data: organizations =[] } = useOrgsNames();
+  const { data: organizations = [], isLoading: isOrgLoading } = useOrgsNames(debouncedOrgSearch, 10);
   const { data: paginatedResult, isLoading } = useAllUsers(
     page,
     20,
@@ -96,6 +100,8 @@ export function ActiveUsersList() {
         org={organizations}
         selectedOrg={selectedOrg}
         onOrgChange={setSelectedOrg}
+        onOrgSearchChange={setOrgSearch}
+        isOrgLoading={isOrgLoading}
       />
       <UsersTable
         users={paginatedResult?.data}

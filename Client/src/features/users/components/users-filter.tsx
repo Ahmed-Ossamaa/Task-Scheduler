@@ -8,6 +8,7 @@ import {
 } from '@/components/ui/select';
 import { RoleFilterUI, StatusFilterUI } from '../types';
 import { Button } from '@/components/ui/button';
+import { SearchableCombobox } from '@/components/ui/searchable-combobox';
 
 interface Organization {
   id: string;
@@ -27,6 +28,8 @@ interface UsersFiltersProps {
   org: Organization[];
   selectedOrg: string | 'ALL';
   onOrgChange: (value: string | 'ALL') => void;
+  onOrgSearchChange: (value: string) => void;
+  isOrgLoading?: boolean;
 }
 
 export function UsersFilters({
@@ -39,6 +42,8 @@ export function UsersFilters({
   org,
   selectedOrg,
   onOrgChange,
+  onOrgSearchChange,
+  isOrgLoading,
 }: UsersFiltersProps) {
   return (
     <div className="flex flex-wrap gap-3 items-center">
@@ -77,20 +82,18 @@ export function UsersFilters({
         </SelectContent>
       </Select>
 
-      {/* Organization */}
-      <Select value={selectedOrg} onValueChange={onOrgChange}>
-        <SelectTrigger size="default" className="bg-secondary ">
-          <SelectValue placeholder="Organization" />
-        </SelectTrigger>
-        <SelectContent position="popper" className="max-h-64! ">
-          <SelectItem value="ALL">All Organizations</SelectItem>
-          {org.map((organization) => (
-            <SelectItem key={organization.id} value={organization.id}>
-              {organization.name}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      <SearchableCombobox
+        items={[
+          { value: 'ALL', label: 'All Organizations' },
+          ...org.map((o) => ({ value: o.id, label: o.name })),
+        ]}
+        value={selectedOrg}
+        onChange={onOrgChange}
+        onSearchChange={onOrgSearchChange}
+        isLoading={isOrgLoading}
+        placeholder="Organization"
+        className="min-w-40 bg-secondary"
+      />
 
       <Button
         variant="destructive"
