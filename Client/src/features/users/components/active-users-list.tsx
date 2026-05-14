@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { toast } from 'sonner';
-import { Eye, UserLock , LockKeyholeOpen, ArchiveX } from 'lucide-react';
+import { Eye, UserLock, LockKeyholeOpen, ArchiveX } from 'lucide-react';
 import { User } from '@/features/auth/types/user-interface';
 import { UsersTable } from './users-table';
 import {
@@ -23,16 +23,46 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { restorationPeriod } from '@/lib/utils';
+import { UsersFilters } from './users-filter';
+import {  RoleFilterUI, StatusFilterUI } from '../types';
+import { useOrgsNames } from '@/features/organizations/hooks/use-organizations';
+import { useDebounce } from '@/hooks/use-debounce';
 
 export function ActiveUsersList() {
+  const [search, setSearch] = useState<string>('');
+  const debouncedSearch = useDebounce(search, 500);
+  const [role, setRole] = useState<RoleFilterUI>('ALL');
+  const [status, setStatus] = useState<StatusFilterUI>('ALL');
+  const [selectedOrg, setSelectedOrg] = useState<string>('ALL');
   const [page, setPage] = useState<number>(1);
-  const { data: paginatedResult, isLoading } = useAllUsers(page, 20);
-  const { mutateAsync: removeUser, isPending: isRemoving } = useAdminArchiveUser();
-  const { mutateAsync: toggleUserStatus, isPending: isToggling } =useAdminBanUser();
+
+  const userRole = role === 'ALL' ? undefined : role;
+  const userStatus = status === 'ALL' ? undefined : status;
+  const userOrg = selectedOrg === 'ALL' ? undefined : selectedOrg;
+  const { data: organizations =[] } = useOrgsNames();
+  const { data: paginatedResult, isLoading } = useAllUsers(
+    page,
+    20,
+    debouncedSearch,
+    userRole,
+    userStatus,
+    userOrg,
+  );
+  const { mutateAsync: removeUser, isPending: isRemoving } =
+    useAdminArchiveUser();
+  const { mutateAsync: toggleUserStatus, isPending: isToggling } =
+    useAdminBanUser();
 
   const [userToView, setUserToView] = useState<User | null>(null);
-  const [userToDelete, setUserToDelete] = useState<{ id: string; name: string } | null>(null);
-  const [userToBan, setUserToBan] = useState<{ id: string; name: string;isActive: boolean; } | null>(null);
+  const [userToDelete, setUserToDelete] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
+  const [userToBan, setUserToBan] = useState<{
+    id: string;
+    name: string;
+    isActive: boolean;
+  } | null>(null);
 
   const handleBan = async (userId: string, currentStatus: boolean) => {
     try {
@@ -56,6 +86,17 @@ export function ActiveUsersList() {
 
   return (
     <div className="space-y-4">
+      <UsersFilters
+        search={search}
+        onSearchChange={setSearch}
+        role={role}
+        onRoleChange={setRole}
+        status={status}
+        onStatusChange={setStatus}
+        org={organizations}
+        selectedOrg={selectedOrg}
+        onOrgChange={setSelectedOrg}
+      />
       <UsersTable
         users={paginatedResult?.data}
         isLoading={isLoading}
@@ -78,7 +119,13 @@ export function ActiveUsersList() {
                 size="icon"
                 title="Ban"
                 className="h-8 w-8 text-amber-500 hover:text-amber-800 hover:bg-red-50"
-                onClick={() => setUserToBan({ id: user.id, name: user.name, isActive: user.isActive })}
+                onClick={() =>
+                  setUserToBan({
+                    id: user.id,
+                    name: user.name,
+                    isActive: user.isActive,
+                  })
+                }
                 disabled={isToggling}
               >
                 <UserLock className="w-4 h-4" />
@@ -90,10 +137,16 @@ export function ActiveUsersList() {
                 size="icon"
                 title="Unban"
                 className="h-8 w-8 text-green-500 hover:text-green-600 hover:bg-green-50"
-                onClick={() => setUserToBan({ id: user.id, name: user.name, isActive: user.isActive })}
+                onClick={() =>
+                  setUserToBan({
+                    id: user.id,
+                    name: user.name,
+                    isActive: user.isActive,
+                  })
+                }
                 disabled={isToggling}
               >
-                <LockKeyholeOpen  className="w-4 h-4" />
+                <LockKeyholeOpen className="w-4 h-4" />
                 <span className="sr-only">Unban user</span>
               </Button>
             )}
@@ -145,16 +198,22 @@ export function ActiveUsersList() {
         onClose={() => setUserToView(null)}
       />
 
-      <AlertDialog open={!!userToDelete} onOpenChange={(isOpen) => !isOpen && setUserToDelete(null)}>
+      <AlertDialog
+        open={!!userToDelete}
+        onOpenChange={(isOpen) => !isOpen && setUserToDelete(null)}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Suspend User?</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to suspend <strong>{userToDelete?.name}</strong>? 
-              They will be moved to the archives and lose platform access, but their data will be retained
+              Are you sure you want to suspend{' '}
+              <strong>{userToDelete?.name}</strong>? They will be moved to the
+              archives and lose platform access, but their data will be retained
               and can be restored within {restorationPeriod}.
               <br />
-              <span className="font-semibold text-red-500">Note:</span>This action is NOT a ban, Users can be restored by their Manager within the retention period.
+              <span className="font-semibold text-red-500">Note:</span>This
+              action is NOT a ban, Users can be restored by their Manager within
+              the retention period.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -170,21 +229,26 @@ export function ActiveUsersList() {
         </AlertDialogContent>
       </AlertDialog>
 
-      <AlertDialog open={!!userToBan} onOpenChange={(isOpen) => !isOpen && setUserToBan(null)}>
+      <AlertDialog
+        open={!!userToBan}
+        onOpenChange={(isOpen) => !isOpen && setUserToBan(null)}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle> 
+            <AlertDialogTitle>
               {userToBan?.isActive ? 'Ban User?' : 'Unban User?'}
             </AlertDialogTitle>
             <AlertDialogDescription>
               Are you sure you want to {userToBan?.isActive ? 'ban' : 'unban'}{' '}
-              <strong>{userToBan?.name}</strong>? 
+              <strong>{userToBan?.name}</strong>?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => userToBan && handleBan(userToBan.id, userToBan.isActive)}
+              onClick={() =>
+                userToBan && handleBan(userToBan.id, userToBan.isActive)
+              }
               disabled={isToggling}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >

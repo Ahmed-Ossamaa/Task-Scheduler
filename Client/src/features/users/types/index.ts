@@ -1,4 +1,4 @@
-import { User } from "@/features/auth/types/user-interface";
+import { User, UserRoles } from "@/features/auth/types/user-interface";
 
 export interface CreateEmployeeDto {
   name: string;
@@ -13,3 +13,7 @@ export interface PaginatedUser {
   page: number;
   lastPage: number;
 }
+
+export type StatusFilterUI = 'ALL' | 'active' | 'banned';
+export type RoleFilterUI = 'ALL' | UserRoles;
+export type OrgFilterUI = 'ALL' | string;
