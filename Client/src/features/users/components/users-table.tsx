@@ -25,9 +25,11 @@ export function UsersTable({ users, isLoading, actions }: UsersTableProps) {
         <TableHeader>
           <TableRow>
             <TableHead className="pl-5">User</TableHead>
-            <TableHead>Contact</TableHead>
+            <TableHead>Email</TableHead>
             <TableHead>Role</TableHead>
             <TableHead>Organization</TableHead>
+            <TableHead>Status</TableHead>
+
             <TableHead>Created</TableHead>
             <TableHead className="text-right pr-13">Actions</TableHead>
           </TableRow>
@@ -101,6 +103,20 @@ export function UsersTable({ users, isLoading, actions }: UsersTableProps) {
                       Unassigned
                     </span>
                   )}
+                </TableCell>
+
+                {/* Status */}
+                <TableCell>
+                  <Badge
+                    variant={user.isActive ? 'default' : 'destructive'}
+                    className={
+                      user.isActive
+                        ? 'bg-emerald-600 hover:bg-emerald-700'
+                        : ''
+                    }
+                  >
+                    {user.isActive ? 'Active' : 'Banned'}
+                  </Badge>
                 </TableCell>
 
                 {/* Created At */}
