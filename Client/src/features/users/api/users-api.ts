@@ -120,9 +120,13 @@ export const usersApi = {
   getAllUsers: async (
     page: number = 1,
     limit: number = 20,
+    search?: string,
+    role?: string,
+    status?: string,
+    organizationId?: string,
   ): Promise<PaginatedUser> => {
     const { data } = await api.get('/user', {
-      params: { page, limit },
+      params: { page, limit, search, role, status, organizationId },
     });
     return data;
   },

@@ -186,10 +186,18 @@ export const useEditMyProfile = () => {
 /**
  * - Admin : Hook to retrieve all users (Paginated).
  */
-export const useAllUsers = (page: number = 1, limit: number = 20) => {
+export const useAllUsers = (
+  page: number = 1,
+  limit: number = 20,
+  Search?: string,
+  role?: UserRoles,
+  status?: 'active' | 'banned',
+  organizationId?: string,
+) => {
   return useQuery({
-    queryKey: ['users', 'admin-all', page, limit],
-    queryFn: () => usersApi.getAllUsers(page, limit),
+    queryKey: ['users', 'admin-all', page, limit, Search, role, status, organizationId],
+    queryFn: () =>
+      usersApi.getAllUsers(page, limit, Search, role, status, organizationId),
   });
 };
 
