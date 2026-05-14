@@ -58,11 +58,16 @@ export class OrganizationsController {
     return this.organizationsService.getDeletedOrgs(page, limit);
   }
 
-  @ApiOperation({ summary: 'Get all organizations names (admin only)' })
+  @ApiOperation({
+    summary: 'Get Organizations name/id for dropdown selection  (admin only)',
+  })
   @Get('names')
   @Roles(UserRole.ADMIN)
-  async getAllOrgsName() {
-    return this.organizationsService.getAllOrgsName();
+  async getAllOrgsName(
+    @Query('search') search: string,
+    @Query('limit', new ParseIntPipe({ optional: true })) limit: number,
+  ) {
+    return this.organizationsService.findOrgsForDropdown(search, limit);
   }
 
   @ApiOperation({

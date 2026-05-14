@@ -5,6 +5,7 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  Index,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -16,6 +17,7 @@ export class Organization {
   id!: string;
 
   @Column()
+  @Index('IDX_ORG_NAME_TRGM', { synchronize: false })
   name!: string;
 
   @Column({ type: 'varchar', nullable: true })

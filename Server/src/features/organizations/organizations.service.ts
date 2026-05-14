@@ -200,10 +200,24 @@ export class OrganizationsService {
   /**
    * Get all orgs names and ids for fropdown filters (or wherever they are needed)
    */
-  async getAllOrgsName(): Promise<{ id: string; name: string }[]> {
-    return this.orgRepo.find({
-      select: ['id', 'name'],
-    });
+  async findOrgsForDropdown(
+    search?: string,
+    limit: number = 20,
+  ): Promise<{ id: string; name: string }[]> {
+    const take = Math.min(limit, 20);
+    const qb = this.orgRepo
+      .createQueryBuilder('org')
+      .select(['org.id', 'org.name'])
+      .take(take);
+
+    if (search) {
+      //partial match (tech => soft-tech-co)
+      qb.where('org.name ILIKE :search', { search: `%${search}%` });
+    }
+
+    qb.orderBy('org.name', 'ASC');
+
+    return qb.getMany();
   }
 
   async getOrgsCount() {

@@ -110,5 +110,6 @@ export class User {
   organization!: Organization | null;
 
   @Column({ type: 'tsvector', select: false, nullable: true })
+  @Index('IDX_USERS_SEARCH_VECTOR', { synchronize: false })
   search_vector?: string;
 }

@@ -9,7 +9,8 @@ export default registerAs('db', () => {
     pass: process.env.DB_PASS,
     name: process.env.DB_NAME,
     autoLoadEntities: process.env.DB_AUTO_LOAD_ENTITIES === 'true',
-    synchronize: process.env.NODE_ENV === 'development',
+    synchronize: false,
+    // synchronize: process.env.NODE_ENV === 'development',
     timezone: 'Z',
   };
 });
