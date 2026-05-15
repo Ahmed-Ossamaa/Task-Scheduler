@@ -59,7 +59,7 @@ export function UsersFilters({
         placeholder="Search name or email..."
         value={search}
         onChange={(e) => onSearchChange(e.target.value)}
-        className="w-64"
+        className="w-64 pl-6 shadow-sm"
       />
 
       {/* Role */}
