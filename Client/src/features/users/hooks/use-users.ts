@@ -26,15 +26,20 @@ export const useUserProfile = (userId: string, options?: { enabled?: boolean }) 
 };
 
 /**
- * - Manager/Emp : Hook to get all employees in the current organization.
+ * - Manager/Emp : Hook to get all employees in the current organization with optional search (Paginated).
  */
-export const useOrgEmployees = (page: number = 1, limit: number = 20) => {
+export const useOrgEmployees = (
+  page: number = 1,
+  limit: number = 20,
+  search?: string,
+  options:boolean = true
+) => {
   const user = useAuthStore((state) => state.user);
 
   return useQuery({
-    queryKey: ['users', 'org-employees', user?.organizationId, page, limit],
-    queryFn: () => usersApi.getOrgEmployees(page, limit),
-    enabled: !!user?.organizationId,
+    queryKey: ['users', 'org-employees', user?.organizationId, page, limit, search],
+    queryFn: () => usersApi.getOrgEmployees(page, limit, search),
+    enabled: !!user?.organizationId && options
   });
 };
 
