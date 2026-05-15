@@ -85,14 +85,22 @@ export class OrganizationsService {
   async findAllOrgs(
     page: number = 1,
     limit: number = 20,
+    search?: string,
   ): Promise<PaginatedOrg> {
     const take = Math.min(limit, 100);
     const skip = (page - 1) * take;
-    const [orgs, total] = await this.orgRepo.findAndCount({
-      order: { createdAt: 'DESC' },
-      skip,
-      take,
-    });
+    const qb = this.orgRepo
+      .createQueryBuilder('org')
+      .orderBy('org.createdAt', 'DESC')
+      .skip(skip)
+      .take(take);
+
+    if (search) {
+      //partial match (tech => soft-tech-co)
+      qb.andWhere('org.name ILIKE :search', { search: `%${search}%` });
+    }
+    const [orgs, total] = await qb.getManyAndCount();
+
     return {
       data: orgs,
       total,

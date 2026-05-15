@@ -26,6 +26,7 @@ import { ApiImageUpload } from 'src/common/decorators/api-image-upload.decorator
 import { ImageValidationPipe } from 'src/common/pipes/image-validation.pipe';
 import { StorageService } from 'src/integrations/storage/storage.interface';
 import { UpdateOrgNameDto } from './dto/update-org-name.dto';
+import { GetOrgsQueryDto } from './dto/get-orgs-query.dto';
 
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -75,11 +76,12 @@ export class OrganizationsController {
   })
   @Get()
   @Roles(UserRole.ADMIN)
-  async getAllOrgs(
-    @Query('page', new ParseIntPipe({ optional: true })) page: number = 1,
-    @Query('limit', new ParseIntPipe({ optional: true })) limit: number = 20,
-  ) {
-    return this.organizationsService.findAllOrgs(page, limit);
+  async getAllOrgs(@Query() query: GetOrgsQueryDto) {
+    return this.organizationsService.findAllOrgs(
+      query.page,
+      query.limit,
+      query.search,
+    );
   }
 
   //-------- POST/PATCH Routes--------
