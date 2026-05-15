@@ -2,14 +2,14 @@ import { UserRoles } from '@/features/auth/types/user-interface';
 import { MenuItem } from '@/types/sidebar-menu-items';
 import {
   Home,
-  CheckCircle,
   FolderKanban,
   Users,
   User,
   Building2,
   BarChart3,
   MessageSquareMore,
-  Settings,
+  Cog, 
+  ListChecks
 } from 'lucide-react';
 
 export const MENU_ITEMS: MenuItem[] = [
@@ -21,9 +21,9 @@ export const MENU_ITEMS: MenuItem[] = [
     roles: [UserRoles.ADMIN, UserRoles.MANAGER, UserRoles.EMP],
   },
   {
-    title: 'Tasks',
+    title: 'My Tasks',
     url: '/dashboard/tasks',
-    icon: CheckCircle,
+    icon: ListChecks ,
     roles: [UserRoles.MANAGER, UserRoles.EMP],
   },
   {
@@ -68,7 +68,7 @@ export const MENU_ITEMS: MenuItem[] = [
   {
     title: 'System Settings',
     url: '/dashboard/admin/system-settings',
-    icon: Settings,
+    icon: Cog ,
     roles: [UserRoles.ADMIN],
   },
 ];
