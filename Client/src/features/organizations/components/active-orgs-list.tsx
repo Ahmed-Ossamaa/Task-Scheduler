@@ -3,7 +3,10 @@
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { Trash2 } from 'lucide-react';
-import { useAllOrganizations, useRemoveOrg } from '@/features/organizations/hooks/use-organizations';
+import {
+  useAllOrganizations,
+  useRemoveOrg,
+} from '@/features/organizations/hooks/use-organizations';
 import { OrganizationsTable } from '@/features/organizations/components/orgs-table';
 import { Button } from '@/components/ui/button';
 import {
@@ -17,13 +20,24 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { restorationPeriod } from '@/lib/utils';
+import { useDebounce } from '@/hooks/use-debounce';
+import { Input } from '@/components/ui/input';
 
 export function ActiveOrganizationsList() {
+  const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 500);
   const [page, setPage] = useState<number>(1);
-  const { data: paginatedResult, isLoading } = useAllOrganizations(page, 20);
+  const { data: paginatedResult, isLoading } = useAllOrganizations(
+    page,
+    20,
+    debouncedSearch,
+  );
   const { mutateAsync: removeOrg, isPending: isRemoving } = useRemoveOrg();
-  
-  const [orgToDelete, setOrgToDelete] = useState<{ id: string; name: string } | null>(null);
+
+  const [orgToDelete, setOrgToDelete] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
 
   const handleRemove = async (orgId: string) => {
     try {
@@ -37,6 +51,16 @@ export function ActiveOrganizationsList() {
 
   return (
     <div className="space-y-4">
+      <Input
+        type="search"
+        placeholder="Search by organization name..."
+        value={search}
+        onChange={(e) => {
+          setSearch(e.target.value);
+          setPage(1);
+        }}
+        className="max-w-xs pl-6 shadow-sm "
+      />
       <OrganizationsTable
         organizations={paginatedResult?.data}
         isLoading={isLoading}
@@ -71,21 +95,28 @@ export function ActiveOrganizationsList() {
           variant="default"
           size="sm"
           onClick={() => setPage((old) => old + 1)}
-          disabled={!paginatedResult || page >= paginatedResult.lastPage || isLoading}
+          disabled={
+            !paginatedResult || page >= paginatedResult.lastPage || isLoading
+          }
         >
           Next
         </Button>
       </div>
 
       {/* Suspend Dialog */}
-      <AlertDialog open={!!orgToDelete} onOpenChange={(isOpen) => !isOpen && setOrgToDelete(null)}>
+      <AlertDialog
+        open={!!orgToDelete}
+        onOpenChange={(isOpen) => !isOpen && setOrgToDelete(null)}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Suspend Organization?</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to suspend <strong>{orgToDelete?.name}</strong>? 
-              This will instantly revoke access for all employees associated with this organization and move it to the archives.
-              it can be restored within {restorationPeriod}.
+              Are you sure you want to suspend{' '}
+              <strong>{orgToDelete?.name}</strong>? This will instantly revoke
+              access for all employees associated with this organization and
+              move it to the archives. it can be restored within{' '}
+              {restorationPeriod}.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

@@ -62,9 +62,10 @@ export const orgApi = {
   getAllOrganizations: async (
     page: number = 1,
     limit: number = 20,
+    search?: string,
   ): Promise<PaginatedOrg> => {
     const { data } = await api.get('/organizations', {
-      params: { page, limit },
+      params: { page, limit, search },
     });
     return data;
   },

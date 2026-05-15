@@ -72,16 +72,17 @@ export const useUpdateOrgName = () => {
 //.................Admin APIs.................
 
 /**
- * Admin: Hook to retrieve all organizations (Paginated).
+ * Admin: Hook to retrieve all organizations with optional search (Paginated).
  */
 
 export const useAllOrganizations = (
   page: number = 1,
   limit: number = 20,
+  search?: string,
 ): UseQueryResult<PaginatedOrg> => {
   return useQuery({
-    queryKey: ['organizations', 'admin-all', page, limit],
-    queryFn: () => orgApi.getAllOrganizations(page, limit),
+    queryKey: ['organizations', 'admin-all', page, limit, search],
+    queryFn: () => orgApi.getAllOrganizations(page, limit, search),
   });
 };
 
