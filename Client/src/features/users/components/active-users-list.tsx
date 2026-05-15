@@ -30,28 +30,28 @@ import { useDebounce } from '@/hooks/use-debounce';
 
 export function ActiveUsersList() {
   const [search, setSearch] = useState<string>('');
-  const debouncedSearch = useDebounce(search, 500);
-
   const [orgSearch, setOrgSearch] = useState<string>('');
-  const debouncedOrgSearch = useDebounce(orgSearch, 500);
-
   const [role, setRole] = useState<RoleFilterUI>('ALL');
   const [status, setStatus] = useState<StatusFilterUI>('ALL');
   const [selectedOrg, setSelectedOrg] = useState<string>('ALL');
   const [page, setPage] = useState<number>(1);
 
-  const userRole = role === 'ALL' ? undefined : role;
-  const userStatus = status === 'ALL' ? undefined : status;
-  const userOrg = selectedOrg === 'ALL' ? undefined : selectedOrg;
-  const { data: organizations = [], isLoading: isOrgLoading } = useOrgsNames(debouncedOrgSearch, 10);
+  const debouncedUserSearch = useDebounce(search, 500);
+  const debouncedOrgSearch = useDebounce(orgSearch, 500);
+
+  const { data: organizations = [], isLoading: isOrgLoading } = useOrgsNames(
+    debouncedOrgSearch,
+    10,
+  );
   const { data: paginatedResult, isLoading } = useAllUsers(
     page,
-    20,
-    debouncedSearch,
-    userRole,
-    userStatus,
-    userOrg,
+    10,
+    debouncedUserSearch,
+    role === 'ALL' ? undefined : role,
+    status === 'ALL' ? undefined : status,
+    selectedOrg === 'ALL' ? undefined : selectedOrg,
   );
+
   const { mutateAsync: removeUser, isPending: isRemoving } =
     useAdminArchiveUser();
   const { mutateAsync: toggleUserStatus, isPending: isToggling } =
@@ -67,6 +67,13 @@ export function ActiveUsersList() {
     name: string;
     isActive: boolean;
   } | null>(null);
+
+  const handleFilterChange =
+    <T,>(setter: (val: T) => void) =>
+    (value: T) => {
+      setter(value);
+      setPage(1);
+    };
 
   const handleBan = async (userId: string, currentStatus: boolean) => {
     try {
@@ -94,12 +101,12 @@ export function ActiveUsersList() {
         search={search}
         onSearchChange={setSearch}
         role={role}
-        onRoleChange={setRole}
+        onRoleChange={handleFilterChange(setRole)}
         status={status}
-        onStatusChange={setStatus}
+        onStatusChange={handleFilterChange(setStatus)}
         org={organizations}
         selectedOrg={selectedOrg}
-        onOrgChange={setSelectedOrg}
+        onOrgChange={handleFilterChange(setSelectedOrg)}
         onOrgSearchChange={setOrgSearch}
         isOrgLoading={isOrgLoading}
       />

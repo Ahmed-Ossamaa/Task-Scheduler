@@ -9,6 +9,7 @@ import {
 import { RoleFilterUI, StatusFilterUI } from '../types';
 import { Button } from '@/components/ui/button';
 import { SearchableCombobox } from '@/components/ui/searchable-combobox';
+import { useMemo } from 'react';
 
 interface Organization {
   id: string;
@@ -45,6 +46,10 @@ export function UsersFilters({
   onOrgSearchChange,
   isOrgLoading,
 }: UsersFiltersProps) {
+  const orgOptions = useMemo(() => [
+    { value: 'ALL', label: 'All Organizations' },
+    ...org.map((o) => ({ value: o.id, label: o.name })),
+  ], [org]);
   return (
     <div className="flex flex-wrap gap-3 items-center">
       {/* Search */}
@@ -83,10 +88,7 @@ export function UsersFilters({
       </Select>
 
       <SearchableCombobox
-        items={[
-          { value: 'ALL', label: 'All Organizations' },
-          ...org.map((o) => ({ value: o.id, label: o.name })),
-        ]}
+        items={orgOptions}
         value={selectedOrg}
         onChange={onOrgChange}
         onSearchChange={onOrgSearchChange}
@@ -104,6 +106,7 @@ export function UsersFilters({
           onRoleChange('ALL');
           onStatusChange('ALL');
           onOrgChange('ALL');
+          onOrgSearchChange('');
         }}
       >
         Reset
