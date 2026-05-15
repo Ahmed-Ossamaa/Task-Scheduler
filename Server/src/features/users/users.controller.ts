@@ -29,7 +29,10 @@ import { ImageValidationPipe } from 'src/common/pipes/image-validation.pipe';
 import { UserResponseDto } from './dto/user-response.dto';
 import { PaginatedUsers } from './types/paginated-users-interface';
 import { UpdateUserStatusDto } from './dto/update-user-status.dto';
-import { GetUsersQueryDto } from './dto/get-users-query.dto';
+import {
+  GetEmployeesQueryDto,
+  GetUsersQueryDto,
+} from './dto/get-users-query.dto';
 
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
@@ -118,16 +121,16 @@ export class UserController {
   @Get('org-employees')
   async getAllUsersInOrg(
     @CurrentUser() user: JwtPayload,
-    @Query('page', new ParseIntPipe({ optional: true })) page: number,
-    @Query('limit', new ParseIntPipe({ optional: true })) limit: number,
+    @Query() query: GetEmployeesQueryDto,
   ): Promise<PaginatedUsers> {
     if (!user.organizationId) {
       throw new ForbiddenException('You are not assigned to an organization.');
     }
     const users = await this.userService.findMyTeam(
       user.organizationId,
-      page,
-      limit,
+      query.page,
+      query.limit,
+      query.search,
     );
     return users;
   }

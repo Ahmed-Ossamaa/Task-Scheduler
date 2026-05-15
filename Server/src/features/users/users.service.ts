@@ -237,7 +237,7 @@ export class UserService {
   }
 
   /**
-   * Finds all users (Paginated).
+   * Finds all users with optional filters and search (Paginated).
    * @param page - Page number (Defaults to 1).
    * @param limit - Number of users per page (Defaults to 20).
    * @returns An object containing the users, total count, page number, and last page number.
@@ -256,16 +256,10 @@ export class UserService {
     const qb = this.userRepo
       .createQueryBuilder('user')
       .leftJoinAndSelect('user.organization', 'organization')
-      .orderBy('user.createdAt', 'DESC')
-      .skip(skip)
-      .take(take);
+      .where('1=1');
 
     if (search) {
-      const formattedSearch = search
-        .trim()
-        .split(/\s+/)
-        .map((word) => `${word}:*`)
-        .join(' & ');
+      const formattedSearch = this.formatSearch(search);
 
       qb.andWhere(
         `(user.search_vector @@ to_tsquery(:search)
@@ -277,9 +271,11 @@ export class UserService {
       );
 
       // ranking (rank results by relevance)
-      qb.addSelect(`ts_rank(user.search_vector, to_tsquery(:search))`, 'rank')
-        .orderBy('rank', 'DESC')
-        .addOrderBy('user.createdAt', 'DESC');
+      qb.addSelect(
+        `ts_rank(user.search_vector, to_tsquery(:search))`,
+        'user_rank',
+      );
+      qb.addOrderBy('user_rank', 'DESC');
     }
 
     // Filters
@@ -293,8 +289,10 @@ export class UserService {
     }
 
     if (organizationId) {
-      qb.andWhere('organization.id = :organizationId', { organizationId });
+      qb.andWhere('user.organizationId = :organizationId', { organizationId });
     }
+    qb.addOrderBy('user.createdAt', 'DESC');
+    qb.skip(skip).take(take);
 
     const [users, total] = await qb.getManyAndCount();
 
@@ -307,24 +305,46 @@ export class UserService {
   }
 
   /**
-   * Finds all users in a specific organization (Paginated).
+   * Finds all users in a specific organization with optional filters and search (Paginated).
    * @returns An object containing the users, total count, page number, and last page number.
    */
   async findMyTeam(
     organizationId: string,
     page: number = 1,
     limit: number = 20,
+    search?: string,
   ): Promise<PaginatedUsers> {
     const take = Math.min(limit, 100);
     const skip = (page - 1) * take;
-    const [employees, total] = await this.userRepo.findAndCount({
-      where: {
-        organizationId,
-      },
-      order: { createdAt: 'DESC' },
-      skip,
-      take,
-    });
+
+    const qb = this.userRepo
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.organization', 'organization')
+      .where('organization.id = :organizationId', { organizationId });
+
+    if (search) {
+      const formattedSearch = this.formatSearch(search);
+
+      qb.andWhere(
+        `(user.search_vector @@ to_tsquery(:search)
+        OR user.email ILIKE :email)`,
+        {
+          search: formattedSearch,
+          email: `${search}%`, // prefix (aoss => aossama@gmail.com)
+        },
+      );
+      // ranking (rank results by relevance)
+      qb.addSelect(
+        `ts_rank(user.search_vector, to_tsquery(:search))`,
+        'user_rank',
+      );
+      qb.addOrderBy('user_rank', 'DESC');
+    }
+
+    qb.addOrderBy('user.createdAt', 'DESC');
+    qb.skip(skip).take(take);
+
+    const [employees, total] = await qb.getManyAndCount();
 
     return {
       data: employees.map(UserMapper.fromEntity),
@@ -795,5 +815,16 @@ export class UserService {
     }
 
     return employee;
+  }
+
+  /**
+   * Format a search query to include wildcards for each word.
+   * @param search - The search query to format.
+   * @returns The formatted search query.
+   */
+  private formatSearch(search: string): string {
+    const words = search.trim().split(/\s+/).filter(Boolean);
+
+    return words.map((word) => `${word}:*`).join(' & ');
   }
 }
