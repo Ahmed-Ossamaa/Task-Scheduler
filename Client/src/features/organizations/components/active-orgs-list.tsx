@@ -53,6 +53,7 @@ export function ActiveOrganizationsList() {
     <div className="space-y-4">
       <Input
         type="search"
+        name='search'
         placeholder="Search by organization name..."
         value={search}
         onChange={(e) => {

@@ -16,8 +16,6 @@ interface TaskTableProps {
   showAssignee?: boolean;
   showProject?: boolean;
   canEdit: boolean;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  employees?: any[];
 }
 
 export function TaskTable({
@@ -26,7 +24,6 @@ export function TaskTable({
   showAssignee = false,
   showProject = false,
   canEdit,
-  employees = [],
 }: TaskTableProps) {
   const colSpan = 5 + (showAssignee ? 1 : 0) + (showProject ? 1 : 0) + 1; 
   return (
@@ -72,7 +69,6 @@ export function TaskTable({
                 canEdit={canEdit}
                 showAssignee={showAssignee}
                 showProject= {showProject}
-                employees={employees}
               />
             ))
           )}

@@ -2,7 +2,6 @@
 
 import { useParams } from 'next/navigation';
 import { useProjectTasks } from '@/features/tasks/hooks/use-tasks';
-import { useOrgEmployees } from '@/features/users/hooks/use-users';
 import { useAuthStore } from '@/features/auth/store/auth.store';
 import { UserRoles } from '@/features/auth/types/user-interface';
 import { TaskTable } from '@/features/tasks/components/tasks-table';
@@ -22,22 +21,20 @@ export function ProjectDetailsClient() {
     page,
     20,
   );
-  const { data: employees } = useOrgEmployees();
 
   const isManager = user?.role === UserRoles.MANAGER;
+  const projectName = (!!tasks?.data.length && tasks.data[0]?.project?.name) || 'This project';
 
   return (
     <div className="flex flex-col space-y-6 w-full">
       <div className="flex items-center justify-between">
         <div>
           <p className="text-muted-foreground">
-            Manage tasks for{' '}
-            {(!!tasks?.data.length && tasks.data[0]?.project?.name) ||
-              'this project'}
+            Manage tasks for {projectName}
           </p>
         </div>
 
-        {isManager && <CreateTaskDialog />}
+        {isManager && <CreateTaskDialog projectName={projectName} />}
       </div>
 
       {/* Table */}
@@ -46,7 +43,6 @@ export function ProjectDetailsClient() {
         isLoading={loadingTasks}
         showAssignee={true}
         canEdit={isManager}
-        employees={employees?.data}
       />
       {/* Pagination */}
       <div className="flex items-center justify-end space-x-2 py-4">

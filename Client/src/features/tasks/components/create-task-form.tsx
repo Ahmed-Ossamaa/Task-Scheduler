@@ -4,7 +4,6 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { TaskPriority } from '../types';
 import { useCreateTask } from '../hooks/use-tasks';
-import { useOrgProjects } from '@/features/projects/hooks/use-projects';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -24,17 +23,35 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useOrgEmployees } from '@/features/users/hooks/use-users';
-import { Loader2 } from 'lucide-react';
-import { creatTaskSchema, CreatTaskValues } from '@/lib/schema/task-creation-schema';
+import {
+  creatTaskSchema,
+  CreatTaskValues,
+} from '@/lib/schema/task-creation-schema';
 import { toast } from 'sonner';
 import { AxiosError } from 'axios';
+import { useDebounce } from '@/hooks/use-debounce';
+import { useEffect, useMemo, useState } from 'react';
+import { useParams } from 'next/navigation';
+import { SearchableCombobox } from '@/components/ui/searchable-combobox';
 
-
-
-export function CreateTaskForm({ onSuccess }: { onSuccess?: () => void }) {
+interface CreateTaskFormProps {
+  onSuccess?: () => void;
+  projectName: string;
+}
+export function CreateTaskForm({
+  onSuccess,
+  projectName,
+}: CreateTaskFormProps) {
+  const params = useParams();
+  const currentProjectId = params.id as string;
+  const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 500);
   const { mutateAsync: createTask, isPending } = useCreateTask();
-  const { data: employees, isLoading: isLoadingEmployees } = useOrgEmployees();
-  const { data: projects, isLoading: isLoadingProjects } = useOrgProjects();
+  const { data: employees, isLoading: isLoadingEmployees } = useOrgEmployees(
+    1,
+    10,
+    debouncedSearch,
+  );
 
   const form = useForm<CreatTaskValues>({
     resolver: zodResolver(creatTaskSchema),
@@ -45,24 +62,40 @@ export function CreateTaskForm({ onSuccess }: { onSuccess?: () => void }) {
       deadline: '',
       priority: TaskPriority.MED,
       assignedToId: '',
-      projectId: '',
+      projectId: currentProjectId || '',
     },
   });
+
+  useEffect(() => {
+    if (currentProjectId) {
+      form.setValue('projectId', currentProjectId);
+    }
+  }, [currentProjectId, form]);
+
+  const employeeData = employees?.data;
+
+  const employeeItems = useMemo(() => {
+    if (!employeeData) return [];
+    return employeeData.map((emp) => ({
+      value: emp.id,
+      label: `${emp.name} (${emp.email})`,
+    }));
+  }, [employeeData]);
 
   //Handler
   async function onSubmit(values: CreatTaskValues) {
     const payload = {
       ...values,
-      projectId: values.projectId,
+      // projectId: values.projectId,
       deadLine: new Date(values.deadline).toISOString(),
     };
-    try{
+    try {
       await createTask(payload);
       form.reset();
+      setSearch('');
       toast.success('Task created successfully');
       if (onSuccess) onSuccess();
-    }
-    catch(error){
+    } catch (error) {
       const axiosError = error as AxiosError<{ message: string }>;
       const errMessage = axiosError.response?.data?.message;
       toast.error(errMessage || 'Failed to create task');
@@ -130,14 +163,19 @@ export function CreateTaskForm({ onSuccess }: { onSuccess?: () => void }) {
                   defaultValue={field.value}
                 >
                   <FormControl>
-                    <SelectTrigger className='bg-secondary'>
+                    <SelectTrigger className="bg-secondary">
                       <SelectValue placeholder="Select priority" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
                     <SelectItem value={TaskPriority.LOW}>Low</SelectItem>
                     <SelectItem value={TaskPriority.MED}>Medium</SelectItem>
-                    <SelectItem value={TaskPriority.HIGH} className='text-red-500'>High</SelectItem>
+                    <SelectItem
+                      value={TaskPriority.HIGH}
+                      className="text-red-500"
+                    >
+                      High
+                    </SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
@@ -150,88 +188,40 @@ export function CreateTaskForm({ onSuccess }: { onSuccess?: () => void }) {
           <FormField
             control={form.control}
             name="projectId"
-            render={({ field }) => (
+            render={() => (
               <FormItem>
                 <FormLabel>Project</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger disabled={isLoadingProjects} className='bg-secondary'>
-                      {isLoadingProjects ? (
-                        <span className="flex items-center gap-2 text-muted-foreground">
-                          <Loader2 className="h-4 w-4 animate-spin" />{' '}
-                          Loading...
-                        </span>
-                      ) : (
-                        <SelectValue placeholder="Select project" />
-                      )}
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {projects?.data?.length === 0 ? (
-                      <SelectItem value="empty" disabled>
-                        No projects found.
-                      </SelectItem>
-                    ) : (
-                      projects?.data?.map((project) => (
-                        <SelectItem key={project.id} value={project.id} className='focus:bg-primary/10'>
-                          {project.name}
-                        </SelectItem>
-                      ))
-                    )}
-                  </SelectContent>
-                </Select>
+                <FormControl>
+                  <Input
+                    value={projectName}
+                    disabled
+                  />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
 
-          {/* AssignedTo ID */}
+          {/* AssignedTo */}
           <FormField
             control={form.control}
             name="assignedToId"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel>Assign To</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger disabled={isLoadingEmployees} className='bg-secondary'>
-                      {isLoadingEmployees ? (
-                        <div className="flex items-center gap-2">
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                          <span>Loading team...</span>
-                        </div>
-                      ) : (
-                        <SelectValue placeholder="Select an employee" />
-                      )}
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {employees?.data?.length === 0 ? (
-                      <SelectItem value="empty" disabled>
-                        No employees found in organization.
-                      </SelectItem>
-                    ) : (
-                      employees?.data?.map((employee) => (
-                        <SelectItem key={employee.id} value={employee.id} className='focus:bg-primary/10'>
-                          <div className="flex flex-col items-start truncate text-left w-full">
-                            <span className="truncate font-medium">
-                              {employee.name}
-                            </span>
-                            <span className="truncate text-xs text-muted-foreground">
-                              {employee.email}
-                            </span>
-                          </div>
-                        </SelectItem>
-                      ))
-                    )}
-                  </SelectContent>
-                </Select>
+              <FormItem className="flex flex-col justify-end">
+                <FormLabel className="mb-2">Assign To</FormLabel>
+                <FormControl>
+                  <SearchableCombobox
+                    items={employeeItems}
+                    value={field.value}
+                    onChange={field.onChange}
+                    onSearchChange={setSearch}
+                    placeholder="Select team member..."
+                    searchPlaceholder="Type name or email..."
+                    emptyText="No teammates found."
+                    isLoading={isLoadingEmployees}
+                    className="w-full bg-secondary"
+                  />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}

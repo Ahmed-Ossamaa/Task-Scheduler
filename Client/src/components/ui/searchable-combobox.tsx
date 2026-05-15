@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { ChevronDownIcon, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -15,6 +14,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import { useState } from 'react';
 
 interface DataItem {
   value: string;
@@ -26,6 +26,7 @@ interface SearchableComboboxProps {
   value: string;
   onChange: (value: string) => void;
   onSearchChange?: (search: string) => void;
+  onOpenChange?: (open: boolean) => void;
   placeholder?: string;
   searchPlaceholder?: string;
   emptyText?: string;
@@ -38,19 +39,23 @@ export function SearchableCombobox({
   value,
   onChange,
   onSearchChange,
+  onOpenChange,
   placeholder = 'Select item...',
   searchPlaceholder = 'Search...',
   emptyText = 'No results found.',
   isLoading = false,
   className,
 }: SearchableComboboxProps) {
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
 
   // Find the label for the currently selected value
   const selectedLabel = items.find((item) => item.value === value)?.label;
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={(nextOpen) => {
+        setOpen(nextOpen);
+        if (onOpenChange) onOpenChange(nextOpen);
+      }}>
       <PopoverTrigger asChild>
         <Button
           variant="outline"

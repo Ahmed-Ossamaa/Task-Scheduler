@@ -12,8 +12,10 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { CreateTaskForm } from './create-task-form';
-
-export function CreateTaskDialog() {
+interface CreateTaskDialogProps {
+  projectName: string;
+}
+export function CreateTaskDialog({ projectName }: CreateTaskDialogProps) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -33,7 +35,7 @@ export function CreateTaskDialog() {
           </DialogDescription>
         </DialogHeader>
         
-        <CreateTaskForm onSuccess={() => setOpen(false)} />
+        <CreateTaskForm projectName={projectName} onSuccess={() => setOpen(false)} />
         
       </DialogContent>
     </Dialog>

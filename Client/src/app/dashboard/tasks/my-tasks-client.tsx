@@ -2,8 +2,6 @@
 
 import { useMyTasks } from '@/features/tasks/hooks/use-tasks';
 import { TaskTable } from '@/features/tasks/components/tasks-table';
-import { UserRoles } from '@/features/auth/types/user-interface';
-import { CreateTaskDialog } from '@/features/tasks/components/create-task-dialog';
 import { useAuthStore } from '@/features/auth/store/auth.store';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -13,7 +11,6 @@ export function MyTasksClient() {
   const user = useAuthStore((state) => state.user);
   const hasOrg= !!user?.organizationId
   const { data: myTasks, isLoading } = useMyTasks({ enabled: hasOrg }, page, 20);
-  const isManager = user?.role === UserRoles.MANAGER;
 
   return (
     <div className="flex flex-col space-y-6 w-full">
@@ -21,7 +18,6 @@ export function MyTasksClient() {
         <div>
           <p className="text-muted-foreground"> Manage Your Tasks</p>
         </div>
-        {isManager && <CreateTaskDialog />}
       </div>
 
       <TaskTable

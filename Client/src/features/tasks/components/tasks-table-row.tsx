@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { Task, TaskStatus, TaskPriority } from '../types';
 import {
@@ -33,6 +33,9 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { formatDateTime } from '@/lib/utils';
+import { useDebounce } from '@/hooks/use-debounce';
+import { useOrgEmployees } from '@/features/users/hooks/use-users';
+import { SearchableCombobox } from '@/components/ui/searchable-combobox';
 
 export const getTaskStatusBadge = (status: TaskStatus) => {
   switch (status) {
@@ -54,7 +57,6 @@ interface RowProps {
   canEdit: boolean;
   showAssignee: boolean;
   showProject: boolean;
-  employees: any[];
 }
 
 export function TaskTableRow({
@@ -62,14 +64,44 @@ export function TaskTableRow({
   canEdit,
   showAssignee,
   showProject,
-  employees,
 }: RowProps) {
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const debouncedSearch = useDebounce(searchQuery, 500);
   // Dialog States
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [statusConfirm, setStatusConfirm] = useState<{
     open: boolean;
     newStatus: TaskStatus | null;
   }>({ open: false, newStatus: null });
+
+  const { data: employees, isLoading: isLoadingEmployees } = useOrgEmployees(
+    1,
+    5,
+    debouncedSearch,
+    isDropdownOpen || debouncedSearch.length > 0,
+  );
+
+  const employeeItems = useMemo(() => {
+    const empList = employees?.data || [];
+
+    // Ensure the current assignee is always explicitly present in the options list
+    const mapped = empList.map((emp) => ({
+      value: emp.id,
+      label: emp.name,
+    }));
+
+    const detailsExist =
+      task.assignedToId && !mapped.some((m) => m.value === task.assignedToId);
+    if (detailsExist && task.assignedTo) {
+      mapped.unshift({
+        value: task.assignedToId,
+        label: task.assignedTo.name,
+      });
+    }
+
+    return mapped;
+  }, [employees?.data, task.assignedToId, task.assignedTo]);
 
   // Mutations
   const { mutate: updateTask, isPending: isUpdating } = useUpdateTask();
@@ -181,23 +213,23 @@ export function TaskTableRow({
         {showAssignee && (
           <TableCell>
             {canEdit ? (
-              <Select
-                defaultValue={task.assignedToId}
-                onValueChange={(v) => handleUpdate('assignedToId', v)}
-              >
-                <SelectTrigger className="h-8 w-35 bg-transparent">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {employees?.map((emp) => (
-                    <SelectItem key={emp.id} value={emp.id}>
-                      {emp.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <SearchableCombobox
+                items={employeeItems}
+                value={task.assignedToId || ''}
+                onChange={(value) => handleUpdate('assignedToId', value)}
+                onSearchChange={setSearchQuery}
+                onOpenChange={(open) => {
+                  setIsDropdownOpen(open);
+                  if (!open) setSearchQuery(''); 
+                }}
+                placeholder="Assign member..."
+                searchPlaceholder="Search teammate..."
+                emptyText="No members found"
+                isLoading={isLoadingEmployees}
+                className="h-8 w-44 bg-transparent"
+              />
             ) : (
-              task.assignedTo?.name || 'Unknown'
+              task.assignedTo?.name || 'Unassigned'
             )}
           </TableCell>
         )}
@@ -254,10 +286,10 @@ export function TaskTableRow({
           )}
         </TableCell>
         <TableCell className="text-right">
-        <div className="flex items-center  gap-2">
-          <TaskDetailsDialog task={task} />
-        </div>
-      </TableCell>
+          <div className="flex items-center  gap-2">
+            <TaskDetailsDialog task={task} />
+          </div>
+        </TableCell>
       </TableRow>
 
       {/* dialogs*/}
