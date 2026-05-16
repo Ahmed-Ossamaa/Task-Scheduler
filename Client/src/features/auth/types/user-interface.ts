@@ -6,7 +6,7 @@ export interface User {
   isActive: boolean;
   avatar?: string | null;
   gender?: string;
-  age?: number;
+  dateOfBirth?: string;
   phone?: string;
   address?: string;
   createdAt?: string;

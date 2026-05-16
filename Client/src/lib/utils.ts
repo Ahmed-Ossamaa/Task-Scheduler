@@ -13,17 +13,19 @@ export function cn(...inputs: ClassValue[]) {
  * Otherwise, the date string will be formatted as:
  * "Month Day, Year"
  *
- * - If dateString is null or undefined, the function will return "-"
+ * - If dateString is null or undefined, the function will return the provided fallback or '-'
  *
  * @param {string | null} dateString The date string to format
  * @param {boolean} [full=true] Whether to include the time in the formatted string
+ * @param {string} [fallback='-'] The fallback value to return if the date string is null
  * @returns The formatted date string
  */
 export const formatDateTime = (
   dateString?: string | null,
   full: boolean = true,
+  fallback: string = '-',
 ): string => {
-  if (!dateString) return '-';
+  if (!dateString) return fallback;
   if (full) {
     return new Date(dateString).toLocaleString('en-US', {
       month: 'short',

@@ -11,6 +11,7 @@ import {
   Phone,
   MapPinHouse,
   VenusAndMars,
+  Cake 
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -18,10 +19,8 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useGetMe, useUserProfile } from '@/features/users/hooks/use-users';
 import { formatDateTime, getInitials } from '@/lib/utils';
-// import { Navbar } from '@/components/layout/navbar';
 import { ProfileSkeleton } from '@/components/skeleton/profile.skeleton';
 import Link from 'next/link';
-// import { Footer } from '@/components/layout/footer';
 import { useAuthStore } from '@/features/auth/store/auth.store';
 
 interface ProfileClientProps {
@@ -130,6 +129,19 @@ export function ProfileClient({ userId }: ProfileClientProps) {
                 </div>
               </div>
 
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-full bg-primary/5 flex items-center justify-center text-primary shrink-0">
+                  <Cake className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-[11px] font-bold tracking-[0.15em] uppercase text-muted-foreground mb-1">
+                    Date of Birth
+                  </p>
+                  <p className="text-sm font-medium text-foreground capitalize">
+                    {formatDateTime(user?.dateOfBirth, false, 'Not set')}
+                  </p>
+                </div>
+              </div>
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 rounded-full bg-primary/5 flex items-center justify-center text-primary shrink-0">
                   <VenusAndMars className="w-5 h-5" />

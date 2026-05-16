@@ -43,6 +43,7 @@ export function BasicDataForm() {
     mode: 'onBlur',
     defaultValues: {
       name: user?.name || '',
+      dateOfBirth: user?.dateOfBirth || '',
       phone: user?.phone || '',
       address: user?.address || '',
       gender: (user?.gender as 'male' | 'female') || undefined,
@@ -108,6 +109,21 @@ export function BasicDataForm() {
                     <FormLabel>Address</FormLabel>
                     <FormControl>
                       <Input placeholder="e.g. Alexandria, Egypt" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="dateOfBirth"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Date of Birth</FormLabel>
+                    <FormControl>
+                      <Input 
+                      type='date'
+                      placeholder="e.g. 01/01/2000" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
