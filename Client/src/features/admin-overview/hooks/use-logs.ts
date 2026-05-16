@@ -5,7 +5,7 @@ export const useSystemErrors = (page: number = 1, limit: number = 5) => {
   return useQuery({
     queryKey: ['admin', 'system-health', page, limit],
     queryFn: () => errorLogsApi.getSystemErrors(page, limit),
-    refetchInterval: 60000,
+    refetchInterval: 900000, //15m
   });
 };
 
