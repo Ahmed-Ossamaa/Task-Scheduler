@@ -54,8 +54,9 @@ export const projectsApi = {
    */
   deleteProject: async (projectId: string): Promise<{ message: string }> => {
     const { data } = await api.delete<{ message: string }>(
-      `/projects/${projectId}`,
+      `/projects/${projectId}/archive`,
     );
+    console.log(data);
     return data;
   },
 

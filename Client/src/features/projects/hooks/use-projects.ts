@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { projectsApi } from '../api/projects-api';
 import { useAuthStore } from '@/features/auth/store/auth.store';
-import { CreateProjectDto } from '../types';
+import { CreateProjectDto, PaginatedProject } from '../types';
 import { Project } from '@/features/projects/types';
 
 /**
@@ -59,11 +59,18 @@ export const useEditProject = () => {
     }) => projectsApi.editProject(projectId, data),
 
     onSuccess: (updatedProject) => {
-      queryClient.setQueriesData<Project[]>(
+      queryClient.setQueriesData<PaginatedProject>(
         { queryKey: ['projects', 'org'] },
-        (old) =>
-          old?.map((p) => (p.id === updatedProject.id ? updatedProject : p)) ||
-          [],
+        (old) => {
+          if (!old) return old;
+
+          return {
+            ...old,
+            data: old.data.map((p) =>
+              p.id === updatedProject.id ? updatedProject : p,
+            ),
+          };
+        },
       );
     },
   });
@@ -79,9 +86,15 @@ export const useDeleteProject = () => {
     mutationFn: projectsApi.deleteProject,
 
     onSuccess: (_, projectId) => {
-      queryClient.setQueriesData<Project[]>(
+      queryClient.setQueriesData<PaginatedProject>(
         { queryKey: ['projects', 'org'] },
-        (old) => old?.filter((p) => p.id !== projectId) || [],
+        (old) => {
+          if (!old) return old;
+          return {
+            ...old,
+            data: old.data?.filter((p: Project) => p.id !== projectId),
+          };
+        },
       );
       //invalidate  tasks list (after deleting a project)
       queryClient.invalidateQueries({
@@ -96,7 +109,7 @@ export const useDeleteProject = () => {
  * - Manager : Hook to retrieve archived projects.
  */
 export const useArchiveProject = (page: number = 1, limit: number = 20) => {
-    const user = useAuthStore((state) => state.user);
+  const user = useAuthStore((state) => state.user);
 
   return useQuery({
     queryKey: ['projects', 'archived', page, limit],

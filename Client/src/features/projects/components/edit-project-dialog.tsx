@@ -4,8 +4,6 @@ import { useEffect } from 'react';
 import { toast } from 'sonner';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-
 import { useEditProject } from '@/features/projects/hooks/use-projects';
 import { Project } from '@/features/projects/types';
 import { Button } from '@/components/ui/button';
@@ -27,14 +25,9 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
+import { editProjectSchema, UpdateProjectValues } from '@/lib/schema/project-creation-schema';
+import { AxiosError } from 'axios';
 
-// Schema
-const formSchema = z.object({
-  name: z.string().min(3, 'Project name is required'),
-  description: z.string().optional(),
-});
-
-type FormValues = z.infer<typeof formSchema>;
 
 interface EditProjectDialogProps {
   project: Project | null;
@@ -49,8 +42,8 @@ export function EditProjectDialog({
 }: EditProjectDialogProps) {
   const { mutateAsync: editProject, isPending } = useEditProject();
 
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<UpdateProjectValues>({
+    resolver: zodResolver(editProjectSchema),
     defaultValues: {
       name: '',
       description: '',
@@ -67,7 +60,7 @@ export function EditProjectDialog({
   }, [isOpen, project, form]);
 
   //submit handler
-  const onSubmit = async (values: FormValues) => {
+  const onSubmit = async (values: UpdateProjectValues) => {
     if (!project) return;
 
     try {
@@ -78,8 +71,10 @@ export function EditProjectDialog({
 
       toast.success('Project updated successfully');
       onClose();
-    } catch {
-      toast.error('Failed to update project');
+    } catch(error) {
+      const axiosError = error as AxiosError<{ message: string }>;
+      const errMessage = axiosError.response?.data?.message;
+      toast.error(errMessage || 'Failed to update project');
     }
   };
 

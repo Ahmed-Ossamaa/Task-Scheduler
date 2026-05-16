@@ -1,7 +1,7 @@
 import * as z from 'zod';
 
 
-export const createProjectSchema = z.object({
+export const projectSchema  = z.object({
   name: z
     .string()
     .min(3, 'Project name must be at least 3 characters')
@@ -12,4 +12,8 @@ export const createProjectSchema = z.object({
     .optional(),
 });
 
-export type CreateProjectValues = z.infer<typeof createProjectSchema>;
+export const createProjectSchema = projectSchema;
+export const editProjectSchema = projectSchema.extend({});
+
+export type CreateProjectValues = z.infer<typeof createProjectSchema >;
+export type UpdateProjectValues = z.infer<typeof editProjectSchema >;
