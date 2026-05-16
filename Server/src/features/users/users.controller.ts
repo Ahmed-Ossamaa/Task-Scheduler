@@ -153,7 +153,7 @@ export class UserController {
     );
   }
 
-  @ApiOperation({ summary: 'Get user public profile by ID (Same Org)' })
+  @ApiOperation({ summary: 'Get user public profile by ID (Same Org | Admin)' })
   @ApiOkResponse({ type: UserResponseDto })
   @Get(':userId/profile')
   async getUserById(

@@ -141,8 +141,11 @@ export class UserService {
     if (requester) {
       const isSelf = requester.sub === targetUserId;
       const isSameOrg = requester.organizationId === user.organization?.id;
+      const isAdmin = requester.role === UserRole.ADMIN;
 
-      if (!isSelf && !isSameOrg) {
+      const canAccess = isSelf || isAdmin || isSameOrg;
+
+      if (!canAccess) {
         throw new ForbiddenException('Access denied');
       }
     }
