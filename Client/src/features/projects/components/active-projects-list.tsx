@@ -19,6 +19,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { DropdownMenuItem } from '@/components/ui/dropdown-menu';
 import { restorationPeriod } from '@/lib/utils';
 import { Project } from '../types';
 import { EditProjectDialog } from './edit-project-dialog';
@@ -57,25 +58,29 @@ export function ActiveProjectsList({ isManager }: ActiveProjectsListProps) {
         actions={(project) =>
           isManager ? (
             <div className="flex items-center gap-2">
-              <Button
-                variant="secondary"
-                size="icon"
-                className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-100 shadow-sm"
-                onClick={() => setProjectToEdit(project)}
+              <DropdownMenuItem
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setProjectToEdit(project);
+                }}
+                className="flex items-center gap-2"
               >
                 <Edit2 className="h-4 w-4" />
-                <span className="sr-only">Edit Project</span>
-              </Button>
-              <Button
-                variant="secondary"
-                size="icon"
-                className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10 shadow-sm"
-                onClick={() =>
-                  setProjectToDelete({ id: project.id, name: project.name })
-                }
+                Edit
+              </DropdownMenuItem>
+
+              <DropdownMenuItem
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setProjectToDelete({ id: project.id, name: project.name });
+                }}
+                className="flex items-center gap-2 text-red-600"
               >
                 <Trash2 className="h-4 w-4" />
-              </Button>
+                Archive
+              </DropdownMenuItem>
             </div>
           ) : null
         }
@@ -97,9 +102,7 @@ export function ActiveProjectsList({ isManager }: ActiveProjectsListProps) {
           variant="default"
           size="sm"
           onClick={() => setPage((old) => old + 1)}
-          disabled={
-            !projects || page >= projects.lastPage || isLoading
-          }
+          disabled={!projects || page >= projects.lastPage || isLoading}
         >
           Next
         </Button>
@@ -122,8 +125,9 @@ export function ActiveProjectsList({ isManager }: ActiveProjectsListProps) {
             <AlertDialogTitle>Archive Project?</AlertDialogTitle>
             <AlertDialogDescription>
               Are you sure you want to archive{' '}
-              <strong>{projectToDelete?.name}</strong>? This will archive the
-              project and its tasks, it can be restored later within
+              <strong className="break-all">{projectToDelete?.name}</strong>?
+              This will archive the project and its tasks, it can be restored
+              later within
               {restorationPeriod}.
             </AlertDialogDescription>
           </AlertDialogHeader>

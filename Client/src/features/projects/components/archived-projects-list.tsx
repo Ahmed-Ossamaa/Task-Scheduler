@@ -3,7 +3,10 @@
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { RotateCcw } from 'lucide-react';
-import { useArchiveProject, useRestoreProject } from '@/features/projects/hooks/use-projects';
+import {
+  useArchiveProject,
+  useRestoreProject,
+} from '@/features/projects/hooks/use-projects';
 import { ProjectsGrid } from '@/features/projects/components/projects-grid';
 import { Button } from '@/components/ui/button';
 import {
@@ -16,13 +19,18 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { DropdownMenuItem } from '@/components/ui/dropdown-menu';
 
 export function ArchivedProjectsList() {
   const [page, setPage] = useState<number>(1);
   const { data: paginatedResult, isLoading } = useArchiveProject(page, 20);
-  const { mutateAsync: restoreProject, isPending: isRestoring } = useRestoreProject();
+  const { mutateAsync: restoreProject, isPending: isRestoring } =
+    useRestoreProject();
 
-  const [projectToRestore, setProjectToRestore] = useState<{ id: string; name: string } | null>(null);
+  const [projectToRestore, setProjectToRestore] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
 
   const handleRestore = async (id: string) => {
     try {
@@ -37,20 +45,23 @@ export function ArchivedProjectsList() {
   return (
     <>
       <ProjectsGrid
-        projects={paginatedResult?.data} 
+        projects={paginatedResult?.data}
         isLoading={isLoading}
         actions={(project) => (
-          <Button
-            variant="secondary"
-            size="icon"
-            className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50 shadow-sm"
-            onClick={() => setProjectToRestore({ id: project.id, name: project.name })}
+          <DropdownMenuItem
+            className="flex items-center gap-2 text-green-600 cursor-pointer"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setProjectToRestore({ id: project.id, name: project.name });
+            }}
           >
             <RotateCcw className="h-4 w-4" />
-          </Button>
+            Restore
+          </DropdownMenuItem>
         )}
       />
-     {/* Pagination */}
+      {/* Pagination */}
       <div className="flex items-center justify-end space-x-2 py-4">
         <Button
           variant="default"
@@ -74,21 +85,27 @@ export function ArchivedProjectsList() {
           Next
         </Button>
       </div>
-    
+
       {/* Restore Dialog */}
-      <AlertDialog open={!!projectToRestore} onOpenChange={(isOpen) => !isOpen && setProjectToRestore(null)}>
+      <AlertDialog
+        open={!!projectToRestore}
+        onOpenChange={(isOpen) => !isOpen && setProjectToRestore(null)}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Restore Project?</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to restore <strong>{projectToRestore?.name}</strong>? 
-              This will return it to the active workspace for your team.
+              Are you sure you want to restore{' '}
+              <strong>{projectToRestore?.name}</strong>? This will return it to
+              the active workspace for your team.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => projectToRestore && handleRestore(projectToRestore.id)}
+              onClick={() =>
+                projectToRestore && handleRestore(projectToRestore.id)
+              }
               disabled={isRestoring}
               className="bg-green-600 text-white hover:bg-green-700"
             >

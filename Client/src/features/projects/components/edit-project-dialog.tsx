@@ -85,27 +85,28 @@ export function EditProjectDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
-      <DialogContent className="sm:max-w-106.25">
-        <DialogHeader >
+      <DialogContent className="w-[95vw] sm:max-w-md max-h-[90vh] overflow-hidden flex flex-col">
+        <DialogHeader className="min-w-0" >
           <DialogTitle className="border-b border-border pb-2">Edit Project</DialogTitle>
-          <DialogDescription>
-            Update {project?.name} project data.
+          <DialogDescription className='truncate'>
+            Update {project?.name} 
           </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-4 mt-2"
+            className="space-y-4 mt-2 min-w-0 overflow-hidden"
           >
             <FormField
               control={form.control}
               name="name"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className='min-w-0'>
                   <FormLabel>Project Name</FormLabel>
                   <FormControl>
                     <Input
+                      className="w-full min-w-0 shrink overflow-hidden wrap-anywhere"
                       placeholder="e.g. Website Redesign"
                       disabled={isPending}
                       {...field}
@@ -124,6 +125,7 @@ export function EditProjectDialog({
                   <FormLabel>Description</FormLabel>
                   <FormControl>
                     <Textarea
+                    className="w-full min-w-0 overflow-hidden wrap-anywhere"
                       placeholder="Briefly describe the goals of this project..."
                       rows={3}
                       disabled={isPending}
