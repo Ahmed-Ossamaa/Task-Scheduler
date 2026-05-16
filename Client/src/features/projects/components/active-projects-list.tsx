@@ -64,7 +64,7 @@ export function ActiveProjectsList({ isManager }: ActiveProjectsListProps) {
                   e.stopPropagation();
                   setProjectToEdit(project);
                 }}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 cursor-pointer"
               >
                 <Edit2 className="h-4 w-4" />
                 Edit
@@ -76,7 +76,7 @@ export function ActiveProjectsList({ isManager }: ActiveProjectsListProps) {
                   e.stopPropagation();
                   setProjectToDelete({ id: project.id, name: project.name });
                 }}
-                className="flex items-center gap-2 text-red-600"
+                className="flex items-center gap-2 text-red-600 cursor-pointer"
               >
                 <Trash2 className="h-4 w-4" />
                 Archive

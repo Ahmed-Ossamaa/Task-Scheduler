@@ -44,7 +44,7 @@ export function AvatarUpload() {
           </AvatarFallback>
         </Avatar>
 
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 min-w-0">
           <input
             type="file"
             accept="image/*"
@@ -59,11 +59,11 @@ export function AvatarUpload() {
             disabled={isPending}
           >
             {isPending ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <Loader2 className="mr-1 h-4 w-4 animate-spin" />
             ) : (
-              <Upload className="mr-2 h-4 w-4" />
+              <Upload className="mr-1 h-4 w-4" />
             )}
-            {isPending ? 'Uploading...' : 'Upload New Image'}
+            {isPending ? 'Uploading...' : 'Upload'}
           </Button>
         </div>
       </CardContent>
