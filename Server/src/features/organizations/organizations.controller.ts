@@ -46,7 +46,14 @@ export class OrganizationsController {
     if (!manager.organizationId) {
       throw new BadRequestException('You are not part of any organization');
     }
-    return this.organizationsService.findOrgById(manager.organizationId);
+    return this.organizationsService.getOrgProfile(manager.organizationId);
+  }
+
+  @ApiOperation({ summary: 'Get an organization details (admin only)' })
+  @Get(':orgId')
+  @Roles(UserRole.ADMIN)
+  async getOrg(@Param('orgId', ParseUUIDPipe) orgId: string) {
+    return this.organizationsService.getOrgProfile(orgId);
   }
 
   @ApiOperation({ summary: 'get all the deleted organizations (admin only)' })

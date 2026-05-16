@@ -14,6 +14,7 @@ import { User } from 'src/features/users/entities/user.entity';
 import { Task } from 'src/features/tasks/entities/task.entity';
 import { Project } from 'src/features/projects/entities/project.entity';
 import { GrowthInterval } from '../analytics/types/analytics.types';
+import { OrgProfile } from './interfaces/org-profile.interface';
 
 @Injectable()
 export class OrganizationsService {
@@ -74,12 +75,38 @@ export class OrganizationsService {
   async findOrgById(orgId: string): Promise<Organization> {
     const org = await this.orgRepo.findOne({
       where: { id: orgId },
-      relations: ['users'],
     });
     if (!org) {
       throw new NotFoundException('Organization not found');
     }
     return org;
+  }
+
+  /**
+   * Get an organization profile with employee count in it
+   * @param orgId the targeted organization
+   * @returns the organization profile with employee count
+   */
+  async getOrgProfile(orgId: string): Promise<OrgProfile> {
+    const result = await this.orgRepo
+      .createQueryBuilder('org')
+      .leftJoin('org.users', 'user')
+      .where('org.id = :id', { id: orgId })
+      .select(['org.id AS id', 'org.name AS name', 'org.logo AS logo'])
+      .addSelect('COUNT(user.id)', 'employeeCount')
+      .groupBy('org.id')
+      .getRawOne<OrgProfile>();
+
+    if (!result) {
+      throw new NotFoundException('Organization not found');
+    }
+
+    return {
+      id: result.id,
+      name: result.name,
+      logo: result.logo,
+      employeeCount: Number(result.employeeCount),
+    };
   }
 
   async findAllOrgs(
