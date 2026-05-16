@@ -147,7 +147,7 @@ export class ProjectsController {
   @ApiOperation({
     summary: 'Soft Delete a project with its associated tasks (Manager)',
   })
-  @Delete(':projectId')
+  @Delete(':projectId/archive')
   @Roles(UserRole.MANAGER)
   async deleteProject(
     @CurrentUser() manager: JwtPayload,
