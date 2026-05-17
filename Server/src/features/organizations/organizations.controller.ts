@@ -39,14 +39,14 @@ export class OrganizationsController {
 
   //-------- GET Routes--------
 
-  @ApiOperation({ summary: 'Get my organization details (manager only)' })
+  @ApiOperation({ summary: 'Get my organization details (manager Emp)' })
   @Get('my-org')
-  @Roles(UserRole.MANAGER)
-  async getMyOrg(@CurrentUser() manager: JwtPayload) {
-    if (!manager.organizationId) {
+  @Roles(UserRole.MANAGER, UserRole.EMP)
+  async getMyOrg(@CurrentUser() user: JwtPayload) {
+    if (!user.organizationId) {
       throw new BadRequestException('You are not part of any organization');
     }
-    return this.organizationsService.getOrgProfile(manager.organizationId);
+    return this.organizationsService.getOrgProfile(user.organizationId);
   }
 
   @ApiOperation({ summary: 'Get an organization details (admin only)' })

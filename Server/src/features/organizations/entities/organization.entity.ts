@@ -21,7 +21,22 @@ export class Organization {
   name!: string;
 
   @Column({ type: 'varchar', nullable: true })
+  industry!: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  slogan!: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
   logo!: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  cover!: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  websiteUrl!: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  contactEmail!: string | null;
 
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt!: Date;

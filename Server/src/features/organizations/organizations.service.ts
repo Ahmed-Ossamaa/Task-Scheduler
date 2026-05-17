@@ -83,18 +83,40 @@ export class OrganizationsService {
   }
 
   /**
-   * Get an organization profile with employee count in it
+   * Get an organization profile with employees/projects count
    * @param orgId the targeted organization
-   * @returns the organization profile with employee count
+   * @returns the organization profile
    */
   async getOrgProfile(orgId: string): Promise<OrgProfile> {
     const result = await this.orgRepo
       .createQueryBuilder('org')
-      .leftJoin('org.users', 'user')
       .where('org.id = :id', { id: orgId })
-      .select(['org.id AS id', 'org.name AS name', 'org.logo AS logo'])
-      .addSelect('COUNT(user.id)', 'employeeCount')
-      .groupBy('org.id')
+      .select([
+        'org.id AS id',
+        'org.name AS name',
+        'org.logo AS logo',
+        'org.industry AS industry',
+        'org.slogan AS slogan',
+        'org.cover AS cover',
+        'org.websiteUrl AS "websiteUrl"',
+        'org.contactEmail AS "contactEmail"',
+        'org.createdAt AS createdAt',
+      ])
+      //Emp Count
+      .addSelect((subQuery) => {
+        return subQuery
+          .select('COUNT(user.id)', 'employeeCount')
+          .from(User, 'user')
+          .where('user.organizationId = org.id');
+      }, 'employeeCount')
+      //Project Count
+      .addSelect((subQuery) => {
+        return subQuery
+          .select('COUNT(project.id)', 'projectCount')
+          .from(Project, 'project')
+          .where('project.organizationId = org.id');
+      }, 'projectCount')
+      .withDeleted()
       .getRawOne<OrgProfile>();
 
     if (!result) {
@@ -104,8 +126,15 @@ export class OrganizationsService {
     return {
       id: result.id,
       name: result.name,
+      industry: result.industry,
+      slogan: result.slogan,
       logo: result.logo,
+      cover: result.cover,
+      websiteUrl: result.websiteUrl,
+      contactEmail: result.contactEmail,
+      createdAt: result.createdAt,
       employeeCount: Number(result.employeeCount),
+      projectCount: Number(result.projectCount),
     };
   }
 

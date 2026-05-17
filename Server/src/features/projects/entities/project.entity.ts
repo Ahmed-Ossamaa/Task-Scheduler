@@ -8,6 +8,7 @@ import {
   OneToMany,
   JoinColumn,
   DeleteDateColumn,
+  Index,
 } from 'typeorm';
 import { Organization } from 'src/features/organizations/entities/organization.entity';
 import { Task } from '../../tasks/entities/task.entity';
@@ -30,6 +31,7 @@ export class Project {
   @JoinColumn({ name: 'organizationId' })
   organization!: Organization;
 
+  @Index('IDX_PROJECTS_ORGANIZATION')
   @Column()
   organizationId!: string;
 
