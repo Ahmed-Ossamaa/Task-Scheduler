@@ -8,7 +8,7 @@ import { Readable } from 'stream';
 import { StorageService } from './storage.interface';
 import 'multer';
 
-export type ImageUploadType = 'avatar' | 'standard' | 'logo';
+export type ImageUploadType = 'avatar' | 'standard' | 'cover';
 
 @Injectable()
 export class CloudinaryService implements StorageService {
@@ -39,6 +39,11 @@ export class CloudinaryService implements StorageService {
       } else if (imageType === 'avatar') {
         transformations = [
           { width: 250, height: 250, crop: 'fill', gravity: 'face' },
+          { fetch_format: 'auto', quality: 'auto' },
+        ];
+      } else if (imageType === 'cover') {
+        transformations = [
+          { width: 1200, height: 300, crop: 'fill', gravity: 'center' },
           { fetch_format: 'auto', quality: 'auto' },
         ];
       } else if (imageType === 'standard') {
