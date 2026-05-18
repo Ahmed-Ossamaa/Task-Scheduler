@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import { useAuthStore } from '@/features/auth/store/auth.store';
-import api from '@/lib/api/axios';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { setAccessToken, clearAuth } from '@/features/auth/store/auth.store';
+import { Loader2 } from 'lucide-react';
 
 export default function AuthProvider({
   children,
@@ -31,14 +31,15 @@ export default function AuthProvider({
           { withCredentials: true },
         );
 
-        const accessToken = refreshRes.data.accessToken;
+        const { accessToken, user } = refreshRes.data;
         setAccessToken(accessToken);
+        setUser(user);
 
         // call protected endpoint with  access token
-        const { data } = await api.get('/user/me');
-        setUser(data);
+        // const { data } = await api.get('/user/me');
+        // setUser(data);
       } catch (error) {
-        console.log("Auth: Session expired or invalid" , error);
+        console.log('Auth: Session expired or invalid', error);
         clearAuth();
       } finally {
         setReady(true);
@@ -48,7 +49,13 @@ export default function AuthProvider({
     initAuth();
   }, [setUser]);
 
-  if (!ready) return null;
+  if (!ready) {
+    return (
+      <div className="flex h-[60vh] items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return <>{children}</>;
 }
