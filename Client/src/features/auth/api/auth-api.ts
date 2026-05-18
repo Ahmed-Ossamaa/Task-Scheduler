@@ -56,7 +56,12 @@ export const authApi = {
       newPassword
     });
     return response;
-  }
+  },
 
+
+  refresh: async (): Promise<{ accessToken: string; user: User }> => {
+    const response = await api.post('/auth/refresh');
+    return response.data;
+  },
 
 };

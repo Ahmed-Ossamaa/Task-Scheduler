@@ -76,3 +76,26 @@ export const useForgotPassword = () => {
     mutationFn: (email: string) => authApi.forgotPassword(email),
   });
 };
+
+
+/**
+ * OAUTH Hook
+ * Triggers the  /refresh endpoint 
+ * - to get the HttpOnly cookie (refresh token)
+ * - then hydrates the global auth state.
+ */
+export const useOAuthLogin = () => {
+  const queryClient = useQueryClient();
+  const setUser = useAuthStore((state) => state.setUser);
+  const setAccessToken = useAuthStore((state) => state.setAccessToken);
+
+  return useMutation({
+    mutationFn: () => authApi.refresh(),
+    onSuccess: (data) => {
+      queryClient.clear();
+      setUser(data.user);
+      setAccessToken(data.accessToken);
+      Cookies.set('hasSession', 'true', { expires: 7, path: '/' });
+    },
+  });
+};

@@ -21,6 +21,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { LoginFormValues, loginSchema } from '@/lib/schema/auth.schema';
 import { AxiosError } from 'axios';
+import { FaGoogle } from 'react-icons/fa';
 
 interface LoginFormProps {
   logo: string | undefined;
@@ -61,6 +62,10 @@ export function LoginForm({ logo, appName }: LoginFormProps) {
         toast.error(errorMessage || 'Invalid email or password');
       }
     }
+  };
+
+  const handleGoogleLogin = () => {
+    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`; 
   };
 
   return (
@@ -212,7 +217,7 @@ export function LoginForm({ logo, appName }: LoginFormProps) {
         </form>
       </Form>
 
-      <div className="mt-8 text-center">
+      <div className="mt-4 text-center">
         <p className="text-[12px] text-muted-foreground">
           Don&apos;t have an account?{' '}
           <Link
@@ -223,6 +228,25 @@ export function LoginForm({ logo, appName }: LoginFormProps) {
           </Link>
         </p>
       </div>
+      <div className="relative my-4">
+        <div className="absolute inset-0 flex items-center">
+          <span className="w-full border-t" />
+        </div>
+        <div className="relative flex justify-center text-xs uppercase">
+          <span className="bg-background px-2 text-muted-foreground rounded-2xl">
+            Or continue with
+          </span>
+        </div>
+      </div>
+      <Button 
+        variant="outline" 
+        type="button" 
+        className="w-full"
+        onClick={handleGoogleLogin}
+      >
+        <FaGoogle className="mr-2 h-4 w-4 text-primary" />
+        Google
+      </Button>
     </div>
   );
 }
