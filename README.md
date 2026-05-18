@@ -153,7 +153,7 @@ Schedio is actively maintained and continuously evolving. Here is a look at our 
 - [x] BullMQ background job processing for timed execution
 - [x] Dynamic global system settings cache (Redis + Next.js)
 - [x] Advanced Analytics for Admin Dashboard
-- [ ] Complete frontend integration for OAuth2  (Google)
+- [x] Complete frontend integration for OAuth2  (Google)
 - [ ] Role-specific Analytics for Manager and Employee Dashboards
 - [ ] Payment Gateway Integration (Stripe/PayPal)
 - [ ] Real-time notifications via WebSockets
