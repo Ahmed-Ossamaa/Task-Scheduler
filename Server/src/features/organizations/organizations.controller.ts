@@ -49,13 +49,6 @@ export class OrganizationsController {
     return this.organizationsService.getOrgProfile(user.organizationId);
   }
 
-  @ApiOperation({ summary: 'Get an organization details (admin only)' })
-  @Get(':orgId')
-  @Roles(UserRole.ADMIN)
-  async getOrg(@Param('orgId', ParseUUIDPipe) orgId: string) {
-    return this.organizationsService.getOrgProfile(orgId);
-  }
-
   @ApiOperation({ summary: 'get all the deleted organizations (admin only)' })
   @Get('archived')
   @Roles(UserRole.ADMIN)
@@ -89,6 +82,13 @@ export class OrganizationsController {
       query.limit,
       query.search,
     );
+  }
+
+  @ApiOperation({ summary: 'Get an organization details (admin only)' })
+  @Get(':orgId')
+  @Roles(UserRole.ADMIN)
+  async getOrg(@Param('orgId', ParseUUIDPipe) orgId: string) {
+    return this.organizationsService.getOrgProfile(orgId);
   }
 
   //-------- POST/PATCH Routes--------
