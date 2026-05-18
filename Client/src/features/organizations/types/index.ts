@@ -12,6 +12,7 @@ export interface Organization {
   id: string;
   name: string;
   logo: string;
+  cover: string;
   createdAt: string;
   updatedAt: string;
   deletedAt?:string;
@@ -29,4 +30,18 @@ export interface PaginatedOrg {
 export interface CreateOrgResponse {
   organization: Organization;
   user: User;
+}
+
+export interface OrgProfile {
+  id: string;
+  name: string;
+  industry: string | null;
+  slogan: string | null;
+  websiteUrl: string | null;
+  contactEmail: string | null;
+  logo: string  | null;
+  cover: string | null;
+  createdAt: string;
+  employeeCount: number;
+  projectCount: number;
 }

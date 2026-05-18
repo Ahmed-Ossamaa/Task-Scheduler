@@ -9,9 +9,10 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Loader2, Building2} from 'lucide-react';
+import { Loader2, Building2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Organization } from '@/features/organizations/types';
+import Link from 'next/link';
 
 interface OrganizationsTableProps {
   organizations: Organization[] | undefined;
@@ -59,7 +60,10 @@ export function OrganizationsTable({
               <TableRow key={org.id}>
                 {/* Org Name*/}
                 <TableCell className="font-medium pl-5">
-                  <div className="flex items-center gap-2">
+                  <Link
+                    href={`/dashboard/organization/${org.id}`}
+                    className="flex items-center gap-2 group cursor-pointer transition-colors hover:text-primary"
+                  >
                     <div className="h-8 w-8 rounded-md bg-secondary flex items-center justify-center overflow-hidden border">
                       {org.logo ? (
                         <Image
@@ -73,8 +77,10 @@ export function OrganizationsTable({
                         <Building2 className="h-4 w-4 text-muted-foreground" />
                       )}
                     </div>
-                    {org.name}
-                  </div>
+                    <span className="group-hover:underline underline-offset-4">
+                      {org.name}
+                    </span>
+                  </Link>
                 </TableCell>
 
                 {/* Created At */}

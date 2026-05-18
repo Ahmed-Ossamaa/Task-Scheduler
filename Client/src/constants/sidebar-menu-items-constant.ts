@@ -9,7 +9,7 @@ import {
   BarChart3,
   MessageSquareMore,
   Cog, 
-  ListChecks
+  ListChecks,
 } from 'lucide-react';
 
 export const MENU_ITEMS: MenuItem[] = [
@@ -37,6 +37,12 @@ export const MENU_ITEMS: MenuItem[] = [
     title: 'Team Directory',
     url: '/dashboard/team',
     icon: Users,
+    roles: [UserRoles.MANAGER, UserRoles.EMP],
+  },
+  {
+    title: 'Organization',
+    url: '/dashboard/organization/me',
+    icon: Building2,
     roles: [UserRoles.MANAGER, UserRoles.EMP],
   },
 
