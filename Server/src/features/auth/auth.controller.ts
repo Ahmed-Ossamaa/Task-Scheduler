@@ -214,7 +214,7 @@ export class AuthController {
       const { refreshToken } = req.user as AuthResponse;
       this.setAuthCookies(res, refreshToken);
       const clientUrl = this.appConfig.clientURL;
-      return res.redirect(clientUrl);
+      return res.redirect(`${clientUrl}/oauth-success`);
     }
   }
 

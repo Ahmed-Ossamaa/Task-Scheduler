@@ -80,23 +80,27 @@ export class UserService {
    * @returns The found or created user.
    */
   async findOrCreateUserFromGoogle(profile: Profile) {
-    if (profile.emails) {
-      const email = profile.emails[0].value;
-      const user = await this.findUserByEmail(email);
-      if (user) {
-        return user;
-      }
-
-      return this.createUser({
-        email: email,
-        name: profile.displayName,
-        oAuthProvider: 'google',
-        oauthId: profile.id,
-        isEmailVerified: true,
-        avatar: profile?.photos?.[0].value,
-        role: UserRole.MANAGER,
-      });
+    if (!profile.emails || profile.emails.length === 0) {
+      throw new BadRequestException(
+        'Google profile did not return an email address.',
+      );
     }
+
+    const email = profile.emails[0].value;
+    const user = await this.findUserByEmail(email);
+    if (user) {
+      return user;
+    }
+
+    return this.createUser({
+      email: email,
+      name: profile.displayName,
+      oAuthProvider: 'google',
+      oauthId: profile.id,
+      isEmailVerified: true,
+      avatar: profile?.photos?.[0].value,
+      role: UserRole.MANAGER,
+    });
   }
 
   /**
