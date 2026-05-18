@@ -3,8 +3,10 @@ import {
   CreateOrgDto,
   CreateOrgResponse,
   Organization,
+  OrgProfile,
   PaginatedOrg,
 } from '../types';
+import { OrgProfileFormValues } from '@/lib/schema/org-profile-schema';
 
 export const orgApi = {
   /**
@@ -24,7 +26,7 @@ export const orgApi = {
    * @returns The current user's organization data.
    */
   getMyOrganization: async () => {
-    const { data } = await api.get<Organization>('/organizations/my-org');
+    const { data } = await api.get<OrgProfile>('/organizations/my-org');
     return data;
   },
 
@@ -32,12 +34,17 @@ export const orgApi = {
    * - Manager : Upload or update Organization Logo
    * @returns The updated Organization data
    */
-  uploadOrgLogo: async (file: File) => {
+  uploadOrgImage: async (file: File, type: 'logo' | 'cover') => {
     const formData = new FormData();
-    formData.append('logo', file);
+    formData.append('file', file);
     const { data } = await api.patch<Organization>(
-      '/organizations/logo',
+      `/organizations/media?type=${type}`,
       formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      },
     );
     return data;
   },
@@ -46,14 +53,20 @@ export const orgApi = {
    * - Manager : Update Organization Name
    * @returns The updated Organization data
    */
-  updateOrgName: async (name: string) => {
-    const { data } = await api.patch<Organization>('/organizations/name', {
-      name,
-    });
+  updateOrgProfile: async (values: OrgProfileFormValues) => {
+    const { data } = await api.patch<OrgProfileFormValues>(
+      '/organizations/profile',
+      values,
+    );
     return data;
   },
 
   //--------Admin APIs--------
+
+  getOrgProfile: async (orgId: string): Promise<OrgProfile> => {
+    const { data } = await api.get<OrgProfile>(`/organizations/${orgId}`);
+    return data;
+  },
 
   /**
    * - Admin : Get all organizations (Paginated).

@@ -7,6 +7,8 @@ import {
 import { orgApi } from '../api/org-api';
 import { useAuthStore } from '@/features/auth/store/auth.store';
 import { CreateOrgDto, PaginatedOrg } from '../types';
+import { UserRoles } from '@/features/auth/types/user-interface';
+import { OrgProfileFormValues } from '@/lib/schema/org-profile-schema';
 
 /**
  * Manager: Hook to create a new organization.
@@ -26,44 +28,53 @@ export const useCreateOrganization = () => {
 };
 
 /**
- * Hook to get the current user's organization.
+ * Manager/Admin: Hook to
+ * - get the current Manager's organization.
+ * - or
+ * - get a specific organization profile by id.
  */
-export const useMyOrganization = () => {
+export const useOrganization = (orgId?: string) => {
+  const user = useAuthStore((state) => state.user);
+  const isAdmin = user?.role === UserRoles.ADMIN;
+
   return useQuery({
-    queryKey: ['organizations', 'my-org'],
-    queryFn: () => orgApi.getMyOrganization(),
+    queryKey: ['organization', isAdmin ? orgId : 'me'],
+    queryFn: () =>
+      isAdmin ? orgApi.getOrgProfile(orgId!) : orgApi.getMyOrganization(),
+    enabled: isAdmin ? !!orgId : true,
   });
 };
 
 /**
  * Manager: Hook to upload the logo of the current user's organization.
  */
-export const useUploadOrgLogo = () => {
+export const useUploadOrgImage = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (file: File) => orgApi.uploadOrgLogo(file),
+    mutationFn: ({ file, type }: { file: File; type: 'logo' | 'cover' }) =>
+      orgApi.uploadOrgImage(file, type),
 
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ['organizations', 'my-org'],
+        queryKey: ['organization', 'me'],
       });
     },
   });
 };
 
 /**
- * Manager: Hook to update the name of the current user's organization.
+ * Manager: Hook to update the name of the current user's organization
  */
-export const useUpdateOrgName = () => {
+export const useUpdateOrgProfile = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (name: string) => orgApi.updateOrgName(name),
+    mutationFn: (data:OrgProfileFormValues) => orgApi.updateOrgProfile(data),
 
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ['organizations', 'my-org'],
+        queryKey: ['organization', 'me'],
       });
     },
   });
