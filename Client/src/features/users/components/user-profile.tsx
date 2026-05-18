@@ -97,7 +97,7 @@ export function ProfileClient({ userId }: ProfileClientProps) {
                 {user?.role}
               </Badge>
               {user?.organizationId && (
-                <Link href={`/organizations/${user?.organization?.id}`}>
+                <Link href={`/dashboard/organization/${user?.organization?.id}`}>
                   <span className="text-primary pr-1">@</span>
                   <span className="text-sm font-medium text-muted-foreground mt-1 hover:text-foreground hover:underline hover:underline-offset-4 pr-1">
                     {user?.organization?.name}
