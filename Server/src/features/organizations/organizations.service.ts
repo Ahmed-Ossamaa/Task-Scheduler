@@ -15,6 +15,8 @@ import { Task } from 'src/features/tasks/entities/task.entity';
 import { Project } from 'src/features/projects/entities/project.entity';
 import { GrowthInterval } from '../analytics/types/analytics.types';
 import { OrgProfile } from './interfaces/org-profile.interface';
+import { UpdateOrgProfileDto } from './dto/update-org-profile.dto';
+import { StorageService } from 'src/integrations/storage/storage.interface';
 
 @Injectable()
 export class OrganizationsService {
@@ -24,6 +26,7 @@ export class OrganizationsService {
     private readonly orgRepo: Repository<Organization>,
     private readonly userService: UserService,
     private readonly dataSource: DataSource,
+    private readonly storageService: StorageService,
   ) {}
 
   async createOrganization(
@@ -65,9 +68,22 @@ export class OrganizationsService {
     }
   }
 
-  async updateOrgLogo(orgId: string, logoUrl: string): Promise<Organization> {
+  async uploadOrgImage(
+    orgId: string,
+    file: Express.Multer.File,
+    type: 'logo' | 'cover',
+  ): Promise<Organization> {
     const org = await this.findOrgById(orgId);
-    org.logo = logoUrl;
+    const imageType = type === 'logo' ? 'avatar' : 'cover';
+    const imgUrl = await this.storageService.uploadImage(
+      file,
+      'organizations',
+      `${orgId}-${type}`,
+      true,
+      imageType,
+    );
+    if (type === 'logo') org.logo = imgUrl;
+    if (type === 'cover') org.cover = imgUrl;
 
     return this.orgRepo.save(org);
   }
@@ -100,7 +116,7 @@ export class OrganizationsService {
         'org.cover AS cover',
         'org.websiteUrl AS "websiteUrl"',
         'org.contactEmail AS "contactEmail"',
-        'org.createdAt AS createdAt',
+        'org.createdAt AS "createdAt"',
       ])
       //Emp Count
       .addSelect((subQuery) => {
@@ -165,9 +181,12 @@ export class OrganizationsService {
     };
   }
 
-  async updateOrgName(orgId: string, name: string): Promise<Organization> {
+  async updateOrgProfile(
+    orgId: string,
+    dto: UpdateOrgProfileDto,
+  ): Promise<Organization> {
     const org = await this.findOrgById(orgId);
-    org.name = name;
+    Object.assign(org, dto);
     return this.orgRepo.save(org);
   }
 

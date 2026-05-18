@@ -25,7 +25,7 @@ import { JwtAuthGuard } from 'src/features/auth/guards/jwt-auth.guard';
 import { ApiImageUpload } from 'src/common/decorators/api-image-upload.decorator';
 import { ImageValidationPipe } from 'src/common/pipes/image-validation.pipe';
 import { StorageService } from 'src/integrations/storage/storage.interface';
-import { UpdateOrgNameDto } from './dto/update-org-name.dto';
+import { UpdateOrgProfileDto } from './dto/update-org-profile.dto';
 import { GetOrgsQueryDto } from './dto/get-orgs-query.dto';
 
 @ApiBearerAuth()
@@ -106,45 +106,49 @@ export class OrganizationsController {
     );
   }
 
-  @ApiOperation({ summary: 'Upload or Update Organization Logo' })
-  @ApiImageUpload('logo')
-  @Patch('logo')
+  @ApiOperation({
+    summary: 'Upload or Update Organization Logo/Cover (manager only)',
+  })
+  @ApiImageUpload('file')
+  @Patch('media')
   @Roles(UserRole.MANAGER)
   async uploadOrgLogo(
     @CurrentUser() manager: JwtPayload,
+    @Query('type') type: 'logo' | 'cover',
     @UploadedFile(ImageValidationPipe) file: Express.Multer.File,
   ) {
     if (!manager.organizationId) {
       throw new BadRequestException('You are not part of any organization');
     }
 
-    const logoUrl = await this.storageService.uploadImage(
-      file,
-      'org_logos', //folderName
-      manager.organizationId, //fileName = org_id
-      true, //overwrite existing
-      'avatar',
-    );
+    if (!['logo', 'cover'].includes(type)) {
+      throw new BadRequestException(
+        'Invalid media type. Must be "logo" or "cover".',
+      );
+    }
 
-    return this.organizationsService.updateOrgLogo(
+    return this.organizationsService.uploadOrgImage(
       manager.organizationId,
-      logoUrl,
+      file,
+      type,
     );
   }
 
-  @ApiOperation({ summary: 'Change organization name (manager only)' })
-  @Patch('name')
+  @ApiOperation({
+    summary: 'Update organization profile details(manager only)',
+  })
+  @Patch('profile')
   @Roles(UserRole.MANAGER)
-  async updateOrgName(
+  async updateOrgProfile(
     @CurrentUser() manager: JwtPayload,
-    @Body() orgDto: UpdateOrgNameDto,
+    @Body() orgDto: UpdateOrgProfileDto,
   ) {
     if (!manager.organizationId) {
       throw new BadRequestException('You are not part of any organization');
     }
-    return this.organizationsService.updateOrgName(
+    return this.organizationsService.updateOrgProfile(
       manager.organizationId,
-      orgDto.name,
+      orgDto,
     );
   }
 
