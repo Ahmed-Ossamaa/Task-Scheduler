@@ -35,7 +35,7 @@ import {
 import { formatDateTime } from '@/lib/utils';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useOrgEmployees } from '@/features/users/hooks/use-users';
-import { SearchableCombobox } from '@/components/ui/searchable-combobox';
+import { SearchableCombobox } from '@/components/common/searchable-combobox';
 
 export const getTaskStatusBadge = (status: TaskStatus) => {
   switch (status) {

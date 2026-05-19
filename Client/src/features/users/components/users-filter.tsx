@@ -8,8 +8,9 @@ import {
 } from '@/components/ui/select';
 import { RoleFilterUI, StatusFilterUI } from '../types';
 import { Button } from '@/components/ui/button';
-import { SearchableCombobox } from '@/components/ui/searchable-combobox';
+import { SearchableCombobox } from '@/components/common/searchable-combobox';
 import { useMemo } from 'react';
+import { SearchInput } from '@/components/common/searchInput';
 
 interface Organization {
   id: string;
@@ -46,20 +47,20 @@ export function UsersFilters({
   onOrgSearchChange,
   isOrgLoading,
 }: UsersFiltersProps) {
-  const orgOptions = useMemo(() => [
-    { value: 'ALL', label: 'All Organizations' },
-    ...org.map((o) => ({ value: o.id, label: o.name })),
-  ], [org]);
+  const orgOptions = useMemo(
+    () => [
+      { value: 'ALL', label: 'All Organizations' },
+      ...org.map((o) => ({ value: o.id, label: o.name })),
+    ],
+    [org],
+  );
   return (
     <div className="flex flex-wrap gap-3 items-center">
       {/* Search */}
-      <Input
-        type="search"
-        name="search"
-        placeholder="Search name or email..."
+      <SearchInput
         value={search}
-        onChange={(e) => onSearchChange(e.target.value)}
-        className="w-64 pl-6 shadow-sm"
+        onChange={onSearchChange}
+        placeholder="Search name or email..."
       />
 
       {/* Role */}

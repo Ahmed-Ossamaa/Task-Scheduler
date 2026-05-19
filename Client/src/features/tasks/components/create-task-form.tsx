@@ -32,7 +32,7 @@ import { AxiosError } from 'axios';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { SearchableCombobox } from '@/components/ui/searchable-combobox';
+import { SearchableCombobox } from '@/components/common/searchable-combobox';
 
 interface CreateTaskFormProps {
   onSuccess?: () => void;

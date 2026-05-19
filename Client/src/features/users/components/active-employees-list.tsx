@@ -28,6 +28,8 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { restorationPeriod } from '@/lib/utils';
+import { useDebounce } from '@/hooks/use-debounce';
+import { SearchInput } from '@/components/common/searchInput';
 export function ActiveTeamList({
   currentUser,
   isManager,
@@ -36,11 +38,18 @@ export function ActiveTeamList({
   isManager: boolean;
 }) {
   const [page, setPage] = useState<number>(1);
-  const { data: employees, isLoading } = useOrgEmployees(page, 20);
   const { mutateAsync: updateRole, isPending: isUpdating } =
     useUpdateEmployeeRole();
   const { mutateAsync: removeEmployee, isPending: isDeleting } =
     useDeleteEmployee();
+
+  const [search, setSearch] = useState<string>('');
+  const debouncedUserSearch = useDebounce(search, 500);
+  const { data: employees, isLoading } = useOrgEmployees(
+    page,
+    20,
+    debouncedUserSearch,
+  );
 
   const [pendingRole, setPendingRole] = useState<{
     id: string;
@@ -73,7 +82,13 @@ export function ActiveTeamList({
   };
 
   return (
-    <>
+    <div className="space-y-4">
+      <SearchInput
+        value={search}
+        onChange={setSearch}
+        placeholder="Search name or email..."
+      />
+
       <TeamTable
         employees={employees?.data}
         isLoading={isLoading}
@@ -184,8 +199,8 @@ export function ActiveTeamList({
             <AlertDialogDescription>
               Are you sure you want to remove{' '}
               <strong>{userToDelete?.name}</strong> from the organization? The
-              user will be Archived with all of their tasks. but their data will be retained
-              and can be restored within {restorationPeriod}.
+              user will be Archived with all of their tasks. but their data will
+              be retained and can be restored within {restorationPeriod}.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -202,6 +217,6 @@ export function ActiveTeamList({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </>
+    </div>
   );
 }
