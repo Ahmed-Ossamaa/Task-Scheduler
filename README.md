@@ -64,9 +64,10 @@ Schedio features a rigorous 4-tier access system, each with isolated views and p
 - **Guest (Public):** Access to dynamic public pages (Landing, Blog, Privacy Policy, Contact, etc).
 - **Employee:** 
   - View assigned tasks, track and complete them and mark them as done.
-  - Read-only access to view their organization's projects and team members.
+  - Read-only access to view their organization's profile, projects and team members.
 - **Manager:**
   - Create Organization.
+  - View & Edit Organization profile
   - Complete organization control.
   - Invite/create employees (triggers secure email verification).
   - Create projects and assign tasks to employees.
