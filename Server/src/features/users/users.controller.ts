@@ -33,6 +33,7 @@ import {
   GetEmployeesQueryDto,
   GetUsersQueryDto,
 } from './dto/get-users-query.dto';
+import { DEMO_USER } from './constants/demo-accounts.constant';
 
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
@@ -262,7 +263,16 @@ export class UserController {
   })
   @Delete(':userId/hard-delete')
   @Roles(UserRole.ADMIN)
-  async hardDeleteUser(@Param('userId', ParseUUIDPipe) userId: string) {
+  async hardDeleteUser(
+    @Param('userId', ParseUUIDPipe) userId: string,
+    @CurrentUser() admin: JwtPayload,
+  ) {
+    if (admin.sub === DEMO_USER) {
+      throw new ForbiddenException(
+        'Demo Admin Account: permenant deletion is not allowed.',
+      );
+    }
+
     return this.userService.hardDeleteUser(userId);
   }
 

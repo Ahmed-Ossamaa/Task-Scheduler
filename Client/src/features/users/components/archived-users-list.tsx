@@ -23,6 +23,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { CounterDeleteButton } from '@/components/ui/counterDeleteButton';
+import { AxiosError } from 'axios';
 
 export function ArchivedUsersList() {
   const [page, setPage] = useState<number>(1);
@@ -45,8 +46,10 @@ export function ArchivedUsersList() {
       await deleteUser(userId);
       toast.success('User has been permanently deleted');
       setUserToDelete(null);
-    } catch {
-      toast.error('Failed to delete user');
+    } catch (error) {
+      const err = error as AxiosError<{ message: string }>;
+      const message = err.response?.data.message;
+      toast.error( message|| 'Failed to delete user');
     }
   };
 
