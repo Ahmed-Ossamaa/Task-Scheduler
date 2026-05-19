@@ -371,10 +371,6 @@ export class UserService {
   ): Promise<UserResponseDto> {
     const user = await this.findUserById(userId);
     Object.assign(user, profile);
-    // Update search vector
-    if (profile.name) {
-      user.search_vector = `${user.name ?? ''} ${user.email ?? ''}`.trim();
-    }
     const saved = await this.saveUser(user);
     return UserMapper.fromEntity(saved);
   }
