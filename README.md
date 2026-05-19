@@ -89,6 +89,15 @@ Schedio features a rigorous 4-tier access system, each with isolated views and p
 - Only admin can immediatly hard delete a user without cascading.
 - **Dynamic SEO & Caching:** Next.js seamlessly fetches global configurations (logos, title, ads, contact info, etc) from redis cache, converting them into statically optimized metadata while eliminating redundant database queries.
 
+## 🔍 Search & Query Optimization Engine
+
+- Full-text search using PostgreSQL `tsvector` for efficient multi-field querying
+- Combined search strategy:
+  - `tsvector @@ to_tsquery` for semantic/full-text matching
+  - `ILIKE` for prefix-based email search (e.g., `aoss` → `aossama@gmail.com`)
+- Server-side pagination, filtering, and dynamic query building
+- Optimized for performance on large datasets
+
 ## 🛠 Getting Started
 
 ### Prerequisites
