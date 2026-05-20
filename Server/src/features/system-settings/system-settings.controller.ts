@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  ForbiddenException,
   Get,
   Patch,
   Post,
@@ -22,6 +23,9 @@ import { Roles } from 'src/common/decorators/roles.decorator';
 import { UserRole } from '../users/enums/user-roles.enum';
 import { StorageService } from 'src/integrations/storage/storage.interface';
 import { ApiImageUpload } from 'src/common/decorators/api-image-upload.decorator';
+import { CurrentUser } from 'src/common/decorators/current-user.decorator';
+import type { JwtPayload } from '../auth/interfaces/jwt-payload.interface';
+import { DEMO_USER } from 'src/common/constants/demo-accounts.constant';
 
 @ApiTags('System Settings')
 @Controller('system-settings')
@@ -47,7 +51,13 @@ export class SystemSettingsController {
   @Patch()
   async updateSettings(
     @Body() updateDto: UpdateSystemSettingsDto,
+    @CurrentUser() admin: JwtPayload,
   ): Promise<SystemSettings> {
+    if (admin.sub === DEMO_USER) {
+      throw new ForbiddenException(
+        'Demo Admin Account: Restore Defaults is not allowed.',
+      );
+    }
     return await this.settingsService.updateSettings(updateDto);
   }
 
@@ -60,7 +70,13 @@ export class SystemSettingsController {
   @Patch('logo')
   async updateLogo(
     @UploadedFile() file: Express.Multer.File,
+    @CurrentUser() admin: JwtPayload,
   ): Promise<SystemSettings> {
+    if (admin.sub === DEMO_USER) {
+      throw new ForbiddenException(
+        'Demo Admin Account: Restore Defaults is not allowed.',
+      );
+    }
     const logoUrl = await this.storageService.uploadImage(
       file,
       'sys-logo',
@@ -79,7 +95,13 @@ export class SystemSettingsController {
   @Patch('landing')
   async updateLandingImage(
     @UploadedFile() file: Express.Multer.File,
+    @CurrentUser() admin: JwtPayload,
   ): Promise<SystemSettings> {
+    if (admin.sub === DEMO_USER) {
+      throw new ForbiddenException(
+        'Demo Admin Account: Restore Defaults is not allowed.',
+      );
+    }
     const landingImageUrl = await this.storageService.uploadImage(
       file,
       'sys-landing',
@@ -95,7 +117,14 @@ export class SystemSettingsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
   @Post('restore-defaults')
-  async restoreDefaults(): Promise<SystemSettings> {
+  async restoreDefaults(
+    @CurrentUser() admin: JwtPayload,
+  ): Promise<SystemSettings> {
+    if (admin.sub === DEMO_USER) {
+      throw new ForbiddenException(
+        'Demo Admin Account: Restore Defaults is not allowed.',
+      );
+    }
     return await this.settingsService.restoreDefaultSettings();
   }
 }

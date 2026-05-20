@@ -1,6 +1,7 @@
 import {
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   ParseIntPipe,
   Query,
@@ -12,6 +13,9 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { UserRole } from '../users/enums/user-roles.enum';
 import { ApiOperation } from '@nestjs/swagger';
+import { CurrentUser } from 'src/common/decorators/current-user.decorator';
+import type { JwtPayload } from '../auth/interfaces/jwt-payload.interface';
+import { DEMO_USER } from 'src/common/constants/demo-accounts.constant';
 
 @Controller('activity')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -41,13 +45,23 @@ export class ActivityController {
 
   @ApiOperation({ summary: 'Delete all activity logs (truncate)' })
   @Delete('activity-logs')
-  async deleteActivityLogs() {
+  async deleteActivityLogs(@CurrentUser() admin: JwtPayload) {
+    if (admin.sub === DEMO_USER) {
+      throw new ForbiddenException(
+        'Demo Admin Account: permenant deletion is not allowed.',
+      );
+    }
     return this.activityService.DeleteAllActivityLogs();
   }
 
   @ApiOperation({ summary: 'Delete all system error logs (truncate)' })
   @Delete('error-logs')
-  async deleteErrorLogs() {
+  async deleteErrorLogs(@CurrentUser() admin: JwtPayload) {
+    if (admin.sub === DEMO_USER) {
+      throw new ForbiddenException(
+        'Demo Admin Account: permenant deletion is not allowed.',
+      );
+    }
     return this.activityService.DeleteAllErrorLogs();
   }
 

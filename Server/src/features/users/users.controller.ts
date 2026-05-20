@@ -33,7 +33,7 @@ import {
   GetEmployeesQueryDto,
   GetUsersQueryDto,
 } from './dto/get-users-query.dto';
-import { DEMO_USER } from './constants/demo-accounts.constant';
+import { DEMO_USER } from '../../common/constants/demo-accounts.constant';
 
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
